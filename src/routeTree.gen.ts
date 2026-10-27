@@ -10,33 +10,54 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant/chat'
+import { Route as ApiAssistantGeneratePlanRouteImport } from './routes/api/assistant/generate-plan'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssistantChatRoute = ApiAssistantChatRouteImport.update({
+  id: '/api/assistant/chat',
+  path: '/api/assistant/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAssistantGeneratePlanRoute =
+  ApiAssistantGeneratePlanRouteImport.update({
+    id: '/api/assistant/generate-plan',
+    path: '/api/assistant/generate-plan',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/generate-plan': typeof ApiAssistantGeneratePlanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/generate-plan': typeof ApiAssistantGeneratePlanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/generate-plan': typeof ApiAssistantGeneratePlanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/assistant/chat' | '/api/assistant/generate-plan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/assistant/chat' | '/api/assistant/generate-plan'
+  id: '__root__' | '/' | '/api/assistant/chat' | '/api/assistant/generate-plan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiAssistantChatRoute: typeof ApiAssistantChatRoute
+  ApiAssistantGeneratePlanRoute: typeof ApiAssistantGeneratePlanRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +69,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assistant/chat': {
+      id: '/api/assistant/chat'
+      path: '/api/assistant/chat'
+      fullPath: '/api/assistant/chat'
+      preLoaderRoute: typeof ApiAssistantChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/assistant/generate-plan': {
+      id: '/api/assistant/generate-plan'
+      path: '/api/assistant/generate-plan'
+      fullPath: '/api/assistant/generate-plan'
+      preLoaderRoute: typeof ApiAssistantGeneratePlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiAssistantChatRoute: ApiAssistantChatRoute,
+  ApiAssistantGeneratePlanRoute: ApiAssistantGeneratePlanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
