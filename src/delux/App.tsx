@@ -1,0 +1,45 @@
+import React from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import { AppLayout } from './components/Layout/AppLayout';
+import { HomeTab } from './components/Tabs/HomeTab';
+import { GoalsTab } from './components/Tabs/GoalsTab';
+import { MyPlanTab } from './components/Tabs/MyPlanTab';
+import { CalendarTab } from './components/Tabs/CalendarTab';
+import { ProgressTab } from './components/Tabs/ProgressTab';
+import { CreateGoalModal } from './components/Modals/CreateGoalModal';
+import { GoalDetailsModal } from './components/Modals/GoalDetailsModal';
+import { OnboardingModal } from './components/Onboarding/OnboardingModal';
+import { AssistantModal } from './components/Assistant/AssistantModal';
+
+const AppContent: React.FC = () => {
+  const { activeTab, selectedGoalId, setSelectedGoalId, preferences } = useApp();
+
+  return (
+    <div className={preferences.reducedMotion ? 'reduce-motion' : ''}>
+      <AppLayout>
+        {activeTab === 'home' && <HomeTab />}
+        {activeTab === 'goals' && <GoalsTab />}
+        {activeTab === 'plan' && <MyPlanTab />}
+        {activeTab === 'calendar' && <CalendarTab />}
+        {activeTab === 'progress' && <ProgressTab />}
+      </AppLayout>
+
+      {/* Global Modals */}
+      <CreateGoalModal />
+      <GoalDetailsModal
+        goalId={selectedGoalId}
+        onClose={() => setSelectedGoalId(null)}
+      />
+      <OnboardingModal />
+      <AssistantModal />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
