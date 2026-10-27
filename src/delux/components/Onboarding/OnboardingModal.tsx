@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import React, { useState } from 'react';
 import { ArrowRight, Check, Target } from 'lucide-react';
 import { useApp } from '../../context/AppContext';

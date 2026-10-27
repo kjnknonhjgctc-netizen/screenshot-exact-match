@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import React, { useState } from 'react';
 import { Plus, Target, CheckCircle2, Calendar, ChevronRight } from 'lucide-react';
 import { useApp } from '../../context/AppContext';

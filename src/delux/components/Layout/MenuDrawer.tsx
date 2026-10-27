@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import React, { useRef, useState } from 'react';
 import {
   X,

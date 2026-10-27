@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Achievement, Goal, HistoryEvent, Task } from '../types';
 
 export const INITIAL_ACHIEVEMENTS: Achievement[] = [

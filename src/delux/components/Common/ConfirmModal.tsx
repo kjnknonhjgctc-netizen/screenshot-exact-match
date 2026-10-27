@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import React from 'react';
 import { AlertCircle, X } from 'lucide-react';
 

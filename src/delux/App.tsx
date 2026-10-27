@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { AppLayout } from './components/Layout/AppLayout';

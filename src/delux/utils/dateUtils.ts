@@ -1,3 +1,4 @@
+// @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 /**
  * Date manipulation utilities designed to prevent timezone offsets
  * by strictly using local Date methods.
