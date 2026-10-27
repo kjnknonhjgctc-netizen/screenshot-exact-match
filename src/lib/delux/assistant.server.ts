@@ -1,9 +1,12 @@
-import { createOpenAI } from "@ai-sdk/openai";
-import { jsonSchema, streamText, tool, type ModelMessage } from "ai";
 import { DELUX_SYSTEM_INSTRUCTION, assistantTools } from "./prompts.server";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1";
-const MODEL = "openai/gpt-6-astra";
+const MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-flash-latest",
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-flash",
+];
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -12,29 +15,47 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function provider(apiKey: string) {
-  return createOpenAI({
-    baseURL: GATEWAY,
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-  });
+class GeminiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
 }
 
-const providerOptions = {
-  openai: {
-    store: false,
-    forceReasoning: true,
-    reasoningEffort: "low",
-    include: ["reasoning.encrypted_content"],
-  },
-} as const;
+// Calls Google Gemini directly with the user's own key, trying lighter models first.
+async function gemini(apiKey: string, body: Record<string, unknown>) {
+  let last: GeminiError | null = null;
+  for (const model of MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify(body),
+      },
+    );
+    const data: any = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const parts: any[] = data?.candidates?.[0]?.content?.parts ?? [];
+      return {
+        model,
+        text: parts.map((p) => p.text || "").join("").trim(),
+        calls: parts.filter((p) => p.functionCall).map((p) => p.functionCall as { name: string; args?: any }),
+      };
+    }
+    last = new GeminiError(data?.error?.message || `Erro ${res.status} no Gemini`, res.status);
+    if (res.status === 400 || res.status === 401 || res.status === 403) {
+      if (res.status !== 400 || !/model|not found|supported/i.test(last.message)) throw last;
+    }
+  }
+  throw last ?? new GeminiError("Nenhum modelo Gemini disponível no momento.", 503);
+}
 
 function errorResponse(err: unknown, fallback: string) {
   const e = err as { statusCode?: number; status?: number; message?: string };
   const status = e?.statusCode ?? e?.status ?? 500;
   let message = e?.message || fallback;
   if (status === 429) message = "Muitas solicitações agora. Aguarde um instante e tente novamente.";
-  if (status === 402) message = "Os créditos de IA acabaram. Adicione créditos para continuar usando o assistente.";
+  if (status === 401 || status === 403) message = "A chave do Gemini é inválida ou não tem permissão.";
   console.error(fallback, err);
   return json({ error: message }, status >= 400 && status < 600 ? status : 500);
 }
@@ -78,32 +99,26 @@ ${taskListText}
 }
 
 export async function handleChat(request: Request) {
-  const apiKey = process.env['LOVABLE_API_KEY'];
-  if (!apiKey) return json({ error: "Assistente de IA não configurado." }, 500);
+  const apiKey = process.env['GEMINI_API_KEY'];
+  if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
   try {
     const { messages, context } = (await request.json()) as { messages?: any[]; context?: any };
     if (!Array.isArray(messages) || messages.length === 0) {
       return json({ error: "Nenhuma mensagem fornecida." }, 400);
     }
-    const history: ModelMessage[] = messages.slice(-8).map((m) => ({
-      role: m.role === "assistant" ? "assistant" : "user",
-      content: String(m.content || ""),
+    const contents = messages.slice(-8).map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: String(m.content || "") }],
     }));
-    const tools = Object.fromEntries(
-      assistantTools.map((t) => [t.name, tool({ description: t.description, inputSchema: jsonSchema(t.parameters as any) })]),
-    );
     const ctx = buildContext(context);
-    const result = streamText({
-      model: provider(apiKey).responses(MODEL),
-      instructions: ctx ? `${DELUX_SYSTEM_INSTRUCTION}\n\n${ctx}` : DELUX_SYSTEM_INSTRUCTION,
-      messages: history,
-      tools,
-      maxRetries: 0,
-      abortSignal: request.signal,
-      providerOptions,
-    } as any);
-
-    const [text, toolCalls] = await Promise.all([result.text, result.toolCalls]);
+    const out = await gemini(apiKey, {
+      systemInstruction: { parts: [{ text: ctx ? `${DELUX_SYSTEM_INSTRUCTION}\n\n${ctx}` : DELUX_SYSTEM_INSTRUCTION }] },
+      contents,
+      tools: [{ functionDeclarations: assistantTools }],
+      generationConfig: { temperature: 0.3 },
+    });
+    const text = out.text;
+    const toolCalls = out.calls.map((c) => ({ toolName: c.name, input: c.args }));
     let replyText = (text || "").trim();
     const actions = (toolCalls || []).map((call: any, idx: number) => {
       const args = (call.input ?? call.args ?? {}) as any;
@@ -122,15 +137,15 @@ export async function handleChat(request: Request) {
           : `Perfeito! Ajustei sua programação no app com sucesso:\n\n${actions.map((a) => `• ${a.summary}`).join("\n")}\n\nPronto para continuar no seu ritmo!`;
     }
     if (!replyText) replyText = "Como posso ajudar a organizar suas etapas e rotina hoje?";
-    return json({ reply: replyText, actions, model: MODEL });
+    return json({ reply: replyText, actions, model: out.model });
   } catch (err) {
     return errorResponse(err, "Erro ao processar consulta com a IA.");
   }
 }
 
 export async function handleGeneratePlan(request: Request) {
-  const apiKey = process.env['LOVABLE_API_KEY'];
-  if (!apiKey) return json({ error: "Assistente de IA não configurado." }, 500);
+  const apiKey = process.env['GEMINI_API_KEY'];
+  if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
   try {
     const { goalTitle, category, reason, dailyMinutes, availableDaysCount } = (await request.json()) as any;
     if (!goalTitle) return json({ error: "Título do objetivo é obrigatório." }, 400);
@@ -148,15 +163,12 @@ Retorne APENAS um JSON estrito (sem markdown) com o seguinte esquema:
   ],
   "advice": "1 conselho prático sobre consistência para este objetivo específico"
 }`;
-    const result = streamText({
-      model: provider(apiKey).responses(MODEL),
-      instructions: DELUX_SYSTEM_INSTRUCTION,
-      messages: [{ role: "user", content: prompt }],
-      maxRetries: 0,
-      abortSignal: request.signal,
-      providerOptions,
-    } as any);
-    let text = (await result.text) || "{}";
+    const out = await gemini(apiKey, {
+      systemInstruction: { parts: [{ text: DELUX_SYSTEM_INSTRUCTION }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+    });
+    let text = out.text || "{}";
     text = text.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
