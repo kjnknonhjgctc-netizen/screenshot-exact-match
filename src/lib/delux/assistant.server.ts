@@ -78,7 +78,7 @@ ${taskListText}
 }
 
 export async function handleChat(request: Request) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env['LOVABLE_API_KEY'];
   if (!apiKey) return json({ error: "Assistente de IA não configurado." }, 500);
   try {
     const { messages, context } = (await request.json()) as { messages?: any[]; context?: any };
@@ -129,7 +129,7 @@ export async function handleChat(request: Request) {
 }
 
 export async function handleGeneratePlan(request: Request) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env['LOVABLE_API_KEY'];
   if (!apiKey) return json({ error: "Assistente de IA não configurado." }, 500);
   try {
     const { goalTitle, category, reason, dailyMinutes, availableDaysCount } = (await request.json()) as any;

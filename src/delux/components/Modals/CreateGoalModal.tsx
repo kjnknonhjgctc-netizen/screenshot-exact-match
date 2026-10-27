@@ -139,7 +139,7 @@ export const CreateGoalModal: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error in handleGenerateWithGemini:', err);
-      showToast(err.message || 'Erro ao gerar etapas com Gemini.', 'error');
+      showToast(err.message || 'Erro ao gerar etapas com IA.', 'error');
     } finally {
       setIsGeneratingWithAi(false);
     }
@@ -313,7 +313,7 @@ export const CreateGoalModal: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-[#F5F5FA] flex items-center gap-1.5">
-                    <span>Gerador Inteligente Gemini IA</span>
+                    <span>Gerador Inteligente Delux IA</span>
                     <span className="text-[10px] font-semibold text-[#A78BFA] px-1.5 py-0.5 rounded-full bg-[#8B5CF6]/20 border border-[#8B5CF6]/30">
                       Gemini 3.8
                     </span>
@@ -340,12 +340,12 @@ export const CreateGoalModal: React.FC = () => {
               {isGeneratingWithAi ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-[#A78BFA]" />
-                  <span>Gemini IA analisando e estruturando etapas...</span>
+                  <span>Delux IA analisando e estruturando etapas...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Gerar etapas personalizadas com Gemini IA</span>
+                  <span>Gerar etapas personalizadas com Delux IA</span>
                 </>
               )}
             </button>

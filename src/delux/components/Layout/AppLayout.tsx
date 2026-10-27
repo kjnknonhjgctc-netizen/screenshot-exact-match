@@ -88,7 +88,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <span>Assistente Delux IA</span>
             </div>
             <span className="text-[10px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/15 px-1.5 py-0.5 rounded">
-              Gemini
+              IA
             </span>
           </button>
         </div>
@@ -149,7 +149,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <button
             onClick={() => setIsAssistantOpen(true)}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8B5CF6]/15 active:bg-[#8B5CF6]/25 border border-[#8B5CF6]/40 text-[#A78BFA] text-xs font-bold min-h-[36px]"
-            title="Abrir Assistente Gemini IA"
+            title="Abrir Assistente Delux IA"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span className="text-[11px]">IA</span>

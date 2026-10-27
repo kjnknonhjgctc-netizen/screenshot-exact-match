@@ -515,7 +515,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             id: createUniqueId('hist_ai_reschedule'),
             timestamp: new Date().toISOString(),
             type: 'task_uncompleted',
-            title: `Reagendado pelo Gemini IA: ${task?.title || 'Tarefa'}`,
+            title: `Reagendado pelo Delux IA: ${task?.title || 'Tarefa'}`,
             description: summary || `Nova data: ${newDate}${newTime ? ` às ${newTime}` : ''}`,
             taskId,
           },
@@ -546,7 +546,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             };
           })
         );
-        showToast(summary || `${updates.length} tarefas reagendadas pelo Gemini IA.`, 'success');
+        showToast(summary || `${updates.length} tarefas reagendadas pelo Delux IA.`, 'success');
         break;
       }
 
@@ -566,7 +566,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           durationMinutes: durationMinutes || preferences.dailyMinutes,
           isAutomated: false,
         });
-        showToast(summary || `Tarefa "${title}" criada com sucesso pelo Gemini IA.`, 'success');
+        showToast(summary || `Tarefa "${title}" criada com sucesso pelo Delux IA.`, 'success');
         break;
       }
 
@@ -619,7 +619,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           partial.preferredTime = preferredTime;
         }
         updatePreferences(partial);
-        showToast(summary || 'Rotina e agendamento atualizados pelo Gemini IA.', 'success');
+        showToast(summary || 'Rotina e agendamento atualizados pelo Delux IA.', 'success');
         break;
       }
 
@@ -634,7 +634,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           method: 'auto',
           dailyMinutes: preferences.dailyMinutes,
         });
-        showToast(summary || `Meta "${title}" criada pelo Gemini IA com plano integrado!`, 'achievement');
+        showToast(summary || `Meta "${title}" criada pelo Delux IA com plano integrado!`, 'achievement');
         break;
       }
 
