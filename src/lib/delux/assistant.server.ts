@@ -1,12 +1,7 @@
 import { DELUX_SYSTEM_INSTRUCTION, assistantTools } from "./prompts.server";
 
-const MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-flash-latest",
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-flash",
-];
+const MODEL = process.env["OPENAI_MODEL"] || "gpt-5.5";
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -15,47 +10,64 @@ function json(body: unknown, status = 200) {
   });
 }
 
-class GeminiError extends Error {
-  constructor(message: string, public status: number) {
-    super(message);
+function normalizeSchema(value: any): any {
+  if (Array.isArray(value)) return value.map(normalizeSchema);
+  if (!value || typeof value !== "object") return value;
+  const result: Record<string, any> = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (key === "type" && typeof child === "string") {
+      result[key] = child.toLowerCase();
+    } else {
+      result[key] = normalizeSchema(child);
+    }
   }
+  return result;
 }
 
-// Calls Google Gemini directly with the user's own key, trying lighter models first.
-async function gemini(apiKey: string, body: Record<string, unknown>) {
-  let last: GeminiError | null = null;
-  for (const model of MODELS) {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify(body),
-      },
-    );
-    const data: any = await res.json().catch(() => ({}));
-    if (res.ok) {
-      const parts: any[] = data?.candidates?.[0]?.content?.parts ?? [];
-      return {
-        model,
-        text: parts.map((p) => p.text || "").join("").trim(),
-        calls: parts.filter((p) => p.functionCall).map((p) => p.functionCall as { name: string; args?: any }),
-      };
-    }
-    last = new GeminiError(data?.error?.message || `Erro ${res.status} no Gemini`, res.status);
-    if (res.status === 400 || res.status === 401 || res.status === 403) {
-      if (res.status !== 400 || !/model|not found|supported/i.test(last.message)) throw last;
-    }
+function openAITools() {
+  return assistantTools.map((item) => ({
+    type: "function" as const,
+    function: {
+      name: item.name,
+      description: item.description,
+      parameters: normalizeSchema(item.parameters),
+    },
+  }));
+}
+
+async function openAI(apiKey: string, body: Record<string, unknown>) {
+  const res = await fetch(OPENAI_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ model: MODEL, ...body }),
+  });
+  const data: any = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data?.error?.message || `Erro ${res.status} na API da OpenAI.`) as Error & { status: number };
+    err.status = res.status;
+    throw err;
   }
-  throw last ?? new GeminiError("Nenhum modelo Gemini disponível no momento.", 503);
+  const message = data?.choices?.[0]?.message;
+  if (!message) throw new Error("A OpenAI não retornou uma resposta válida.");
+  return {
+    model: data.model || MODEL,
+    text: typeof message.content === "string" ? message.content.trim() : "",
+    calls: (message.tool_calls || []).map((call: any) => ({
+      name: call.function?.name,
+      args: JSON.parse(call.function?.arguments || "{}"),
+    })),
+  };
 }
 
 function errorResponse(err: unknown, fallback: string) {
-  const e = err as { statusCode?: number; status?: number; message?: string };
-  const status = e?.statusCode ?? e?.status ?? 500;
+  const e = err as { status?: number; message?: string };
+  const status = e?.status ?? 500;
   let message = e?.message || fallback;
-  if (status === 429) message = "Muitas solicitações agora. Aguarde um instante e tente novamente.";
-  if (status === 401 || status === 403) message = "A chave do Gemini é inválida ou não tem permissão.";
+  if (status === 429) message = "A OpenAI está com muitas solicitações ou o limite da API foi atingido. Verifique o uso e o faturamento da API.";
+  if (status === 401 || status === 403) message = "A chave OPENAI_API_KEY é inválida ou não tem permissão para usar este modelo.";
   console.error(fallback, err);
   return json({ error: message }, status >= 400 && status < 600 ? status : 500);
 }
@@ -64,14 +76,13 @@ function buildContext(context: any): string {
   if (!context) return "";
   const daysMap = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
   const availableDaysText = Array.isArray(context.availableDays)
-    ? context.availableDays.map((d: number) => daysMap[d]).join(", ")
+    ? context.availableDays.map((d: number) => daysMap[d] || "Dia inválido").join(", ")
     : "Segunda a Sexta";
   const taskListText =
     Array.isArray(context.tasks) && context.tasks.length > 0
       ? context.tasks
-          .map(
-            (t: any) =>
-              `- [ID: ${t.id}] "${t.title}" | Data: ${t.date} ${t.time ? `às ${t.time}` : "(sem horário)"} | Duração: ${t.durationMinutes}min | Status: ${t.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${t.goalTitle || "Geral"}`,
+          .map((t: any) =>
+            `- [ID: ${t.id}] "${t.title}" | Data: ${t.date} ${t.time ? `às ${t.time}` : "(sem horário)"} | Duração: ${t.durationMinutes}min | Status: ${t.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${t.goalTitle || "Geral"}`,
           )
           .join("\n")
       : "Nenhuma tarefa cadastrada no momento.";
@@ -99,53 +110,51 @@ ${taskListText}
 }
 
 export async function handleChat(request: Request) {
-  const apiKey = process.env['GEMINI_API_KEY'];
-  if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
+  const apiKey = process.env["OPENAI_API_KEY"];
+  if (!apiKey) return json({ error: "Chave OPENAI_API_KEY não configurada no ambiente do servidor." }, 500);
   try {
     const { messages, context } = (await request.json()) as { messages?: any[]; context?: any };
     if (!Array.isArray(messages) || messages.length === 0) {
       return json({ error: "Nenhuma mensagem fornecida." }, 400);
     }
-    const contents = messages.slice(-8).map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: String(m.content || "") }],
-    }));
     const ctx = buildContext(context);
-    const out = await gemini(apiKey, {
-      systemInstruction: { parts: [{ text: ctx ? `${DELUX_SYSTEM_INSTRUCTION}\n\n${ctx}` : DELUX_SYSTEM_INSTRUCTION }] },
-      contents,
-      tools: [{ functionDeclarations: assistantTools }],
-      generationConfig: { temperature: 0.3 },
+    const system = ctx ? `${DELUX_SYSTEM_INSTRUCTION}\n\n${ctx}` : DELUX_SYSTEM_INSTRUCTION;
+    const chatMessages = [
+      { role: "system", content: system },
+      ...messages.slice(-8).map((m) => ({
+        role: m.role === "assistant" ? "assistant" : "user",
+        content: String(m.content || ""),
+      })),
+    ];
+    const out = await openAI(apiKey, {
+      messages: chatMessages,
+      tools: openAITools(),
+      tool_choice: "auto",
+      temperature: 0.3,
     });
-    const text = out.text;
-    const toolCalls = out.calls.map((c) => ({ toolName: c.name, input: c.args }));
-    let replyText = (text || "").trim();
-    const actions = (toolCalls || []).map((call: any, idx: number) => {
-      const args = (call.input ?? call.args ?? {}) as any;
-      return {
-        id: `act_${Date.now()}_${idx}`,
-        type: call.toolName,
-        summary: args.summary || `Ação executada: ${call.toolName}`,
-        payload: args,
-      };
-    });
+    const actions = out.calls.map((call: any, idx: number) => ({
+      id: `act_${Date.now()}_${idx}`,
+      type: call.name,
+      summary: call.args?.summary || `Ação solicitada: ${call.name}`,
+      payload: call.args,
+    }));
+    let replyText = out.text;
     if (!replyText && actions.length > 0) {
-      const msgs = actions.map((a) => a.payload?.replyMessage || a.summary).filter(Boolean);
-      replyText =
-        msgs.length === 1
-          ? msgs[0]
-          : `Perfeito! Ajustei sua programação no app com sucesso:\n\n${actions.map((a) => `• ${a.summary}`).join("\n")}\n\nPronto para continuar no seu ritmo!`;
+      const msgs = actions.map((a: any) => a.payload?.replyMessage || a.summary).filter(Boolean);
+      replyText = msgs.length === 1
+        ? msgs[0]
+        : `Preparei estas alterações para o Delux:\n\n${actions.map((a: any) => `• ${a.summary}`).join("\n")}`;
     }
     if (!replyText) replyText = "Como posso ajudar a organizar suas etapas e rotina hoje?";
     return json({ reply: replyText, actions, model: out.model });
   } catch (err) {
-    return errorResponse(err, "Erro ao processar consulta com a IA.");
+    return errorResponse(err, "Erro ao processar consulta com a OpenAI.");
   }
 }
 
 export async function handleGeneratePlan(request: Request) {
-  const apiKey = process.env['GEMINI_API_KEY'];
-  if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
+  const apiKey = process.env["OPENAI_API_KEY"];
+  if (!apiKey) return json({ error: "Chave OPENAI_API_KEY não configurada no ambiente do servidor." }, 500);
   try {
     const { goalTitle, category, reason, dailyMinutes, availableDaysCount } = (await request.json()) as any;
     if (!goalTitle) return json({ error: "Título do objetivo é obrigatório." }, 400);
@@ -156,25 +165,30 @@ Motivo pessoal: "${reason || "Desenvolvimento pessoal"}"
 Tempo disponível por dia: ${dailyMinutes || 30} minutos
 Dias disponíveis na semana: ${availableDaysCount || 5} dias
 
-Retorne APENAS um JSON estrito (sem markdown) com o seguinte esquema:
+Retorne APENAS um JSON válido, sem markdown, com o esquema:
 {
   "steps": [
     { "title": "Ação prática e concreta em 1 frase", "instruction": "Instrução clara em 1 ou 2 frases curtas", "durationMinutes": 25 }
   ],
   "advice": "1 conselho prático sobre consistência para este objetivo específico"
 }`;
-    const out = await gemini(apiKey, {
-      systemInstruction: { parts: [{ text: DELUX_SYSTEM_INSTRUCTION }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+    const out = await openAI(apiKey, {
+      messages: [
+        { role: "system", content: DELUX_SYSTEM_INSTRUCTION },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.4,
     });
-    let text = out.text || "{}";
-    text = text.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
+    const text = out.text || "{}";
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
     const parsed = JSON.parse(start >= 0 ? text.slice(start, end + 1) : text);
+    if (!Array.isArray(parsed.steps) || typeof parsed.advice !== "string") {
+      throw new Error("A OpenAI retornou um plano em formato inesperado.");
+    }
     return json(parsed);
   } catch (err) {
-    return errorResponse(err, "Erro ao gerar plano com IA.");
+    return errorResponse(err, "Erro ao gerar plano com a OpenAI.");
   }
 }
