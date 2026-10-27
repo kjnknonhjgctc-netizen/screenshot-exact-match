@@ -46,8 +46,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Brand Area */}
         <div className="p-6 pb-4 flex items-center justify-between border-b border-[#292936]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center shadow-lg shadow-[#8B5CF6]/20">
-              <span className="text-white font-black text-sm tracking-tighter">D</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#7033FF] via-[#4E56FF] to-[#2563EB] p-0.5 shadow-md shadow-[#4E56FF]/30 flex items-center justify-center relative overflow-hidden">
+              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1.5 text-white" aria-label="Logo Delux">
+                <path d="M8 22L16 10L24 22" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M13 18L16 13L19 18" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
+                <circle cx="16" cy="6" r="2.2" fill="currentColor" />
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -135,8 +139,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[#09090D]/85 backdrop-blur-xl border-b border-[#292936]/70">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center shadow-md shadow-[#8B5CF6]/30">
-            <span className="text-white font-extrabold text-xs">D</span>
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#7033FF] via-[#4E56FF] to-[#2563EB] p-0.5 shadow-md shadow-[#4E56FF]/30 flex items-center justify-center relative overflow-hidden">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1 text-white" aria-label="Logo Delux">
+              <path d="M8 22L16 10L24 22" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13 18L16 13L19 18" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
+              <circle cx="16" cy="6" r="2.2" fill="currentColor" />
+            </svg>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-extrabold tracking-tight text-[#F5F5FA]">DELUX</span>
