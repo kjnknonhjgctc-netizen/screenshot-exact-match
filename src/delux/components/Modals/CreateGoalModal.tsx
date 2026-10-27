@@ -315,7 +315,7 @@ export const CreateGoalModal: React.FC = () => {
                   <h4 className="text-xs font-bold text-[#F5F5FA] flex items-center gap-1.5">
                     <span>Gerador Inteligente Delux IA</span>
                     <span className="text-[10px] font-semibold text-[#A78BFA] px-1.5 py-0.5 rounded-full bg-[#8B5CF6]/20 border border-[#8B5CF6]/30">
-                      Gemini 3.8
+                      IA
                     </span>
                   </h4>
                   <p className="text-[11px] text-[#A1A1B4]">
@@ -354,7 +354,7 @@ export const CreateGoalModal: React.FC = () => {
               <div className="p-3 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/30 text-xs text-[#E9D5FF] space-y-1 animate-in fade-in">
                 <p className="font-semibold text-[11px] text-[#A78BFA] flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Conselho do Delux Gemini:
+                  Conselho do Delux IA:
                 </p>
                 <p className="text-[11px] leading-relaxed text-[#D8B4FE]">{aiAdvice}</p>
               </div>

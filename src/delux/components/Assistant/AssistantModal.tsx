@@ -224,7 +224,7 @@ export const AssistantModal: React.FC = () => {
                   Assistente Delux IA
                 </h3>
                 <span className="text-[9px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/15 px-1.5 py-0.5 rounded">
-                  Gemini Flash
+                  IA
                 </span>
               </div>
               <p className="text-[10px] text-[#A1A1B4]">Coach de execução e estratégia</p>
@@ -274,7 +274,7 @@ export const AssistantModal: React.FC = () => {
                   <span>Como posso ajudar sua rotina?</span>
                 </div>
                 <p className="text-xs text-[#A1A1B4] leading-relaxed">
-                  Sou o assistente inteligente do Delux com conexão direta ao <strong>Gemini AI</strong>. Tenho acesso completo para reagendar tarefas em dias e horários da semana, redistribuir rotinas, criar metas ou orientar sua consistência diária.
+                  Sou o assistente inteligente do Delux com conexão direta ao <strong>IA</strong>. Tenho acesso completo para reagendar tarefas em dias e horários da semana, redistribuir rotinas, criar metas ou orientar sua consistência diária.
                 </p>
               </div>
 
@@ -363,7 +363,7 @@ export const AssistantModal: React.FC = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] animate-bounce" />
                 <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] animate-bounce [animation-delay:0.2s]" />
                 <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] animate-bounce [animation-delay:0.4s]" />
-                <span className="ml-1 text-[11px] text-[#A1A1B4]">Consultando Gemini...</span>
+                <span className="ml-1 text-[11px] text-[#A1A1B4]">Pensando...</span>
               </div>
             </div>
           )}
