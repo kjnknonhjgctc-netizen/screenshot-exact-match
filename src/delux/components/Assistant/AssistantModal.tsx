@@ -130,7 +130,7 @@ export const AssistantModal: React.FC = () => {
     };
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 18000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
       // Send only recent messages (up to 8 turns) to maintain lightning-fast response times
