@@ -20,31 +20,31 @@ REGRAS DE EXECUÇÃO:
 - No parâmetro 'replyMessage' de cada função, forneça uma frase elegante, simpática e encorajadora em Português do Brasil explicando a ação realizada e incentivando o usuário.
 - Se nenhuma ferramenta for necessária (ex: o usuário pedindo conselhos de foco ou tirando dúvidas), responda diretamente em texto de forma encorajadora, sofisticada e concisa.`;
 
-export const assistantTools: FunctionDeclaration[] = [
+export const assistantTools: ToolDecl[] = [
   {
     name: 'reschedule_task',
     description: 'Reagenda uma etapa/tarefa específica para outra data (YYYY-MM-DD) e opcionalmente um horário de início (HH:mm, ex: "09:00", "14:30"). Use sempre que o usuário pedir para adiar, antecipar, mudar de dia ou marcar horário para uma tarefa.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
         taskId: {
-          type: Type.STRING,
+          type: "string",
           description: 'O ID exato da tarefa (ex: "task_goal_1", "task_1")',
         },
         newDate: {
-          type: Type.STRING,
+          type: "string",
           description: 'A nova data de execução no formato YYYY-MM-DD',
         },
         newTime: {
-          type: Type.STRING,
+          type: "string",
           description: 'Horário sugerido no formato HH:mm (ex: "08:30", "15:00", "20:00"). Opcional.',
         },
         summary: {
-          type: Type.STRING,
+          type: "string",
           description: 'Frase curta explicando o reagendamento (ex: "Reagendada para quarta-feira, 28/10 às 15:00")',
         },
         replyMessage: {
-          type: Type.STRING,
+          type: "string",
           description: 'Mensagem simpática e encorajadora para o usuário explicando o reagendamento efetuado',
         },
       },
@@ -55,27 +55,27 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'batch_reschedule_tasks',
     description: 'Reagenda múltiplas tarefas em lote para novos dias ou horários (ex: empurrar toda a rotina em 1 dia, passar tarefas de fim de semana para a semana, etc.).',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
         updates: {
-          type: Type.ARRAY,
+          type: "array",
           description: 'Lista de tarefas e suas novas datas/horários',
           items: {
-            type: Type.OBJECT,
+            type: "object",
             properties: {
-              taskId: { type: Type.STRING, description: 'ID da tarefa' },
-              newDate: { type: Type.STRING, description: 'Nova data YYYY-MM-DD' },
-              newTime: { type: Type.STRING, description: 'Novo horário HH:mm (opcional)' },
+              taskId: { type: "string", description: 'ID da tarefa' },
+              newDate: { type: "string", description: 'Nova data YYYY-MM-DD' },
+              newTime: { type: "string", description: 'Novo horário HH:mm (opcional)' },
             },
             required: ['taskId', 'newDate'],
           },
         },
         summary: {
-          type: Type.STRING,
+          type: "string",
           description: 'Resumo das alterações em lote',
         },
         replyMessage: {
-          type: Type.STRING,
+          type: "string",
           description: 'Mensagem amigável explicando o reagendamento em lote aplicado',
         },
       },
@@ -86,16 +86,16 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'create_task',
     description: 'Cria uma nova tarefa no app, com dia e horário definidos pelo usuário ou sugeridos pela IA.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        title: { type: Type.STRING, description: 'Título claro e objetivo da etapa' },
-        instruction: { type: Type.STRING, description: 'Dica prática de como executar' },
-        date: { type: Type.STRING, description: 'Data YYYY-MM-DD' },
-        time: { type: Type.STRING, description: 'Horário HH:mm (opcional, ex: "14:00")' },
-        durationMinutes: { type: Type.NUMBER, description: 'Duração estimada em minutos' },
-        goalId: { type: Type.STRING, description: 'ID da meta a qual pertence (se houver)' },
-        summary: { type: Type.STRING, description: 'Resumo da criação' },
-        replyMessage: { type: Type.STRING, description: 'Mensagem amigável de confirmação da nova etapa' },
+        title: { type: "string", description: 'Título claro e objetivo da etapa' },
+        instruction: { type: "string", description: 'Dica prática de como executar' },
+        date: { type: "string", description: 'Data YYYY-MM-DD' },
+        time: { type: "string", description: 'Horário HH:mm (opcional, ex: "14:00")' },
+        durationMinutes: { type: "number", description: 'Duração estimada em minutos' },
+        goalId: { type: "string", description: 'ID da meta a qual pertence (se houver)' },
+        summary: { type: "string", description: 'Resumo da criação' },
+        replyMessage: { type: "string", description: 'Mensagem amigável de confirmação da nova etapa' },
       },
       required: ['title', 'date', 'summary', 'replyMessage'],
     },
@@ -104,16 +104,16 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'update_task',
     description: 'Modifica detalhes de uma tarefa existente (título, instrução, data, horário ou duração).',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        taskId: { type: Type.STRING, description: 'ID da tarefa' },
-        title: { type: Type.STRING, description: 'Novo título (opcional)' },
-        instruction: { type: Type.STRING, description: 'Nova instrução (opcional)' },
-        date: { type: Type.STRING, description: 'Nova data YYYY-MM-DD (opcional)' },
-        time: { type: Type.STRING, description: 'Novo horário HH:mm (opcional)' },
-        durationMinutes: { type: Type.NUMBER, description: 'Nova duração em minutos (opcional)' },
-        summary: { type: Type.STRING, description: 'Resumo das mudanças' },
-        replyMessage: { type: Type.STRING, description: 'Mensagem amigável explicando o ajuste' },
+        taskId: { type: "string", description: 'ID da tarefa' },
+        title: { type: "string", description: 'Novo título (opcional)' },
+        instruction: { type: "string", description: 'Nova instrução (opcional)' },
+        date: { type: "string", description: 'Nova data YYYY-MM-DD (opcional)' },
+        time: { type: "string", description: 'Novo horário HH:mm (opcional)' },
+        durationMinutes: { type: "number", description: 'Nova duração em minutos (opcional)' },
+        summary: { type: "string", description: 'Resumo das mudanças' },
+        replyMessage: { type: "string", description: 'Mensagem amigável explicando o ajuste' },
       },
       required: ['taskId', 'summary', 'replyMessage'],
     },
@@ -122,12 +122,12 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'toggle_task_completion',
     description: 'Marca uma tarefa como concluída ou reabre uma tarefa.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        taskId: { type: Type.STRING, description: 'ID da tarefa' },
-        completed: { type: Type.BOOLEAN, description: 'true para concluir, false para reabrir' },
-        summary: { type: Type.STRING, description: 'Resumo da alteração' },
-        replyMessage: { type: Type.STRING, description: 'Mensagem de parabéns ou incentivo' },
+        taskId: { type: "string", description: 'ID da tarefa' },
+        completed: { type: "boolean", description: 'true para concluir, false para reabrir' },
+        summary: { type: "string", description: 'Resumo da alteração' },
+        replyMessage: { type: "string", description: 'Mensagem de parabéns ou incentivo' },
       },
       required: ['taskId', 'completed', 'summary', 'replyMessage'],
     },
@@ -136,11 +136,11 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'delete_task',
     description: 'Exclui uma tarefa indesejada do plano.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        taskId: { type: Type.STRING, description: 'ID da tarefa a excluir' },
-        summary: { type: Type.STRING, description: 'Motivo da exclusão' },
-        replyMessage: { type: Type.STRING, description: 'Confirmação simpática da exclusão' },
+        taskId: { type: "string", description: 'ID da tarefa a excluir' },
+        summary: { type: "string", description: 'Motivo da exclusão' },
+        replyMessage: { type: "string", description: 'Confirmação simpática da exclusão' },
       },
       required: ['taskId', 'summary', 'replyMessage'],
     },
@@ -149,31 +149,31 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'adjust_routine_days_and_time',
     description: 'Ajusta a rotina semanal do usuário: quais dias da semana estão disponíveis para tarefas, quantos minutos por dia, horário preferido e ritmo.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
         availableDays: {
-          type: Type.ARRAY,
+          type: "array",
           description: 'Dias da semana disponíveis como números: 0=Domingo, 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado',
-          items: { type: Type.NUMBER },
+          items: { type: "number" },
         },
         dailyMinutes: {
-          type: Type.NUMBER,
+          type: "number",
           description: 'Tempo diário disponível em minutos (ex: 15, 25, 30, 45, 60)',
         },
         preferredTime: {
-          type: Type.STRING,
+          type: "string",
           description: 'Período preferido: "morning", "afternoon" ou "evening"',
         },
         rhythm: {
-          type: Type.STRING,
+          type: "string",
           description: 'Ritmo: "light", "balanced" ou "intense"',
         },
         summary: {
-          type: Type.STRING,
+          type: "string",
           description: 'Resumo das alterações de rotina',
         },
         replyMessage: {
-          type: Type.STRING,
+          type: "string",
           description: 'Mensagem amigável explicando a nova rotina aplicada',
         },
       },
@@ -184,17 +184,17 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'create_goal',
     description: 'Cria um novo objetivo com título, categoria e gera etapas automáticas.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        title: { type: Type.STRING, description: 'Título da meta' },
+        title: { type: "string", description: 'Título da meta' },
         category: {
-          type: Type.STRING,
+          type: "string",
           description: 'Categoria da meta: Estudos, Carreira, Saúde e condicionamento, Criatividade, Finanças pessoais, Hábitos, Projetos pessoais ou Outros',
         },
-        reason: { type: Type.STRING, description: 'Motivo pessoal (opcional)' },
-        deadline: { type: Type.STRING, description: 'Prazo limite YYYY-MM-DD (opcional)' },
-        summary: { type: Type.STRING, description: 'Resumo da meta criada' },
-        replyMessage: { type: Type.STRING, description: 'Mensagem entusiasmada parabenizando pelo novo objetivo' },
+        reason: { type: "string", description: 'Motivo pessoal (opcional)' },
+        deadline: { type: "string", description: 'Prazo limite YYYY-MM-DD (opcional)' },
+        summary: { type: "string", description: 'Resumo da meta criada' },
+        replyMessage: { type: "string", description: 'Mensagem entusiasmada parabenizando pelo novo objetivo' },
       },
       required: ['title', 'category', 'summary', 'replyMessage'],
     },
@@ -203,11 +203,11 @@ export const assistantTools: FunctionDeclaration[] = [
     name: 'replan_goal',
     description: 'Replaneja e redistribui automaticamente todas as etapas pendentes de uma meta nos dias da semana disponíveis.',
     parameters: {
-      type: Type.OBJECT,
+      type: "object",
       properties: {
-        goalId: { type: Type.STRING, description: 'ID da meta a replanejar' },
-        summary: { type: Type.STRING, description: 'Resumo do replanejamento' },
-        replyMessage: { type: Type.STRING, description: 'Mensagem amigável de incentivo com o novo cronograma' },
+        goalId: { type: "string", description: 'ID da meta a replanejar' },
+        summary: { type: "string", description: 'Resumo do replanejamento' },
+        replyMessage: { type: "string", description: 'Mensagem amigável de incentivo com o novo cronograma' },
       },
       required: ['goalId', 'summary', 'replyMessage'],
     },
