@@ -16,7 +16,7 @@ const AppContent: React.FC = () => {
   const { activeTab, selectedGoalId, setSelectedGoalId, preferences } = useApp();
 
   return (
-    <div className={preferences.reducedMotion ? 'reduce-motion' : ''}>
+    <div className={`delux-app ${preferences.reducedMotion ? 'reduce-motion' : ''}`}>
       <AppLayout>
         {activeTab === 'home' && <HomeTab />}
         {activeTab === 'goals' && <GoalsTab />}
