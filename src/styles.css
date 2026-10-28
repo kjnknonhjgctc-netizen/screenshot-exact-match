@@ -441,3 +441,129 @@
     bottom: 32px;
   }
 }
+
+
+/* Apple-inspired login motion: calm, layered, and motion-accessible. */
+.delux-auth {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 35%, oklch(0.29 0.12 282 / 18%), transparent 44%),
+    radial-gradient(ellipse at 90% 85%, oklch(0.28 0.13 255 / 10%), transparent 42%),
+    #090b12;
+}
+.delux-auth-orb {
+  position: absolute;
+  z-index: -1;
+  width: clamp(220px, 42vw, 440px);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  filter: blur(72px);
+  opacity: .22;
+  pointer-events: none;
+  will-change: transform;
+  animation: delux-orb-drift 18s ease-in-out infinite alternate;
+}
+.delux-auth-orb-one {
+  top: 8%;
+  left: -12%;
+  background: radial-gradient(circle, #7957ff 0%, #4f46e5 42%, transparent 72%);
+}
+.delux-auth-orb-two {
+  right: -14%;
+  bottom: 5%;
+  background: radial-gradient(circle, #3978ff 0%, #6551df 40%, transparent 72%);
+  animation-delay: -8s;
+  animation-duration: 22s;
+}
+.delux-auth-grain {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: .1;
+  pointer-events: none;
+  background-image: radial-gradient(#fff 0.45px, transparent 0.65px);
+  background-size: 5px 5px;
+  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+}
+.delux-auth-card {
+  transform-origin: 50% 60%;
+  animation: delux-card-arrive 780ms cubic-bezier(.2,.8,.2,1) both;
+  box-shadow: 0 28px 90px rgb(0 0 0 / 42%), 0 1px 0 rgb(255 255 255 / 5%) inset;
+}
+.delux-auth-card::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0 12% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 32%), transparent);
+}
+.delux-auth-logo {
+  animation: delux-logo-arrive 900ms cubic-bezier(.16,1,.3,1) 100ms both;
+  transition: transform 450ms cubic-bezier(.2,.8,.2,1), box-shadow 450ms ease;
+}
+@media (hover: hover) {
+  .delux-auth-logo:hover {
+    transform: translateY(-2px) rotate(-3deg);
+    box-shadow: 0 12px 32px rgb(99 102 241 / 36%);
+  }
+}
+.delux-auth-title, .delux-auth-subtitle, .delux-auth-tabs, .delux-auth-form {
+  animation: delux-content-arrive 650ms cubic-bezier(.2,.8,.2,1) both;
+}
+.delux-auth-subtitle { animation-delay: 80ms; }
+.delux-auth-tabs { animation-delay: 130ms; }
+.delux-auth-form { animation-delay: 190ms; }
+.delux-auth input {
+  transition: border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease, transform 220ms ease;
+}
+.delux-auth input:focus {
+  transform: translateY(-1px);
+}
+.delux-auth-submit {
+  transition: transform 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease, filter 240ms ease, opacity 200ms ease;
+}
+@media (hover: hover) {
+  .delux-auth-submit:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgb(79 70 229 / 28%);
+  }
+}
+.delux-auth-submit:not(:disabled):active {
+  transform: scale(.985);
+}
+.delux-auth-theme {
+  animation: delux-content-arrive 650ms ease 200ms both;
+  transition: transform 300ms cubic-bezier(.2,.8,.2,1), background-color 250ms ease;
+}
+.delux-auth-theme:hover { transform: rotate(12deg); }
+.delux-auth button:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 3px;
+}
+@keyframes delux-card-arrive {
+  from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(7px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes delux-content-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes delux-logo-arrive {
+  0% { opacity: 0; transform: translateY(10px) scale(.82); }
+  70% { opacity: 1; transform: translateY(-2px) scale(1.035); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes delux-orb-drift {
+  from { transform: translate3d(-10px, -8px, 0) scale(.96); }
+  to { transform: translate3d(24px, 18px, 0) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .delux-auth-orb, .delux-auth-card, .delux-auth-logo, .delux-auth-title,
+  .delux-auth-subtitle, .delux-auth-tabs, .delux-auth-form, .delux-auth-theme {
+    animation: none !important;
+    transition: none !important;
+  }
+}
