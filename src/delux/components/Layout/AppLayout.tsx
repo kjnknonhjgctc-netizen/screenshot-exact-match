@@ -42,11 +42,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-[#09090D] text-[#F5F5FA] flex flex-col md:flex-row font-sans selection:bg-[#8B5CF6]/30">
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-[#121219] border-r border-[#292936] shrink-0 sticky top-0 h-screen select-none z-20">
+      <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-[#121219]/75 backdrop-blur-2xl border-r border-white/[0.08] shadow-[8px_0_40px_rgba(0,0,0,0.18)] shrink-0 sticky top-0 h-screen select-none z-20">
         {/* Brand Area */}
-        <div className="p-6 pb-4 flex items-center justify-between border-b border-[#292936]/60">
+        <div className="p-6 pb-4 flex items-center justify-between border-b border-white/[0.08]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#7033FF] via-[#4E56FF] to-[#2563EB] p-0.5 shadow-md shadow-[#4E56FF]/30 flex items-center justify-center relative overflow-hidden">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#7033FF]/95 via-[#4E56FF]/95 to-[#2563EB]/95 p-0.5 shadow-md shadow-[#4E56FF]/30 flex items-center justify-center relative overflow-hidden">
               <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1.5 text-white" aria-label="Logo Delux">
                 <path d="M8 22L16 10L24 22" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M13 18L16 13L19 18" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
@@ -107,7 +107,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-[#1A1A24] text-[#F5F5FA] shadow-sm shadow-black/40 border border-[#292936]'
+                    ? 'bg-white/[0.09] text-[#F5F5FA] shadow-sm shadow-black/40 border border-white/[0.12] backdrop-blur-xl'
                     : 'text-[#A1A1B4] hover:text-[#F5F5FA] hover:bg-[#1A1A24]/50'
                 }`}
               >
@@ -137,7 +137,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[#09090D]/85 backdrop-blur-xl border-b border-[#292936]/70">
+      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[#09090D]/65 backdrop-blur-2xl border-b border-white/[0.10] shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#7033FF] via-[#4E56FF] to-[#2563EB] p-0.5 shadow-md shadow-[#4E56FF]/30 flex items-center justify-center relative overflow-hidden">
             <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1 text-white" aria-label="Logo Delux">
@@ -193,7 +193,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* MOBILE FLOATING ASSISTANT THUMB TRIGGER */}
         <button
           onClick={() => setIsAssistantOpen(true)}
-          className="md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white shadow-xl shadow-[#8B5CF6]/30 border border-white/20 active:scale-95 transition-transform"
+          className="md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full bg-gradient-to-r from-[#8B5CF6]/85 to-[#7C3AED]/85 backdrop-blur-2xl text-white shadow-xl shadow-[#8B5CF6]/25 border border-white/25 ring-1 ring-white/[0.08] active:scale-95 transition-transform"
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4 animate-pulse" />
@@ -204,7 +204,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE FIXED BOTTOM TAB BAR (iOS Ergonomic Thumb-Zone) */}
       <nav
         aria-label="Navegação inferior mobile"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0D0D14]/92 backdrop-blur-2xl border-t border-[#292936]/80 px-2 pt-1 pb-[max(env(safe-area-inset-bottom,8px),10px)]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#11111A]/65 backdrop-blur-2xl border-t border-white/[0.12] shadow-[0_-12px_40px_rgba(0,0,0,0.28)] px-2 pt-1 pb-[max(env(safe-area-inset-bottom,8px),10px)]"
       >
         <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {
@@ -218,7 +218,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <div
                   className={`p-1 rounded-xl transition-all ${
                     isActive
-                      ? 'text-[#8B5CF6] bg-[#8B5CF6]/15 scale-105'
+                      ? 'text-[#8B5CF6] bg-white/[0.12] scale-105 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]'
                       : 'text-[#6E6E82]'
                   }`}
                 >
