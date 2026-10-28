@@ -1,6 +1,6 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Home,
   Target,
@@ -34,14 +34,33 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const [mobileBarsHidden, setMobileBarsHidden] = useState(false);
   const previousScrollTop = useRef(0);
-  const handleMainScroll = (event: React.UIEvent<HTMLElement>) => {
-    const current = event.currentTarget.scrollTop;
-    const previous = previousScrollTop.current;
-    if (current < 24) setMobileBarsHidden(false);
-    else if (current > previous + 3) setMobileBarsHidden(true);
-    else if (current < previous - 3) setMobileBarsHidden(false);
-    previousScrollTop.current = current;
-  };
+  const scrollTick = useRef<number | null>(null);
+
+  // Listen to both the app's inner scroller and the document. Depending on the
+  // screen/route, either the main region or the page itself may own scrolling.
+  useEffect(() => {
+    const updateFromScroll = (rawTop: number) => {
+      if (scrollTick.current !== null) cancelAnimationFrame(scrollTick.current);
+      scrollTick.current = requestAnimationFrame(() => {
+        const current = Math.max(0, rawTop);
+        const previous = previousScrollTop.current;
+        if (current < 24) setMobileBarsHidden(false);
+        else if (current > previous + 5) setMobileBarsHidden(true);
+        else if (current < previous - 5) setMobileBarsHidden(false);
+        previousScrollTop.current = current;
+      });
+    };
+    const onWindowScroll = () => updateFromScroll(window.scrollY || document.documentElement.scrollTop || 0);
+    const main = document.querySelector(".delux-content");
+    const onMainScroll = () => updateFromScroll((main as HTMLElement | null)?.scrollTop || 0);
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    main?.addEventListener("scroll", onMainScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onWindowScroll);
+      main?.removeEventListener("scroll", onMainScroll);
+      if (scrollTick.current !== null) cancelAnimationFrame(scrollTick.current);
+    };
+  }, []);
 
   const navItems: { id: MainTab; label: string; icon: React.ReactNode }[] = [
     { id: "home", label: "Início", icon: <Home className="w-[22px] h-[22px]" /> },
@@ -186,7 +205,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-transform duration-300 ease-out motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-full" : "translate-y-0"}`}>
+      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-[110%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-delux-brand-start via-delux-brand-mid to-delux-blue p-0.5 shadow-md shadow-delux-brand-mid/30 flex items-center justify-center relative overflow-hidden">
             <svg
@@ -249,7 +268,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main onScroll={handleMainScroll} className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-14 md:pt-0 relative">
+      <main className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-14 md:pt-0 relative">
         <div className="flex-1 w-full max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           {children}
         </div>
@@ -259,7 +278,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           variant="delux"
           size="delux"
           onClick={() => setIsAssistantOpen(true)}
-          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant text-delux-light active:opacity-85 transition-all duration-300 ease-out motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
+          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant text-delux-light active:opacity-85 transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-28 opacity-0 scale-95 pointer-events-none" : "translate-y-0 opacity-100 scale-100"}`}
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4" />
@@ -270,7 +289,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE FIXED BOTTOM TAB BAR (iOS Ergonomic Thumb-Zone) */}
       <nav
         aria-label="Navegação inferior mobile"
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-transform duration-300 ease-out motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[140%]" : "translate-y-0"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[120%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
       >
         <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {
