@@ -92,13 +92,16 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return (
     <main className="delux-auth min-h-[100dvh] bg-[#090B12] text-white flex items-center justify-center px-4 py-8 sm:px-6">
-      <button type="button" aria-label="Alternar aparência" className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-amber-300 shadow-lg shadow-black/20 transition hover:bg-white/10">
+      <div className="delux-auth-orb delux-auth-orb-one" aria-hidden="true" />
+      <div className="delux-auth-orb delux-auth-orb-two" aria-hidden="true" />
+      <div className="delux-auth-grain" aria-hidden="true" />
+      <button type="button" aria-label="Alternar aparência" className="delux-auth-theme absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-amber-300 shadow-lg shadow-black/20 transition hover:bg-white/10">
         <Sun className="h-5 w-5" />
       </button>
-      <section className="relative w-full max-w-[560px] overflow-hidden rounded-[30px] border border-white/[0.11] bg-[#121622]/90 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-10">
+      <section className="delux-auth-card relative w-full max-w-[560px] overflow-hidden rounded-[30px] border border-white/[0.11] bg-[#121622]/90 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-10">
         <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <div className="mx-auto mb-8 flex items-center justify-center gap-3">
-          <div className="grid h-[60px] w-[60px] place-items-center rounded-[20px] bg-gradient-to-br from-violet-500 via-indigo-500 to-blue-500 shadow-lg shadow-indigo-500/30">
+          <div className="delux-auth-logo grid h-[60px] w-[60px] place-items-center rounded-[20px] bg-gradient-to-br from-violet-500 via-indigo-500 to-blue-500 shadow-lg shadow-indigo-500/30">
             <svg viewBox="0 0 32 32" fill="none" className="h-9 w-9" aria-hidden="true">
               <path d="M8 22L16 10L24 22" stroke="white" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13 18L16 13L19 18" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity=".78" />
@@ -109,13 +112,13 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
         </div>
 
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-[34px]">{mode === "signup" ? "Comece no Delux" : "Bom ter você de volta"}</h1>
-          <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-slate-400 sm:text-lg">
+          <h1 className="delux-auth-title text-3xl font-extrabold tracking-tight sm:text-[34px]">{mode === "signup" ? "Comece no Delux" : "Bom ter você de volta"}</h1>
+          <p className="delux-auth-subtitle mx-auto mt-3 max-w-md text-base leading-relaxed text-slate-400 sm:text-lg">
             {mode === "signup" ? "Crie seu perfil e organize seus objetivos em um só lugar." : "Entre no perfil salvo neste navegador para continuar sua jornada."}
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 rounded-2xl bg-[#202B40] p-1.5">
+        <div className="delux-auth-tabs mt-8 grid grid-cols-2 rounded-2xl bg-[#202B40] p-1.5">
           <button type="button" onClick={() => { setMode("signup"); setError(""); setNotice(""); }} className={`min-h-12 rounded-xl px-2 text-sm font-bold transition-all sm:text-base ${mode === "signup" ? "bg-[#34445D] text-white shadow-md" : "text-slate-400 hover:text-white"}`}>Criar Conta</button>
           <button type="button" onClick={() => { setMode("login"); setError(""); setNotice(""); }} className={`min-h-12 rounded-xl px-2 text-sm font-bold transition-all sm:text-base ${mode === "login" ? "bg-[#34445D] text-white shadow-md" : "text-slate-400 hover:text-white"}`}>Já tenho conta</button>
         </div>
@@ -125,7 +128,7 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
           <p>Perfil local: seus dados ficam neste navegador. Não há sincronização entre aparelhos nem recuperação de senha por e-mail.</p>
         </div>
 
-        <form onSubmit={submit} className="mt-7 space-y-5">
+        <form onSubmit={submit} className="delux-auth-form mt-7 space-y-5">
           <div>
             <label htmlFor="delux-auth-email" className="mb-2 block text-sm font-semibold text-slate-200 sm:text-base">E-mail</label>
             <input id="delux-auth-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="min-h-[60px] w-full rounded-2xl border border-slate-600/70 bg-[#1C293D] px-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15 sm:px-5 sm:text-lg" />
@@ -139,7 +142,7 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
           </div>
           {error && <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{notice}</p>}
-          <button type="submit" disabled={busy} className="group flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl border border-white/20 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500 px-5 text-base font-bold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/30 disabled:cursor-wait disabled:opacity-60 sm:text-lg">
+          <button type="submit" disabled={busy} className="delux-auth-submit group flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl border border-white/20 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500 px-5 text-base font-bold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/30 disabled:cursor-wait disabled:opacity-60 sm:text-lg">
             {busy ? "Aguarde..." : mode === "signup" ? "Criar e Acessar Agora" : "Entrar no Delux"}
             {!busy && <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />}
           </button>
