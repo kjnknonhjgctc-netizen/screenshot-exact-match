@@ -33,31 +33,40 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   } = useApp();
 
   const [mobileBarsHidden, setMobileBarsHidden] = useState(false);
-  const previousScrollTop = useRef(0);
   const scrollTick = useRef<number | null>(null);
 
-  // Listen to both the app's inner scroller and the document. Depending on the
-  // screen/route, either the main region or the page itself may own scrolling.
+  // The main region is the app's scroll container. Listening to window and
+  // main together caused competing scroll positions (window stays at zero on
+  // mobile), repeatedly toggling the state and making the motion feel abrupt.
   useEffect(() => {
-    const updateFromScroll = (rawTop: number) => {
+    const main = document.querySelector(".delux-content") as HTMLElement | null;
+    if (!main) return;
+
+    let previousTop = main.scrollTop;
+    let latestTop = previousTop;
+
+    const onMainScroll = () => {
+      latestTop = Math.max(0, main.scrollTop);
       if (scrollTick.current !== null) cancelAnimationFrame(scrollTick.current);
+
       scrollTick.current = requestAnimationFrame(() => {
-        const current = Math.max(0, rawTop);
-        const previous = previousScrollTop.current;
-        if (current < 24) setMobileBarsHidden(false);
-        else if (current > previous + 5) setMobileBarsHidden(true);
-        else if (current < previous - 5) setMobileBarsHidden(false);
-        previousScrollTop.current = current;
+        const delta = latestTop - previousTop;
+
+        if (latestTop < 20) {
+          setMobileBarsHidden(false);
+        } else if (delta > 8) {
+          setMobileBarsHidden(true);
+        } else if (delta < -8) {
+          setMobileBarsHidden(false);
+        }
+
+        previousTop = latestTop;
       });
     };
-    const onWindowScroll = () => updateFromScroll(window.scrollY || document.documentElement.scrollTop || 0);
-    const main = document.querySelector(".delux-content");
-    const onMainScroll = () => updateFromScroll((main as HTMLElement | null)?.scrollTop || 0);
-    window.addEventListener("scroll", onWindowScroll, { passive: true });
-    main?.addEventListener("scroll", onMainScroll, { passive: true });
+
+    main.addEventListener("scroll", onMainScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onWindowScroll);
-      main?.removeEventListener("scroll", onMainScroll);
+      main.removeEventListener("scroll", onMainScroll);
       if (scrollTick.current !== null) cancelAnimationFrame(scrollTick.current);
     };
   }, []);
@@ -205,7 +214,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-[82%] scale-[0.97] blur-[8px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}>
+      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-[82%] scale-[0.97] blur-[8px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-delux-brand-start via-delux-brand-mid to-delux-blue p-0.5 shadow-md shadow-delux-brand-mid/30 flex items-center justify-center relative overflow-hidden">
             <svg
@@ -289,7 +298,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE FIXED BOTTOM TAB BAR (iOS Ergonomic Thumb-Zone) */}
       <nav
         aria-label="Navegação inferior mobile"
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[115%] scale-[0.94] blur-[10px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[115%] scale-[0.94] blur-[10px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}
       >
         <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {
