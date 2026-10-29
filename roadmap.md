@@ -1,8 +1,8 @@
 # Delux Liquid Glass
 
 ## Ajustes pontuais de movimento
-- [ ] Corrigir rolagem das barras e transições essenciais, sem alterar regras ou integrações.
-- [ ] Executar teste existente e verificação rápida de interação no celular.
+- [x] Corrigir rolagem das barras e transições essenciais, sem alterar regras ou integrações.
+- [x] Executar teste de rota (1 aprovado) e verificar em navegador: barras com rolagem lenta, topo, troca de aba, menu/assistente abrindo e fechando, redução de movimento e navegação desktop. Sem erros de execução; build automático OK. Gemini não foi chamado.
 
 - [x] Aplicar tokens de vidro e estados de interação sem alterar lógica.
 - [x] Atualizar navegação móvel/desktop e superfícies de modais, menu e assistente.
