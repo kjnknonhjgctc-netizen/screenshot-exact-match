@@ -83,6 +83,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   preferredTime: 'morning',
   rhythm: 'balanced',
   reducedMotion: false,
+  soundEnabled: true,
 };
 
 const STORAGE_KEYS = {

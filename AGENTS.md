@@ -13,3 +13,4 @@
 - AI assistant endpoints are server routes at /api/assistant/* calling Google Gemini directly with the GEMINI_API_KEY secret (src/lib/delux), so the imported client fetch calls stay unchanged and no Lovable AI credits are used.
 - Delux glass styling uses shared semantic tokens and explicit surface classes in src/styles.css, scoped by .delux-app; keep data-reading surfaces unfiltered to preserve contrast and performance.
 - Delux navigation observes only the bounded main scroll region; floating surfaces use the shared useAnimatedPresence hook for visual-only exit retention so animation never delays business actions.
+- Delux button audio uses one app-scoped click capture handler and lazy native Web Audio; its toggle persists through the existing preferences store, avoiding dependencies and per-button duplication.

@@ -1,5 +1,9 @@
 # Delux Liquid Glass
 
+## Som de interação
+- [x] Adicionar som discreto dos botões e controle persistente nas configurações.
+- [ ] Verificar som, silêncio e persistência da opção.
+
 ## Ajustes pontuais de movimento
 - [x] Corrigir rolagem das barras e transições essenciais, sem alterar regras ou integrações.
 - [x] Executar teste de rota (1 aprovado) e verificar em navegador: barras com rolagem lenta, topo, troca de aba, menu/assistente abrindo e fechando, redução de movimento e navegação desktop. Sem erros de execução; build automático OK. Gemini não foi chamado.

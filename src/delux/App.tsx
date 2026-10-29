@@ -11,12 +11,14 @@ import { CreateGoalModal } from "./components/Modals/CreateGoalModal";
 import { GoalDetailsModal } from "./components/Modals/GoalDetailsModal";
 import { OnboardingModal } from "./components/Onboarding/OnboardingModal";
 import { AssistantModal } from "./components/Assistant/AssistantModal";
+import { useButtonSound } from "./components/Common/useButtonSound";
 
 const AppContent: React.FC = () => {
   const { activeTab, selectedGoalId, setSelectedGoalId, preferences } = useApp();
+  const playButtonSound = useButtonSound(preferences.soundEnabled);
 
   return (
-    <div className={`delux-app ${preferences.reducedMotion ? "reduce-motion" : ""}`}>
+    <div className={`delux-app ${preferences.reducedMotion ? "reduce-motion" : ""}`} onClickCapture={playButtonSound}>
       <AppLayout>
         {activeTab === "home" && <HomeTab />}
         {activeTab === "goals" && <GoalsTab />}
