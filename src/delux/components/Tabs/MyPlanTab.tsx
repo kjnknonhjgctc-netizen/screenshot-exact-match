@@ -137,6 +137,7 @@ export const MyPlanTab: React.FC = () => {
                   variant="delux"
                   size="delux"
                   type="button"
+                  data-sound={isCompleted ? "click" : "complete"}
                   onClick={() => toggleTask(task.id)}
                   title={isCompleted ? "Desmarcar etapa" : "Concluir esta etapa"}
                   className={`relative z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center font-extrabold text-xs sm:text-sm transition-all shrink-0 active:opacity-85 ${

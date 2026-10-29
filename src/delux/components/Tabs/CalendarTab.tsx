@@ -247,6 +247,7 @@ export const CalendarTab: React.FC = () => {
                           variant="delux"
                           size="delux"
                           type="button"
+                          data-sound={task.completed ? "click" : "complete"}
                           onClick={() => toggleTask(task.id)}
                           className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                             task.completed

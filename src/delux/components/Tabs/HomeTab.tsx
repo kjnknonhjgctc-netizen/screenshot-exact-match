@@ -186,6 +186,7 @@ export const HomeTab: React.FC = () => {
 
               {/* High-touch 48px action button */}
               <button
+                data-sound="complete"
                 onClick={() => toggleTask(nextPendingTask.id)}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-[#4ADE80] hover:bg-emerald-500 active:scale-[0.98] text-black text-xs font-bold rounded-xl shadow-md transition-all min-h-[48px]"
               >
@@ -256,6 +257,7 @@ export const HomeTab: React.FC = () => {
                   {/* Generous touch target checkbox */}
                   <button
                     type="button"
+                    data-sound={task.completed ? "click" : "complete"}
                     onClick={() => toggleTask(task.id)}
                     className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                       task.completed
