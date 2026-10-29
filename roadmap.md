@@ -1,5 +1,9 @@
 # Delux Liquid Glass
 
+## Ajustes pontuais de movimento
+- [ ] Corrigir rolagem das barras e transições essenciais, sem alterar regras ou integrações.
+- [ ] Executar teste existente e verificação rápida de interação no celular.
+
 - [x] Aplicar tokens de vidro e estados de interação sem alterar lógica.
 - [x] Atualizar navegação móvel/desktop e superfícies de modais, menu e assistente.
 - [ ] Verificar testes, lint, compilação e fluxos em celular e desktop.

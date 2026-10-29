@@ -343,7 +343,8 @@
 .delux-app select,
 .delux-app textarea {
   transition-duration: 200ms;
-  transition-property: background-color, border-color, box-shadow, color, opacity;
+  transition-property: background-color, border-color, box-shadow, color, opacity, scale;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .delux-app button:focus-visible,
 .delux-app input:focus-visible,
@@ -353,8 +354,7 @@
   outline-offset: 3px;
 }
 .delux-app button:not(:disabled):active {
-  transform: none;
-  scale: 1;
+  scale: 0.97;
   opacity: 0.86;
 }
 .delux-app button:disabled {
@@ -402,7 +402,59 @@
   /* Match the fixed glass header, including the device's top safe area. */
   padding-top: calc(56px + env(safe-area-inset-top, 0px));
   padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior-y: contain;
 }
+
+/* One bounded scroll source, including on mobile. No window scroll listener. */
+.delux-layout {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.delux-app .delux-scroll-bar {
+  transition-property: transform, opacity;
+  transition-duration: 240ms;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform, opacity;
+}
+/* Existing tab roots already animate on mount; soften that single animation. */
+.delux-content > div > .animate-in {
+  --enter-translate-y: 4px;
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.delux-app .delux-glass-overlay.animate-in,
+.delux-app .delux-glass-panel.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.delux-glass-overlay > .delux-glass-panel.animate-in {
+  --enter-translate-y: 16px;
+}
+.delux-app .delux-glass-overlay[data-motion-state="closed"] {
+  pointer-events: none;
+  animation: delux-overlay-out 200ms ease-out both;
+}
+.delux-glass-overlay[data-motion-state="closed"] > .delux-glass-panel {
+  animation: delux-panel-out 200ms ease-out both;
+}
+.delux-app .delux-drawer[data-motion-state="closed"] {
+  pointer-events: none;
+  animation: delux-drawer-out 200ms ease-out both;
+}
+@keyframes delux-overlay-out {
+  to { opacity: 0; }
+}
+@keyframes delux-panel-out {
+  to { opacity: 0; transform: translateY(16px); }
+}
+@keyframes delux-drawer-out {
+  to { opacity: 0; transform: translateX(32px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .delux-app button:not(:disabled):active { scale: 1; }
+}
+.delux-app.reduce-motion button:not(:disabled):active { scale: 1; }
 .delux-toast {
   bottom: calc(140px + env(safe-area-inset-bottom, 0px));
   white-space: normal;
