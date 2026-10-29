@@ -5,6 +5,7 @@ import { ArrowRight, Check, Target } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { GoalCategory } from "../../types";
 import { DAY_NAMES } from "../../utils/dateUtils";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 const STARTER_SUGGESTIONS = [
   { title: "Aprender violão", category: "Criatividade" as GoalCategory },
@@ -27,7 +28,9 @@ export const OnboardingModal: React.FC = () => {
     return localStorage.getItem("delux_onboarding_completed") === "true";
   });
 
-  if (goals.length > 0 || hasDismissed) {
+  const open = goals.length === 0 && !hasDismissed;
+  const present = useAnimatedPresence(open, preferences.reducedMotion);
+  if (!present) {
     return null;
   }
 
@@ -60,6 +63,8 @@ export const OnboardingModal: React.FC = () => {
   return (
     <div
       role="dialog"
+      data-motion-state={open ? "open" : "closed"}
+      inert={!open}
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-200"
     >
