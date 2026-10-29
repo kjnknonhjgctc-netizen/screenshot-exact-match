@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { AlertCircle, X } from "lucide-react";
+import { useAnimatedPresence } from "./useAnimatedPresence";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -24,11 +25,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  if (!isOpen) return null;
+  const present = useAnimatedPresence(isOpen);
+  if (!present) return null;
 
   return (
     <div
       role="dialog"
+      data-motion-state={isOpen ? "open" : "closed"}
+      inert={!isOpen}
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-150"

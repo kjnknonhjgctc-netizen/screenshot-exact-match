@@ -22,6 +22,7 @@ import { useApp } from "../../context/AppContext";
 import { DrawerSection, ExecutionRhythm, PreferredTime } from "../../types";
 import { DAY_NAMES, formatFriendlyDate } from "../../utils/dateUtils";
 import { ConfirmModal } from "../Common/ConfirmModal";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 const iconMap: Record<string, React.ReactNode> = {
   Target: <Target className="w-5 h-5" />,
@@ -51,7 +52,8 @@ export const MenuDrawer: React.FC = () => {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isDrawerOpen) return null;
+  const present = useAnimatedPresence(isDrawerOpen, preferences.reducedMotion);
+  if (!present) return null;
 
   const sections: { id: DrawerSection; label: string; icon: React.ReactNode }[] = [
     { id: "preferences", label: "Preferências", icon: <Sliders className="w-4 h-4" /> },
@@ -102,13 +104,17 @@ export const MenuDrawer: React.FC = () => {
   return (
     <>
       <div
-        className="fixed inset-0 z-50 delux-glass-overlay transition-opacity"
+        className="fixed inset-0 z-50 delux-glass-overlay animate-in fade-in duration-200"
+        data-motion-state={isDrawerOpen ? "open" : "closed"}
+        inert={!isDrawerOpen}
         onClick={closeDrawer}
         aria-hidden="true"
       />
 
       <aside
         role="dialog"
+        data-motion-state={isDrawerOpen ? "open" : "closed"}
+        inert={!isDrawerOpen}
         aria-label="Menu principal"
         className="fixed top-0 sm:top-0 right-0 bottom-0 z-50 w-full sm:max-w-md delux-glass-panel delux-drawer border-l flex flex-col animate-in slide-in-from-right duration-200"
       >

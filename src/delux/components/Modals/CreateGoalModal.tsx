@@ -16,6 +16,7 @@ import { useApp } from "../../context/AppContext";
 import { GoalCategory, PlanningMethod } from "../../types";
 import { DAY_NAMES, getLocalDateString, addDays } from "../../utils/dateUtils";
 import { getStepsForGoal } from "../../utils/planGenerator";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 const CATEGORIES: GoalCategory[] = [
   "Estudos",
@@ -57,7 +58,8 @@ export const CreateGoalModal: React.FC = () => {
     },
   ]);
 
-  if (!isCreateGoalOpen) return null;
+  const present = useAnimatedPresence(isCreateGoalOpen, preferences.reducedMotion);
+  if (!present) return null;
 
   const previewSteps =
     method === "auto" && title.trim().length > 2
@@ -207,6 +209,8 @@ export const CreateGoalModal: React.FC = () => {
   return (
     <div
       role="dialog"
+      data-motion-state={isCreateGoalOpen ? "open" : "closed"}
+      inert={!isCreateGoalOpen}
       aria-modal="true"
       aria-labelledby="modal-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-200"

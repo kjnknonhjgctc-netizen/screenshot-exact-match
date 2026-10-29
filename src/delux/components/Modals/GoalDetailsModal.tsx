@@ -1,11 +1,12 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, Calendar, Clock, Trash2, RotateCw, Plus, Edit2, Check } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { ProgressBar } from "../Common/ProgressBar";
 import { ConfirmModal } from "../Common/ConfirmModal";
 import { formatFriendlyDate, getLocalDateString } from "../../utils/dateUtils";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 interface GoalDetailsModalProps {
   goalId: string | null;
@@ -35,13 +36,19 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
   const [editTitle, setEditTitle] = useState("");
   const [editReason, setEditReason] = useState("");
 
-  if (!goalId) return null;
+  const [retainedGoalId, setRetainedGoalId] = useState(goalId);
+  useEffect(() => {
+    if (goalId) setRetainedGoalId(goalId);
+  }, [goalId]);
+  const present = useAnimatedPresence(Boolean(goalId));
+  if (!present) return null;
 
-  const goal = goals.find((g) => g.id === goalId);
+  const visibleGoalId = goalId || retainedGoalId;
+  const goal = goals.find((g) => g.id === visibleGoalId);
   if (!goal) return null;
 
   const goalTasks = tasks
-    .filter((t) => t.goalId === goalId)
+    .filter((t) => t.goalId === visibleGoalId)
     .sort((a, b) => a.stepOrder - b.stepOrder);
 
   const completedCount = goalTasks.filter((t) => t.completed).length;
@@ -86,6 +93,8 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
   return (
     <div
       role="dialog"
+      data-motion-state={goalId ? "open" : "closed"}
+      inert={!goalId}
       aria-modal="true"
       aria-labelledby="goal-details-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-200"

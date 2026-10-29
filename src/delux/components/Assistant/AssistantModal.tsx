@@ -21,6 +21,7 @@ import {
 import { useApp } from "../../context/AppContext";
 import { ChatMessage, GoalCategory } from "../../types";
 import { DAY_NAMES, getLocalDateString } from "../../utils/dateUtils";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 const STARTER_PROMPTS = [
   "Reagende minha próxima tarefa para amanhã às 14:00",
@@ -71,11 +72,13 @@ export const AssistantModal: React.FC = () => {
   // Scroll to bottom on new messages
   useEffect(() => {
     if (isAssistantOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const reduce = preferences.reducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      messagesEndRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
     }
-  }, [messages, isAssistantOpen, isLoading]);
+  }, [messages, isAssistantOpen, isLoading, preferences.reducedMotion]);
 
-  if (!isAssistantOpen) return null;
+  const present = useAnimatedPresence(isAssistantOpen, preferences.reducedMotion);
+  if (!present) return null;
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
@@ -197,6 +200,8 @@ export const AssistantModal: React.FC = () => {
   return (
     <div
       role="dialog"
+      data-motion-state={isAssistantOpen ? "open" : "closed"}
+      inert={!isAssistantOpen}
       aria-modal="true"
       aria-labelledby="assistant-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-6 delux-glass-overlay animate-in fade-in duration-200"

@@ -5,6 +5,7 @@ import { X, AlertTriangle } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { Task } from "../../types";
 import { parseLocalDateString } from "../../utils/dateUtils";
+import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -30,7 +31,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   );
   const [goalId, setGoalId] = useState(taskToEdit ? taskToEdit.goalId : goals[0]?.id || "");
 
-  if (!isOpen) return null;
+  const present = useAnimatedPresence(isOpen, preferences.reducedMotion);
+  if (!present) return null;
 
   // Check if selected date is an unavailable day
   const targetDateObj = date ? parseLocalDateString(date) : null;
@@ -76,6 +78,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   return (
     <div
       role="dialog"
+      data-motion-state={isOpen ? "open" : "closed"}
+      inert={!isOpen}
       aria-modal="true"
       aria-labelledby="task-modal-title"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-200"
