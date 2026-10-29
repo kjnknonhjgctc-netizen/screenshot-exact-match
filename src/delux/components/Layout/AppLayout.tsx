@@ -205,7 +205,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-[110%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
+      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header border-b transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "-translate-y-[82%] scale-[0.97] blur-[8px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-delux-brand-start via-delux-brand-mid to-delux-blue p-0.5 shadow-md shadow-delux-brand-mid/30 flex items-center justify-center relative overflow-hidden">
             <svg
@@ -278,7 +278,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           variant="delux"
           size="delux"
           onClick={() => setIsAssistantOpen(true)}
-          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant text-delux-light active:opacity-85 transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-28 opacity-0 scale-95 pointer-events-none" : "translate-y-0 opacity-100 scale-100"}`}
+          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant text-delux-light active:opacity-85 transition-[transform,opacity,filter] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-10 scale-90 blur-[6px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4" />
@@ -289,7 +289,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE FIXED BOTTOM TAB BAR (iOS Ergonomic Thumb-Zone) */}
       <nav
         aria-label="Navegação inferior mobile"
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-[transform,opacity,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[120%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none ${mobileBarsHidden ? "translate-y-[115%] scale-[0.94] blur-[10px] opacity-0 pointer-events-none" : "translate-y-0 scale-100 blur-0 opacity-100"}`}
       >
         <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {
