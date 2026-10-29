@@ -47,6 +47,7 @@ export interface UserPreferences {
   preferredTime: PreferredTime;
   rhythm: ExecutionRhythm;
   reducedMotion: boolean;
+  soundEnabled: boolean;
 }
 
 export interface Achievement {
