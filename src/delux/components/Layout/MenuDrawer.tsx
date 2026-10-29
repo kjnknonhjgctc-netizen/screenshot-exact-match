@@ -17,8 +17,6 @@ import {
   Zap,
   Award,
   CheckCircle2,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { DrawerSection, ExecutionRhythm, PreferredTime } from "../../types";
@@ -417,24 +415,6 @@ export const MenuDrawer: React.FC = () => {
           {/* CONFIGURAÇÕES */}
           {activeDrawerSection === "settings" && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between gap-4 border-b border-delux-border pb-4">
-                <div className="flex items-center gap-3">
-                  {preferences.soundEnabled ? <Volume2 className="w-5 h-5 text-delux-purple-light shrink-0" /> : <VolumeX className="w-5 h-5 text-delux-secondary shrink-0" />}
-                  <h4 id="delux-sound-label" className="text-sm font-bold text-delux-text">Sons do app</h4>
-                </div>
-                <Button
-                  variant="delux"
-                  size="delux"
-                  role="switch"
-                  aria-checked={preferences.soundEnabled}
-                  aria-labelledby="delux-sound-label"
-                  data-sound={preferences.soundEnabled ? "off" : undefined}
-                  onClick={() => updatePreferences({ soundEnabled: !preferences.soundEnabled })}
-                  className={`relative w-12 h-7 shrink-0 rounded-full border transition-colors ${preferences.soundEnabled ? "bg-delux-purple border-delux-purple" : "bg-delux-elevated border-delux-border"}`}
-                >
-                  <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-delux-light transition-transform ${preferences.soundEnabled ? "translate-x-5" : "translate-x-0"}`} />
-                </Button>
-              </div>
               <div>
                 <h4 className="text-sm font-bold text-delux-text mb-1">Dados & Backup</h4>
                 <p className="text-xs text-delux-secondary mb-3">
