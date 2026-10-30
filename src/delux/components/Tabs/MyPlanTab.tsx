@@ -17,8 +17,10 @@ export const MyPlanTab: React.FC = () => {
   const displayedTasks = tasks
     .filter((t) => (selectedPlanGoalId === "all" ? true : t.goalId === selectedPlanGoalId))
     .sort((a, b) => {
-      if (a.goalId === b.goalId) return a.stepOrder - b.stepOrder;
-      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      // The calendar date is the primary order, even within the same goal.
+      // stepOrder only breaks ties for sessions scheduled on the same day.
+      const dateOrder = a.date.localeCompare(b.date);
+      if (dateOrder !== 0) return dateOrder;
       return a.stepOrder - b.stepOrder;
     });
 
