@@ -7,7 +7,7 @@ const PREFERENCES_KEY = "delux_preferences_v2";
 const TUESDAY = "2026-10-27";
 
 function SchedulingHarness() {
-  const { tasks, addTask, updatePreferences, executeAssistantAction } = useApp();
+  const { tasks, addTask, updateGoal, updatePreferences, executeAssistantAction } = useApp();
   const [lastResult, setLastResult] = useState("not-run");
 
   const addTuesdayTask = () => {
@@ -44,6 +44,7 @@ function SchedulingHarness() {
       <button onClick={addTuesdayTask}>Adicionar tarefa de terça</button>
       <button onClick={changeRoutine}>Alterar dias disponíveis</button>
       <button onClick={createBlockedAssistantTask}>Criar tarefa pela IA em terça</button>
+      <button onClick={() => setLastResult(updateGoal("missing-goal", { title: "Meta alterada" }) ? "updated" : "rejected")}>Atualizar meta inexistente</button>
       <output data-testid="last-result">{lastResult}</output>
       <output data-testid="task-list">{JSON.stringify(tasks)}</output>
     </>
@@ -103,5 +104,13 @@ describe("AppContext scheduling guardrails", () => {
 
     expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
     expect(screen.getByTestId("task-list")).toHaveTextContent("[]");
+  });
+
+  it("does not report success when asked to update a missing goal", () => {
+    renderSchedulingHarness([1, 3]);
+
+    fireEvent.click(screen.getByText("Atualizar meta inexistente"));
+
+    expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
   });
 });
