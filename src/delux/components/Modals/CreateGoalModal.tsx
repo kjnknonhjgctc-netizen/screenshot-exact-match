@@ -94,8 +94,15 @@ export const CreateGoalModal: React.FC = () => {
       return;
     }
 
+    if (!Array.isArray(preferences.availableDays) || preferences.availableDays.length === 0) {
+      showToast('Configure ao menos um dia disponível antes de gerar o plano.', 'error');
+      return;
+    }
+
     setIsGeneratingWithAi(true);
     setAiAdvice(null);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 60000);
     try {
       const res = await fetch("/api/assistant/generate-plan", {
         method: "POST",
@@ -105,8 +112,9 @@ export const CreateGoalModal: React.FC = () => {
           category,
           reason: reason.trim(),
           dailyMinutes: preferences.dailyMinutes,
-          availableDaysCount: preferences.availableDays.length || 5,
+          availableDaysCount: preferences.availableDays.length,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -115,13 +123,16 @@ export const CreateGoalModal: React.FC = () => {
       }
 
       const data = await res.json();
-      if (data.steps && Array.isArray(data.steps) && data.steps.length > 0) {
+      const validSteps = Array.isArray(data.steps)
+        ? data.steps.filter((step: any) => step && typeof step.title === 'string' && step.title.trim()).slice(0, 12)
+        : [];
+      if (validSteps.length > 0) {
         let currentDate = new Date();
         const availableDaysSet = new Set(
           preferences.availableDays.length > 0 ? preferences.availableDays : [1, 2, 3, 4, 5],
         );
 
-        const newTasks: ManualTaskInput[] = data.steps.map((st: any) => {
+        const newTasks: ManualTaskInput[] = validSteps.map((st: any) => {
           while (!availableDaysSet.has(currentDate.getDay())) {
             currentDate = addDays(currentDate, 1);
           }
@@ -132,7 +143,9 @@ export const CreateGoalModal: React.FC = () => {
             title: st.title || "Ação prática",
             instruction: st.instruction || "",
             date: taskDate,
-            durationMinutes: st.durationMinutes || preferences.dailyMinutes,
+            durationMinutes: Number.isFinite(Number(st.durationMinutes))
+              ? Math.min(240, Math.max(5, Math.round(Number(st.durationMinutes))))
+              : preferences.dailyMinutes,
           };
         });
 
@@ -147,8 +160,11 @@ export const CreateGoalModal: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error in handleGenerateWithGemini:", err);
-      showToast(err.message || "Erro ao gerar etapas com IA.", "error");
+      showToast(err.name === 'AbortError'
+        ? 'A geração demorou mais que o esperado. Tente novamente.'
+        : (err.message || "Erro ao gerar etapas com IA."), "error");
     } finally {
+      window.clearTimeout(timeoutId);
       setIsGeneratingWithAi(false);
     }
   };
