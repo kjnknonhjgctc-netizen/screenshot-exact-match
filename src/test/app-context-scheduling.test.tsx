@@ -5,6 +5,8 @@ import { AppProvider, useApp } from "@/delux/context/AppContext";
 
 const PREFERENCES_KEY = "delux_preferences_v2";
 const TUESDAY = "2026-10-27";
+const MONDAY = "2026-10-26";
+const WEDNESDAY = "2026-10-28";
 
 function SchedulingHarness() {
   const { tasks, addTask, updateGoal, updatePreferences, executeAssistantAction } = useApp();
@@ -23,6 +25,32 @@ function SchedulingHarness() {
 
   const changeRoutine = () => {
     setLastResult(updatePreferences({ availableDays: [1, 3] }) ? "updated" : "rejected");
+  };
+
+  const rejectPartialBatchReschedule = () => {
+    const task = addTask({
+      goalId: "manual",
+      title: "Tarefa que não deve ser movida parcialmente",
+      date: MONDAY,
+      durationMinutes: 25,
+      isAutomated: false,
+    });
+    if (!task) {
+      setLastResult("setup-failed");
+      return;
+    }
+    const applied = executeAssistantAction({
+      id: "assistant-batch-test",
+      type: "batch_reschedule_tasks",
+      summary: "Reagendar em lote",
+      payload: {
+        updates: [
+          { taskId: task.id, newDate: WEDNESDAY },
+          { taskId: "missing-task", newDate: TUESDAY },
+        ],
+      },
+    });
+    setLastResult(applied ? "applied" : "rejected");
   };
 
   const createBlockedAssistantTask = () => {
@@ -44,6 +72,7 @@ function SchedulingHarness() {
       <button onClick={addTuesdayTask}>Adicionar tarefa de terça</button>
       <button onClick={changeRoutine}>Alterar dias disponíveis</button>
       <button onClick={createBlockedAssistantTask}>Criar tarefa pela IA em terça</button>
+      <button onClick={rejectPartialBatchReschedule}>Rejeitar lote parcial do assistente</button>
       <button onClick={() => setLastResult(updateGoal("missing-goal", { title: "Meta alterada" }) ? "updated" : "rejected")}>Atualizar meta inexistente</button>
       <output data-testid="last-result">{lastResult}</output>
       <output data-testid="task-list">{JSON.stringify(tasks)}</output>
@@ -104,6 +133,16 @@ describe("AppContext scheduling guardrails", () => {
 
     expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
     expect(screen.getByTestId("task-list")).toHaveTextContent("[]");
+  });
+
+  it("rejects an entire assistant batch when one reschedule entry is invalid", () => {
+    renderSchedulingHarness([1, 3]);
+
+    fireEvent.click(screen.getByText("Rejeitar lote parcial do assistente"));
+
+    expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
+    expect(screen.getByTestId("task-list")).toHaveTextContent(MONDAY);
+    expect(screen.getByTestId("task-list")).not.toHaveTextContent(WEDNESDAY);
   });
 
   it("does not report success when asked to update a missing goal", () => {
