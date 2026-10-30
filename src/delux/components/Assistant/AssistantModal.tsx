@@ -359,7 +359,7 @@ export const AssistantModal: React.FC = () => {
                     <div className="pt-2 border-t border-delux-border space-y-1.5 mt-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-delux-purple-light">
                         <Zap className="w-3 h-3 text-delux-purple-light" />
-                        <span>{m.actions.every((act) => act.applied !== false) ? "Ações aplicadas no app" : m.actions.some((act) => act.applied !== false) ? "Algumas ações foram aplicadas" : "Nenhuma ação foi aplicada"}</span>
+                        <span>{m.actions.every((act) => act.applied === true) ? "Ações aplicadas no app" : m.actions.some((act) => act.applied === true) ? "Algumas ações foram aplicadas" : "Nenhuma ação foi aplicada"}</span>
                       </div>
                       <div className="space-y-1">
                         {m.actions.map((act) => (
