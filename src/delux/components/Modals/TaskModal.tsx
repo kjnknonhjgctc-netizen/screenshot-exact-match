@@ -1,10 +1,10 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { Task } from "../../types";
-import { parseLocalDateString } from "../../utils/dateUtils";
+import { getLocalDateString, parseLocalDateString } from "../../utils/dateUtils";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 interface TaskModalProps {
@@ -30,6 +30,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     taskToEdit ? taskToEdit.durationMinutes : preferences.dailyMinutes,
   );
   const [goalId, setGoalId] = useState(taskToEdit ? taskToEdit.goalId : goals[0]?.id || "");
+
+  // The modal stays mounted between openings; refresh fields for each selected task/date.
+  useEffect(() => {
+    if (!isOpen) return;
+    setTitle(taskToEdit?.title || "");
+    setInstruction(taskToEdit?.instruction || "");
+    setDate(taskToEdit?.date || initialDate || getLocalDateString(new Date()));
+    setTime(taskToEdit?.time || "");
+    setDurationMinutes(taskToEdit?.durationMinutes ?? preferences.dailyMinutes);
+    setGoalId(taskToEdit?.goalId || goals[0]?.id || "");
+  }, [isOpen, taskToEdit?.id, initialDate, preferences.dailyMinutes]);
 
   const present = useAnimatedPresence(isOpen, preferences.reducedMotion);
   if (!present) return null;
