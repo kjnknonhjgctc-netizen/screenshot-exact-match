@@ -112,6 +112,7 @@ export const CreateGoalModal: React.FC = () => {
 
     setIsGeneratingWithAi(true);
     setAiAdvice(null);
+    setAiGeneratedTasks(null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 60000);
     try {
@@ -361,7 +362,7 @@ export const CreateGoalModal: React.FC = () => {
               required
               placeholder="Ex: Aprender violão, Correr 5 km, Dominar React..."
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
               className="w-full px-3.5 py-3 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-sm text-delux-text placeholder-delux-muted transition-colors min-h-[48px]"
             />
           </div>
@@ -380,7 +381,7 @@ export const CreateGoalModal: React.FC = () => {
               type="text"
               placeholder="Ex: Para tocar com amigos, crescer na carreira..."
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={(e) => { setReason(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
               className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-xs text-delux-text placeholder-delux-muted transition-colors min-h-[44px]"
             />
           </div>
@@ -397,7 +398,7 @@ export const CreateGoalModal: React.FC = () => {
               <select
                 id="goal-category"
                 value={category}
-                onChange={(e) => setCategory(e.target.value as GoalCategory)}
+                onChange={(e) => { setCategory(e.target.value as GoalCategory); setAiGeneratedTasks(null); setAiAdvice(null); }}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
               >
                 {CATEGORIES.map((cat) => (
