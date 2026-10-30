@@ -52,6 +52,12 @@ export const AssistantModal: React.FC = () => {
       return Array.isArray(parsed)
         ? parsed.filter((message) => message && typeof message.id === 'string' &&
             ['user', 'assistant'].includes(message.role) && typeof message.content === 'string')
+            .map((message) => ({
+              ...message,
+              actions: Array.isArray(message.actions)
+                ? message.actions.filter((action) => action && typeof action === 'object')
+                : [],
+            }))
         : [];
     } catch {
       return [];
@@ -165,13 +171,19 @@ export const AssistantModal: React.FC = () => {
       }
 
       // Apply actions and preserve the real execution result in the chat.
-      let failedActions = 0;
-      if (data.actions && Array.isArray(data.actions)) {
-        for (const action of data.actions) {
-          action.applied = executeAssistantAction(action);
-          if (!action.applied) failedActions += 1;
-        }
-      }
+      const assistantActions = Array.isArray(data.actions)
+        ? data.actions
+            .filter((action: any) => action && typeof action === 'object')
+            .map((action: any) => {
+              try {
+                return { ...action, applied: executeAssistantAction(action) };
+              } catch (actionError) {
+                console.error('Failed to apply assistant action:', actionError);
+                return { ...action, applied: false };
+              }
+            })
+        : [];
+      const failedActions = assistantActions.filter((action: any) => !action.applied).length;
 
       const assistantMessage: ChatMessage = {
         id: `msg_ai_${Date.now()}`,
@@ -180,7 +192,7 @@ export const AssistantModal: React.FC = () => {
           ? `${data.reply}\n\nAtenção: ${failedActions} alteração(ões) não foi(ram) aplicada(s). Confira a validação exibida antes de considerar sua programação atualizada.`
           : data.reply,
         timestamp: new Date().toISOString(),
-        actions: data.actions || [],
+        actions: assistantActions,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -355,7 +367,7 @@ export const AssistantModal: React.FC = () => {
                             key={act.id}
                             className="p-2 rounded-xl bg-delux-canvas/80 border border-delux-purple/30 text-[11px] text-delux-ai-text flex items-center gap-2"
                           >
-                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied ? "bg-delux-purple/20 text-delux-purple-light" : "bg-delux-danger/20 text-delux-red"}`}>
+                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied !== false ? "bg-delux-purple/20 text-delux-purple-light" : "bg-delux-danger/20 text-delux-red"}`}>
                               {act.applied !== false ? <Check className="w-3 h-3 stroke-[3]" /> : <AlertCircle className="w-3 h-3" />}
                             </span>
                             <span className="font-medium text-delux-text leading-tight flex-1">
