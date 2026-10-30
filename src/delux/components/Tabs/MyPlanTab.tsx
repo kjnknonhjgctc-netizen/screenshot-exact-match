@@ -1,7 +1,7 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
-import { Compass, Clock, Calendar, Check, ArrowRight } from "lucide-react";
+import { Compass, Clock, Calendar, Check, ArrowRight, ChevronDown } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { formatFriendlyDate } from "../../utils/dateUtils";
 import { ProgressBar } from "../Common/ProgressBar";
@@ -10,15 +10,15 @@ export const MyPlanTab: React.FC = () => {
   const { goals, tasks, toggleTask, setIsCreateGoalOpen, setSelectedGoalId } = useApp();
 
   const [selectedPlanGoalId, setSelectedPlanGoalId] = useState<string>("all");
+  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
   const activeGoals = goals.filter((g) => g.status !== "paused");
 
   // Filter tasks based on selected goal
   const displayedTasks = tasks
     .filter((t) => (selectedPlanGoalId === "all" ? true : t.goalId === selectedPlanGoalId))
     .sort((a, b) => {
-      if (a.date !== b.date) {
-        return a.date.localeCompare(b.date);
-      }
+      if (a.goalId === b.goalId) return a.stepOrder - b.stepOrder;
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
       return a.stepOrder - b.stepOrder;
     });
 
@@ -211,9 +211,17 @@ export const MyPlanTab: React.FC = () => {
                   </h3>
 
                   {task.instruction && (
-                    <p className="text-xs text-delux-secondary mt-1 leading-relaxed">
-                      {task.instruction}
-                    </p>
+                    <div className="mt-2">
+                      <p className={`text-xs text-delux-secondary leading-relaxed whitespace-pre-line ${expandedTasks[task.id] ? "" : "line-clamp-3"}`}>
+                        {task.instruction}
+                      </p>
+                      {task.instruction.length > 180 && (
+                        <button type="button" onClick={() => setExpandedTasks((prev) => ({ ...prev, [task.id]: !prev[task.id] }))} className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-delux-purple-light hover:underline">
+                          {expandedTasks[task.id] ? "Mostrar menos" : "Ver passo a passo completo"}
+                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedTasks[task.id] ? "rotate-180" : ""}`} />
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {/* Immediate Action inside card with thumb touch target */}
