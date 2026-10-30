@@ -1,12 +1,8 @@
 import { DELUX_SYSTEM_INSTRUCTION, assistantTools } from "./prompts.server";
 
-const MODELS = [
-  "gemini-3.8-flash",
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-];
+// Prefer the stable Flash model; keep one lightweight fallback instead of
+// walking through several unavailable model IDs on every user request.
+const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -115,7 +111,7 @@ function buildContext(context: any): string {
   const taskListText = Array.isArray(context.tasks) && context.tasks.length > 0
     ? context.tasks
         .filter((task: any) => task && typeof task === "object")
-        .slice(0, 80)
+        .slice(0, 35)
         .map((task: any) => {
           const id = cleanText(task.id, 100);
           const title = cleanText(task.title, 140) || "Tarefa sem título";
@@ -130,7 +126,7 @@ function buildContext(context: any): string {
   const goals = Array.isArray(context.goals) && context.goals.length > 0
     ? context.goals
         .filter((goal: any) => goal && typeof goal === "object")
-        .slice(0, 30)
+        .slice(0, 15)
         .map((goal: any) => {
           const id = cleanText(goal.id, 100);
           const title = cleanText(goal.title, 140) || "Meta sem título";
@@ -208,7 +204,7 @@ ${ctx}`
       systemInstruction: { parts: [{ text: systemText }] },
       contents,
       tools: [{ functionDeclarations: assistantTools }],
-      generationConfig: { temperature: 0.3 },
+      generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
     });
     const replyText = (out.text || "").trim();
     const validToolNames = new Set(assistantTools.map((tool) => tool.name));
