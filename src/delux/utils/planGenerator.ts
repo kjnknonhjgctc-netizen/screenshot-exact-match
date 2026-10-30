@@ -296,24 +296,43 @@ export function generateTasksForGoal(
   preferences: UserPreferences,
   startDateStr?: string
 ): { tasks: Task[]; warning?: string } {
-  const { availableDays, dailyMinutes } = preferences;
+  const availableDays = Array.isArray(preferences?.availableDays)
+    ? [...new Set(preferences.availableDays.filter((day) => Number.isInteger(day) && day >= 0 && day <= 6))]
+    : [];
+  const dailyMinutes = Number.isInteger(preferences?.dailyMinutes) &&
+    preferences.dailyMinutes >= 5 && preferences.dailyMinutes <= 1440
+    ? preferences.dailyMinutes
+    : 30;
 
-  if (!availableDays || availableDays.length === 0) {
+  if (availableDays.length === 0) {
     return {
       tasks: [],
       warning: 'Você não selecionou nenhum dia disponível na sua semana. Escolha ao menos 1 dia para gerar o plano.',
     };
   }
 
-  const stepTemplates = getStepsForGoal(title, category, dailyMinutes);
+  const safeTitle = typeof title === 'string' && title.trim() ? title.trim() : 'Objetivo pessoal';
+  const stepTemplates = getStepsForGoal(safeTitle, category, dailyMinutes);
   const tasks: Task[] = [];
 
-  let currentDate = startDateStr ? parseLocalDateString(startDateStr) : new Date();
+  let currentDate = new Date();
+  if (typeof startDateStr === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(startDateStr)) {
+    const parsedDate = parseLocalDateString(startDateStr);
+    if (!Number.isNaN(parsedDate.getTime()) && getLocalDateString(parsedDate) === startDateStr) {
+      currentDate = parsedDate;
+    }
+  }
   currentDate.setHours(0, 0, 0, 0);
 
-  // If today is not in availableDays, advance to the first available day
-  while (!availableDays.includes(currentDate.getDay())) {
+  // Find the next date that is part of the normalized availability list.
+  for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
     currentDate = addDays(currentDate, 1);
+  }
+  if (!availableDays.includes(currentDate.getDay())) {
+    return {
+      tasks: [],
+      warning: 'Não foi possível encontrar um próximo dia disponível. Confira suas preferências.',
+    };
   }
 
   for (let i = 0; i < stepTemplates.length; i++) {
@@ -326,7 +345,8 @@ export function generateTasksForGoal(
       title: step.title,
       instruction: step.instruction,
       date: dateStr,
-      durationMinutes: step.durationMinutes,
+      // A generated session must never exceed the user's daily time budget.
+      durationMinutes: Math.max(5, Math.min(step.durationMinutes, dailyMinutes)),
       completed: false,
       stepOrder: i + 1,
       isAutomated: true,
@@ -334,7 +354,7 @@ export function generateTasksForGoal(
 
     // Advance to next allowed day
     currentDate = addDays(currentDate, 1);
-    while (!availableDays.includes(currentDate.getDay())) {
+    for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
       currentDate = addDays(currentDate, 1);
     }
   }
