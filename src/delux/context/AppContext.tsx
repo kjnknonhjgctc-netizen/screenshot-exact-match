@@ -430,7 +430,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         !isValidTaskTime(task.time),
       );
       if (invalidTask) {
-        showToast('Revise as etapas manuais: cada uma precisa de título e uma data em dia disponível.', 'error');
+        showToast('Revise as etapas: cada uma precisa de título, data disponível e duração válida.', 'error');
         return null;
       }
     }
