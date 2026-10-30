@@ -51,7 +51,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     taskToEdit?.goalId,
     initialDate,
     preferences.dailyMinutes,
-    goals,
+    goals[0]?.id,
   ]);
 
   const present = useAnimatedPresence(isOpen, preferences.reducedMotion);
