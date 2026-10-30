@@ -1,8 +1,8 @@
 import { DELUX_SYSTEM_INSTRUCTION, assistantTools } from "./prompts.server";
 
-// Prefer the stable Flash model; keep one lightweight fallback instead of
-// walking through several unavailable model IDs on every user request.
-const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+// Prefer Gemini 2.5 Flash and use the currently recommended 3.5 Flash Lite fallback.
+// Avoid retired model IDs that can break assistant requests for new users.
+const MODELS = ["gemini-2.5-flash", "gemini-3.5-flash-lite"];
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
