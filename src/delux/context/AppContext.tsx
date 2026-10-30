@@ -94,6 +94,24 @@ const STORAGE_KEYS = {
   HISTORY: 'delux_history_v2',
 };
 
+
+const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
+  if (typeof date !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return false;
+  const parsed = new Date(`${date}T12:00:00`);
+  return !Number.isNaN(parsed.getTime()) &&
+    getLocalDateString(parsed) === date &&
+    availableDays.includes(parsed.getDay());
+};
+
+const nextAllowedScheduleDate = (date: string, availableDays: number[]) => {
+  let candidate = new Date(`${date}T12:00:00`);
+  for (let i = 0; i < 7; i++) {
+    if (availableDays.includes(candidate.getDay())) return getLocalDateString(candidate);
+    candidate = addDays(candidate, 1);
+  }
+  return null;
+};
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -462,7 +480,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Replan Goal: redistributes only remaining pending tasks starting from next available day
   const replanGoal = (goalId: string) => {
     const goal = goals.find((g) => g.id === goalId);
-    if (!goal) return { updatedCount: 0 };
+    if (!goal || !preferences.availableDays.length) return { updatedCount: 0 };
 
     const goalTasks = tasks.filter((t) => t.goalId === goalId);
     const pending = goalTasks.filter((t) => !t.completed).sort((a, b) => a.stepOrder - b.stepOrder);
@@ -499,6 +517,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       case 'reschedule_task': {
         const { taskId, newDate, newTime, summary } = action.payload || {};
         if (!taskId || !newDate) return;
+        if (!isAllowedScheduleDate(newDate, preferences.availableDays)) {
+          showToast('Esse dia não está disponível na sua rotina. Ajuste seus dias disponíveis ou escolha outra data.', 'error');
+          break;
+        }
+        if (!tasks.some((task) => task.id === taskId)) {
+          showToast('Não encontrei essa tarefa para reagendar.', 'error');
+          break;
+        }
         setTasks((prev) =>
           prev.map((t) =>
             t.id === taskId
@@ -529,8 +555,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       case 'batch_reschedule_tasks': {
         const { updates, summary } = action.payload || {};
         if (!Array.isArray(updates) || updates.length === 0) return;
+        const validUpdates = updates.filter((u: any) =>
+          u?.taskId && isAllowedScheduleDate(u.newDate, preferences.availableDays) && tasks.some((task) => task.id === u.taskId)
+        );
+        if (validUpdates.length === 0) {
+          showToast('Nenhuma tarefa foi reagendada: as datas precisam respeitar seus dias disponíveis.', 'error');
+          break;
+        }
         const updateMap = new Map<string, { newDate: string; newTime?: string }>();
-        updates.forEach((u: any) => {
+        validUpdates.forEach((u: any) => {
           if (u.taskId && u.newDate) {
             updateMap.set(u.taskId, { newDate: u.newDate, newTime: u.newTime });
           }
@@ -547,13 +580,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             };
           })
         );
-        showToast(summary || `${updates.length} tarefas reagendadas pelo Delux IA.`, 'success');
+        showToast(validUpdates.length < updates.length ? `${validUpdates.length} tarefa(s) reagendada(s). As demais foram ignoradas por conflito com seus dias disponíveis.` : (summary || `${validUpdates.length} tarefas reagendadas pelo Delux IA.`), validUpdates.length < updates.length ? 'info' : 'success');
         break;
       }
 
       case 'create_task': {
         const { title, instruction, date, time, durationMinutes, goalId, summary } = action.payload || {};
         if (!title || !date) return;
+        if (!isAllowedScheduleDate(date, preferences.availableDays)) {
+          showToast('Não criei a tarefa: a data escolhida não é um dia disponível na sua rotina.', 'error');
+          break;
+        }
         const targetGoalId = goalId && goals.some((g) => g.id === goalId)
           ? goalId
           : (goals[0]?.id || 'manual');
@@ -574,6 +611,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       case 'update_task': {
         const { taskId, title, instruction, date, time, durationMinutes, summary } = action.payload || {};
         if (!taskId) return;
+        if (date && !isAllowedScheduleDate(date, preferences.availableDays)) {
+          showToast('Não alterei a data: ela não corresponde a um dia disponível na sua rotina.', 'error');
+          break;
+        }
+        if (!tasks.some((task) => task.id === taskId)) {
+          showToast('Não encontrei essa tarefa para atualizar.', 'error');
+          break;
+        }
         updateTask(taskId, {
           ...(title ? { title } : {}),
           ...(instruction !== undefined ? { instruction } : {}),
@@ -607,8 +652,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       case 'adjust_routine_days_and_time': {
         const { availableDays, dailyMinutes, rhythm, preferredTime, summary } = action.payload || {};
         const partial: Partial<UserPreferences> = {};
-        if (Array.isArray(availableDays) && availableDays.length > 0) {
-          partial.availableDays = availableDays;
+        if (Array.isArray(availableDays) && availableDays.length > 0 && availableDays.every((day: number) => Number.isInteger(day) && day >= 0 && day <= 6)) {
+          partial.availableDays = [...new Set(availableDays)].sort((a: number, b: number) => a - b);
         }
         if (dailyMinutes && typeof dailyMinutes === 'number') {
           partial.dailyMinutes = dailyMinutes;
@@ -650,7 +695,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updatePreferences = (partial: Partial<UserPreferences>) => {
-    setPreferences((prev) => ({ ...prev, ...partial }));
+    const nextPreferences = { ...preferences, ...partial };
+    if (!nextPreferences.availableDays.length) {
+      showToast('Mantenha ao menos um dia disponível na semana.', 'error');
+      return;
+    }
+    setPreferences(nextPreferences);
+
+    if (partial.availableDays) {
+      const movedTasks = new Map<string, string>();
+      tasks.filter((task) => !task.completed && !isAllowedScheduleDate(task.date, nextPreferences.availableDays))
+        .forEach((task) => {
+          const nextDate = nextAllowedScheduleDate(task.date, nextPreferences.availableDays);
+          if (nextDate) movedTasks.set(task.id, nextDate);
+        });
+      if (movedTasks.size) {
+        setTasks((prev) => prev.map((task) => movedTasks.has(task.id)
+          ? { ...task, date: movedTasks.get(task.id)! }
+          : task));
+        showToast(`Rotina atualizada. ${movedTasks.size} tarefa(s) pendente(s) foram movidas para dias disponíveis.`, 'success');
+        return;
+      }
+    }
     showToast('Preferências atualizadas.', 'success');
   };
 
