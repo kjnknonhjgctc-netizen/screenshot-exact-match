@@ -9,7 +9,7 @@ const MONDAY = "2026-10-26";
 const WEDNESDAY = "2026-10-28";
 
 function SchedulingHarness() {
-  const { tasks, addTask, updateGoal, updatePreferences, executeAssistantAction } = useApp();
+  const { goals, tasks, addGoal, addTask, updateGoal, updatePreferences, executeAssistantAction } = useApp();
   const [lastResult, setLastResult] = useState("not-run");
 
   const addTuesdayTask = () => {
@@ -69,13 +69,32 @@ function SchedulingHarness() {
 
   return (
     <>
+      <button onClick={() => {
+        const created = addGoal(
+          { title: "Aprender violão", category: "Estudos", method: "auto", dailyMinutes: 30 },
+          undefined,
+          [
+            { title: "Sessão 1", instruction: "Prática inicial", date: MONDAY, durationMinutes: 45 },
+            { title: "Sessão 2", instruction: "Revisão", date: WEDNESDAY, durationMinutes: 20 },
+          ],
+        );
+        setLastResult(created ? "created" : "rejected");
+      }}>Criar plano gerado válido</button>
+      <button onClick={() => {
+        const created = addGoal(
+          { title: "Aprender violão", category: "Estudos", method: "auto", dailyMinutes: 30 },
+          undefined,
+          [{ title: "Sessão em dia bloqueado", date: TUESDAY, durationMinutes: 20 }],
+        );
+        setLastResult(created ? "created" : "rejected");
+      }}>Criar plano gerado em dia bloqueado</button>
       <button onClick={addTuesdayTask}>Adicionar tarefa de terça</button>
       <button onClick={changeRoutine}>Alterar dias disponíveis</button>
       <button onClick={createBlockedAssistantTask}>Criar tarefa pela IA em terça</button>
       <button onClick={rejectPartialBatchReschedule}>Rejeitar lote parcial do assistente</button>
       <button onClick={() => setLastResult(updateGoal("missing-goal", { title: "Meta alterada" }) ? "updated" : "rejected")}>Atualizar meta inexistente</button>
       <output data-testid="last-result">{lastResult}</output>
-      <output data-testid="task-list">{JSON.stringify(tasks)}</output>
+      <output data-testid="task-list">{JSON.stringify(tasks)}</output>\n      <output data-testid="goal-list">{JSON.stringify(goals)}</output>
     </>
   );
 }
@@ -151,5 +170,34 @@ describe("AppContext scheduling guardrails", () => {
     fireEvent.click(screen.getByText("Atualizar meta inexistente"));
 
     expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
+  });
+});
+
+
+describe("generated AI plan persistence", () => {
+  it("persists generated sessions in order and caps each session to the daily time budget", () => {
+    renderSchedulingHarness([1, 3]);
+
+    fireEvent.click(screen.getByText("Criar plano gerado válido"));
+
+    expect(screen.getByTestId("last-result")).toHaveTextContent("created");
+    const savedTasks = JSON.parse(screen.getByTestId("task-list").textContent || "[]");
+    expect(savedTasks).toHaveLength(2);
+    expect(savedTasks.map((task: any) => task.title)).toEqual(["Sessão 1", "Sessão 2"]);
+    expect(savedTasks.map((task: any) => task.stepOrder)).toEqual([1, 2]);
+    expect(savedTasks.map((task: any) => task.durationMinutes)).toEqual([30, 20]);
+    expect(savedTasks.every((task: any) => task.isAutomated)).toBe(true);
+    expect(savedTasks.map((task: any) => task.date)).toEqual([MONDAY, WEDNESDAY]);
+    expect(JSON.parse(screen.getByTestId("goal-list").textContent || "[]")).toHaveLength(1);
+  });
+
+  it("rejects a generated plan containing a session on an unavailable weekday without creating the goal", () => {
+    renderSchedulingHarness([1, 3]);
+
+    fireEvent.click(screen.getByText("Criar plano gerado em dia bloqueado"));
+
+    expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
+    expect(screen.getByTestId("task-list")).toHaveTextContent("[]");
+    expect(screen.getByTestId("goal-list")).toHaveTextContent("[]");
   });
 });
