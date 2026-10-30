@@ -241,9 +241,9 @@ export async function handleGeneratePlan(request: Request) {
   const apiKey = process.env['GEMINI_API_KEY'];
   if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
   try {
-    const parsed = await readJsonBody(request, 20000);
-    if (parsed.error) return parsed.error;
-    const body = parsed.body;
+    const requestBody = await readJsonBody(request, 20000);
+    if (requestBody.error) return requestBody.error;
+    const body = requestBody.body;
     const goalTitle = cleanText(body?.goalTitle, 160);
     if (goalTitle.length < 2) return json({ error: "Informe um título de objetivo válido." }, 400);
     const category = cleanText(body?.category, 80) || "Geral";
