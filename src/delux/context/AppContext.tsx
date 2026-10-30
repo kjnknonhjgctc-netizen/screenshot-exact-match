@@ -298,8 +298,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const streakDays = useMemo(() => {
     const completedDates = new Set(
       tasks
-        .filter((t) => t.completed && t.date)
-        .map((t) => t.date)
+        .filter((t) => t.completed && (t.completedAt || t.date))
+        .map((t) => t.completedAt ? getLocalDateString(new Date(t.completedAt)) : t.date)
     );
 
     if (completedDates.size === 0) return 0;
@@ -330,7 +330,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const evaluateAchievements = (updatedGoals: Goal[], updatedTasks: Task[]) => {
     const completedTasksCount = updatedTasks.filter((t) => t.completed).length;
     const completedDates = new Set(
-      updatedTasks.filter((task) => task.completed && task.date).map((task) => task.date),
+      updatedTasks
+        .filter((task) => task.completed && (task.completedAt || task.date))
+        .map((task) => task.completedAt ? getLocalDateString(new Date(task.completedAt)) : task.date),
     );
     const today = new Date();
     let streakCursor = completedDates.has(getLocalDateString(today))
@@ -463,6 +465,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Delete Goal action: cascades to all associated tasks safely
   const deleteGoal = (id: string) => {
     const targetGoal = goals.find((g) => g.id === id);
+    if (!targetGoal) {
+      showToast('Não encontrei essa meta para excluir.', 'error');
+      return;
+    }
     setGoals((prev) => prev.filter((g) => g.id !== id));
     setTasks((prev) => prev.filter((t) => t.goalId !== id));
 
@@ -474,7 +480,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {
         id: createUniqueId('hist_goal_deleted'),
         timestamp: new Date().toISOString(),
-        type: 'goal_created',
+        type: 'goal_deleted',
         title: `Meta removida`,
         description: targetGoal ? `Meta "${targetGoal.title}" e suas tarefas foram excluídas.` : 'Meta excluída.',
       },
