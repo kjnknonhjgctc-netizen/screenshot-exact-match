@@ -397,7 +397,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     if (goalData.method === 'manual') {
       const invalidTask = (manualTasks || []).find((task) =>
-        !task.title?.trim() || !isAllowedScheduleDate(task.date, preferences.availableDays),
+        !task.title?.trim() ||
+        !isAllowedScheduleDate(task.date, preferences.availableDays) ||
+        !Number.isInteger(task.durationMinutes) || task.durationMinutes < 5 || task.durationMinutes > 1440 ||
+        !isValidTaskTime(task.time),
       );
       if (invalidTask) {
         showToast('Revise as etapas manuais: cada uma precisa de título e uma data em dia disponível.', 'error');
@@ -872,6 +875,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEYS.PREFERENCES);
     localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
     localStorage.removeItem(STORAGE_KEYS.HISTORY);
+    localStorage.removeItem('delux_assistant_chat');
 
     setGoals([]);
     setTasks([]);
