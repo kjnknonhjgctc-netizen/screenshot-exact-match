@@ -316,7 +316,7 @@ export function generateTasksForGoal(
   const tasks: Task[] = [];
 
   let currentDate = new Date();
-  if (typeof startDateStr === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(startDateStr)) {
+  if (typeof startDateStr === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(startDateStr)) {
     const parsedDate = parseLocalDateString(startDateStr);
     if (!Number.isNaN(parsedDate.getTime()) && getLocalDateString(parsedDate) === startDateStr) {
       currentDate = parsedDate;
