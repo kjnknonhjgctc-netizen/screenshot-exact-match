@@ -407,7 +407,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Add Goal action
   const addGoal = (
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
-    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
+    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[],
+    generatedPlanTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => {
     const tasks = tasksRef.current;
     const goals = goalsRef.current;
