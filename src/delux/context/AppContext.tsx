@@ -743,17 +743,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           showToast('Nenhuma alteração de data foi recebida.', 'error');
           return false;
         }
-        const validUpdates = new Map<string, { newDate: string; newTime?: string }>();
-        updates.forEach((update: any) => {
-          if (update?.taskId &&
-            tasks.some((task) => task.id === update.taskId) &&
-            isAllowedScheduleDate(update.newDate, preferences.availableDays) && isValidTaskTime(update.newTime)) {
-            validUpdates.set(update.taskId, { newDate: update.newDate, newTime: update.newTime });
-          }
-        });
-        if (validUpdates.size === 0) {
-          showToast('Nenhuma tarefa foi reagendada: confira os IDs e os dias disponíveis.', 'error');
+        // Treat a batch as one transaction: never report success after silently
+        // applying only part of the assistant's requested schedule.
+        if (updates.length > tasks.length) {
+          showToast('Não foi possível reagendar: a lista contém alterações inválidas.', 'error');
           return false;
+        }
+        const validUpdates = new Map<string, { newDate: string; newTime?: string }>();
+        for (const update of updates) {
+          if (!update?.taskId ||
+            validUpdates.has(update.taskId) ||
+            !tasks.some((task) => task.id === update.taskId) ||
+            !isAllowedScheduleDate(update.newDate, preferences.availableDays) ||
+            !isValidTaskTime(update.newTime)) {
+            showToast('Nenhuma tarefa foi reagendada: revise todos os IDs, datas e horários informados.', 'error');
+            return false;
+          }
+          validUpdates.set(update.taskId, { newDate: update.newDate, newTime: update.newTime });
         }
         setTasks((prev) => prev.map((task) => {
           const update = validUpdates.get(task.id);
@@ -761,13 +767,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ? { ...task, date: update.newDate, ...(update.newTime !== undefined ? { time: update.newTime || undefined } : {}) }
             : task;
         }));
-        const skipped = updates.length - validUpdates.size;
-        showToast(
-          skipped > 0
-            ? `${validUpdates.size} tarefa(s) reagendada(s). ${skipped} alteração(ões) inválida(s) foram ignoradas.`
-            : (summary || `${validUpdates.size} tarefas reagendadas pelo Delux IA.`),
-          skipped > 0 ? 'info' : 'success',
-        );
+        showToast(summary || `${validUpdates.size} tarefas reagendadas pelo Delux IA.`, 'success');
         return true;
       }
 
