@@ -54,7 +54,7 @@ interface AppContextType {
   deleteTask: (id: string) => boolean;
   toggleTask: (id: string) => void;
   replanGoal: (goalId: string) => { updatedCount: number };
-  executeAssistantAction: (action: AssistantAction) => void;
+  executeAssistantAction: (action: AssistantAction) => boolean;
 
   updatePreferences: (partial: Partial<UserPreferences>) => boolean;
   resetAllData: () => void;
@@ -95,6 +95,12 @@ const STORAGE_KEYS = {
 };
 
 
+const isValidTaskTime = (time: unknown) => {
+  if (time === undefined || time === null || time === '') return true;
+  if (typeof time !== 'string' || !/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(time)) return false;
+  return true;
+};
+
 const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
   if (!Array.isArray(availableDays) || availableDays.length === 0) return false;
   if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
@@ -124,7 +130,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [goals, setGoals] = useState<Goal[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GOALS);
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed.filter((goal) => goal && typeof goal.id === 'string' && typeof goal.title === 'string') : [];
     } catch {
       return [];
     }
@@ -133,7 +140,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((task) => task && typeof task.id === 'string' && typeof task.title === 'string' && typeof task.date === 'string')
+        : [];
     } catch {
       return [];
     }
@@ -142,7 +152,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-      return saved ? { ...DEFAULT_PREFERENCES, ...JSON.parse(saved) } : DEFAULT_PREFERENCES;
+      if (!saved) return DEFAULT_PREFERENCES;
+      const parsed = JSON.parse(saved);
+      const availableDays = Array.isArray(parsed?.availableDays)
+        ? [...new Set(parsed.availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))]
+        : DEFAULT_PREFERENCES.availableDays;
+      return {
+        ...DEFAULT_PREFERENCES,
+        ...parsed,
+        availableDays: availableDays.length > 0 ? availableDays : DEFAULT_PREFERENCES.availableDays,
+        dailyMinutes: Number.isInteger(parsed?.dailyMinutes) && parsed.dailyMinutes >= 5 && parsed.dailyMinutes <= 1440
+          ? parsed.dailyMinutes
+          : DEFAULT_PREFERENCES.dailyMinutes,
+        preferredTime: ['morning', 'afternoon', 'evening'].includes(parsed?.preferredTime)
+          ? parsed.preferredTime
+          : DEFAULT_PREFERENCES.preferredTime,
+        rhythm: ['light', 'balanced', 'intense'].includes(parsed?.rhythm)
+          ? parsed.rhythm
+          : DEFAULT_PREFERENCES.rhythm,
+        reducedMotion: typeof parsed?.reducedMotion === 'boolean' ? parsed.reducedMotion : DEFAULT_PREFERENCES.reducedMotion,
+        soundEnabled: typeof parsed?.soundEnabled === 'boolean' ? parsed.soundEnabled : DEFAULT_PREFERENCES.soundEnabled,
+      };
     } catch {
       return DEFAULT_PREFERENCES;
     }
@@ -170,6 +200,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem(STORAGE_KEYS.HISTORY);
       if (!saved) return [];
       const parsed: HistoryEvent[] = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
       // Clean up and ensure all historical events have unique IDs
       const seenIds = new Set<string>();
       return parsed.map((item, idx) => {
@@ -192,6 +223,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isCreateGoalOpen, setIsCreateGoalOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  // Repair legacy pending tasks that were previously stored on unavailable days.
+  useEffect(() => {
+    const repairedTasks = tasks.map((task) => {
+      if (task.completed || isAllowedScheduleDate(task.date, preferences.availableDays)) return task;
+      const nextDate = nextAllowedScheduleDate(task.date, preferences.availableDays);
+      return nextDate ? { ...task, date: nextDate } : task;
+    });
+    if (repairedTasks.some((task, index) => task !== tasks[index])) setTasks(repairedTasks);
+  }, []);
 
   // Sync state to localStorage safely
   useEffect(() => {
@@ -457,6 +498,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('A duração deve estar entre 5 minutos e 24 horas.', 'error');
       return null;
     }
+    if (!isValidTaskTime(taskData.time)) {
+      showToast('Informe um horário válido no formato HH:MM.', 'error');
+      return null;
+    }
     const existingForGoal = tasks.filter((t) => t.goalId === taskData.goalId);
     const newTask: Task = {
       ...taskData,
@@ -477,13 +522,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('Não encontrei essa tarefa para atualizar.', 'error');
       return false;
     }
-    if (partial.date !== undefined && !isAllowedScheduleDate(partial.date, preferences.availableDays)) {
+    if (partial.date !== undefined && partial.date !== target.date && !isAllowedScheduleDate(partial.date, preferences.availableDays)) {
       showToast('Não foi possível salvar: escolha um dia disponível na sua rotina.', 'error');
       return false;
     }
     if (partial.durationMinutes !== undefined &&
       (!Number.isInteger(partial.durationMinutes) || partial.durationMinutes < 5 || partial.durationMinutes > 1440)) {
       showToast('A duração deve estar entre 5 minutos e 24 horas.', 'error');
+      return false;
+    }
+    if (partial.time !== undefined && !isValidTaskTime(partial.time)) {
+      showToast('Informe um horário válido no formato HH:MM.', 'error');
       return false;
     }
     if (partial.title !== undefined && !partial.title.trim()) {
