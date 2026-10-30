@@ -1,5 +1,5 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import {
   Achievement,
   AssistantAction,
@@ -128,7 +128,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State initialization with localStorage fallback
-  const [goals, setGoals] = useState<Goal[]>(() => {
+  const [goals, setGoalsState] = useState<Goal[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GOALS);
       const parsed = saved ? JSON.parse(saved) : [];
@@ -138,7 +138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
+  const [tasks, setTasksState] = useState<Task[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
       const parsed = saved ? JSON.parse(saved) : [];
@@ -150,7 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [preferences, setPreferences] = useState<UserPreferences>(() => {
+  const [preferences, setPreferencesState] = useState<UserPreferences>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
       if (!saved) return DEFAULT_PREFERENCES;
@@ -216,6 +216,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return [];
     }
   });
+
+  // Latest committed data. Several actions can run in one event (for example, multiple
+  // assistant actions); reading from these refs prevents later actions from overwriting
+  // earlier ones with a stale render snapshot.
+  const goalsRef = useRef(goals);
+  const tasksRef = useRef(tasks);
+  const prefsRef = useRef(preferences);
+  const setGoals = (next: Goal[] | ((prev: Goal[]) => Goal[])) => {
+    const value = typeof next === 'function' ? next(goalsRef.current) : next;
+    goalsRef.current = value;
+    setGoalsState(value);
+  };
+  const setTasks = (next: Task[] | ((prev: Task[]) => Task[])) => {
+    const value = typeof next === 'function' ? next(tasksRef.current) : next;
+    tasksRef.current = value;
+    setTasksState(value);
+  };
+  const setPreferences = (value: UserPreferences) => {
+    prefsRef.current = value;
+    setPreferencesState(value);
+  };
 
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -387,6 +408,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
     manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => {
+    const tasks = tasksRef.current;
+    const goals = goalsRef.current;
+    const preferences = prefsRef.current;
     if (!goalData.title?.trim()) {
       showToast('O título da meta é obrigatório.', 'error');
       return null;
@@ -461,6 +485,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Update Goal action
   const updateGoal = (id: string, partial: Partial<Goal>): boolean => {
+    const tasks = tasksRef.current;
+    const goals = goalsRef.current;
     if (!goals.some((goal) => goal.id === id)) {
       showToast('Não encontrei essa meta para atualizar.', 'error');
       return false;
@@ -481,6 +507,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Delete Goal action: cascades to all associated tasks safely
   const deleteGoal = (id: string) => {
+    const goals = goalsRef.current;
     const targetGoal = goals.find((g) => g.id === id);
     if (!targetGoal) {
       showToast('Não encontrei essa meta para excluir.', 'error');
@@ -509,6 +536,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Add standalone or manual task
   const addTask = (taskData: Omit<Task, 'id' | 'completed' | 'stepOrder'>) => {
+    const tasks = tasksRef.current;
+    const preferences = prefsRef.current;
     if (!taskData?.title?.trim()) {
       showToast('O título da tarefa é obrigatório.', 'error');
       return null;
@@ -541,6 +570,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTask = (id: string, partial: Partial<Task>) => {
+    const tasks = tasksRef.current;
+    const preferences = prefsRef.current;
     const target = tasks.find((task) => task.id === id);
     if (!target) {
       showToast('Não encontrei essa tarefa para atualizar.', 'error');
@@ -569,6 +600,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteTask = (id: string) => {
+    const tasks = tasksRef.current;
     if (!tasks.some((task) => task.id === id)) {
       showToast('Não encontrei essa tarefa para excluir.', 'error');
       return false;
@@ -580,6 +612,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Toggle Task Completion: the heartbeat of the app
   const toggleTask = (id: string) => {
+    const tasks = tasksRef.current;
+    const goals = goalsRef.current;
     const target = tasks.find((t) => t.id === id);
     if (!target) return;
 
@@ -632,6 +666,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Replan Goal: redistributes only remaining pending tasks starting from next available day
   const replanGoal = (goalId: string) => {
+    const tasks = tasksRef.current;
+    const goals = goalsRef.current;
+    const preferences = prefsRef.current;
     const goal = goals.find((g) => g.id === goalId);
     const availableDays = Array.isArray(preferences.availableDays)
       ? preferences.availableDays.filter((day) => Number.isInteger(day) && day >= 0 && day <= 6)
@@ -670,6 +707,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const executeAssistantAction = (action: AssistantAction): boolean => {
+    const tasks = tasksRef.current;
+    const goals = goalsRef.current;
+    const preferences = prefsRef.current;
     switch (action.type) {
       case 'reschedule_task': {
         const { taskId, newDate, newTime, summary } = action.payload || {};
@@ -843,6 +883,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updatePreferences = (partial: Partial<UserPreferences>): boolean => {
+    const tasks = tasksRef.current;
+    const preferences = prefsRef.current;
     const nextPreferences = { ...preferences, ...partial };
     const validDays = Array.isArray(nextPreferences.availableDays) &&
       nextPreferences.availableDays.length > 0 &&
