@@ -97,8 +97,9 @@ const STORAGE_KEYS = {
 
 const isValidTaskTime = (time: unknown) => {
   if (time === undefined || time === null || time === '') return true;
-  if (typeof time !== 'string' || !/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(time)) return false;
-  return true;
+  if (typeof time !== 'string' || !/^[0-9]{2}:[0-9]{2}$/.test(time)) return false;
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours <= 23 && minutes <= 59;
 };
 
 const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
@@ -645,7 +646,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     switch (action.type) {
       case 'reschedule_task': {
         const { taskId, newDate, newTime, summary } = action.payload || {};
-        if (!taskId || !isAllowedScheduleDate(newDate, preferences.availableDays)) {
+        if (!taskId || !isAllowedScheduleDate(newDate, preferences.availableDays) || !isValidTaskTime(newTime)) {
           showToast('Não foi possível reagendar: confira a tarefa e escolha um dia disponível.', 'error');
           return false;
         }
@@ -679,7 +680,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updates.forEach((update: any) => {
           if (update?.taskId &&
             tasks.some((task) => task.id === update.taskId) &&
-            isAllowedScheduleDate(update.newDate, preferences.availableDays)) {
+            isAllowedScheduleDate(update.newDate, preferences.availableDays) && isValidTaskTime(update.newTime)) {
             validUpdates.set(update.taskId, { newDate: update.newDate, newTime: update.newTime });
           }
         });
