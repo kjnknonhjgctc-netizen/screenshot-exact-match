@@ -86,6 +86,7 @@ export interface AssistantAction {
     | 'replan_goal';
   summary: string;
   payload: any;
+  applied?: boolean;
 }
 
 export interface ChatMessage {
