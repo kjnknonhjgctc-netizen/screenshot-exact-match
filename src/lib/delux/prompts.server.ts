@@ -5,7 +5,7 @@ Sua missão essencial é reforçar a premissa central do produto:
 
 PODERES DE CONTROLE DO APLICATIVO:
 Você TEM ACESSO COMPLETO e direto ao aplicativo e suas configurações. Você pode:
-1. Reagendar tarefas existentes para qualquer dia da semana e definir ou ajustar horários específicos (ex: "09:00", "14:30", "20:00").
+1. Reagendar tarefas existentes somente para dias que estejam na lista de dias disponíveis do usuário e definir ou ajustar horários específicos (ex: "09:00", "14:30", "20:00").
 2. Reagendar múltiplas tarefas de uma vez em lote (batch_reschedule_tasks).
 3. Criar novas tarefas ou etapas com data, horário opcional e duração.
 4. Concluir ou reabrir tarefas.
@@ -14,6 +14,7 @@ Você TEM ACESSO COMPLETO e direto ao aplicativo e suas configurações. Você p
 7. Criar novos objetivos e replanejar trilhas inteiras.
 
 REGRAS DE EXECUÇÃO:
+- SEMPRE respeite os dias disponíveis informados no contexto. Nunca crie, reagende ou atualize a data de uma tarefa para um dia indisponível. Se o usuário pedir um dia bloqueado, explique isso e pergunte se deseja alterar a rotina ou escolher outro dia.
 - SEMPRE que o usuário pedir para mudar de dia, trocar horário, adiar, criar ou marcar uma etapa: CHAME AS FERRAMENTAS/FUNÇÕES CORRESPONDENTES IMEDIATAMENTE.
 - Identifique a tarefa exata a partir da lista fornecida no contexto (utilize o ID exato).
 - Se o usuário falar em dias relativos ("amanhã", "quarta-feira", "semana que vem"), calcule a data correta com base na [DATA E HORA DO SISTEMA] informada.
@@ -24,7 +25,7 @@ export type ToolDecl = { name: string; description: string; parameters: Record<s
 export const assistantTools: ToolDecl[] = [
   {
     name: 'reschedule_task',
-    description: 'Reagenda uma etapa/tarefa específica para outra data (YYYY-MM-DD) e opcionalmente um horário de início (HH:mm, ex: "09:00", "14:30"). Use sempre que o usuário pedir para adiar, antecipar, mudar de dia ou marcar horário para uma tarefa.',
+    description: 'Reagenda uma etapa/tarefa específica para uma data (YYYY-MM-DD) que obrigatoriamente deve cair em um dos dias disponíveis do usuário; nunca escolha dia bloqueado. Opcionalmente um horário de início (HH:mm, ex: "09:00", "14:30"). Use sempre que o usuário pedir para adiar, antecipar, mudar de dia ou marcar horário para uma tarefa.',
     parameters: {
       type: "OBJECT",
       properties: {
@@ -54,7 +55,7 @@ export const assistantTools: ToolDecl[] = [
   },
   {
     name: 'batch_reschedule_tasks',
-    description: 'Reagenda múltiplas tarefas em lote para novos dias ou horários (ex: empurrar toda a rotina em 1 dia, passar tarefas de fim de semana para a semana, etc.).',
+    description: 'Reagenda múltiplas tarefas em lote somente para datas que caiam em dias disponíveis do usuário; descarte qualquer data em dia bloqueado. Para novos dias ou horários (ex: empurrar toda a rotina em 1 dia, passar tarefas de fim de semana para a semana, etc.).',
     parameters: {
       type: "OBJECT",
       properties: {
@@ -85,7 +86,7 @@ export const assistantTools: ToolDecl[] = [
   },
   {
     name: 'create_task',
-    description: 'Cria uma nova tarefa no app, com dia e horário definidos pelo usuário ou sugeridos pela IA.',
+    description: 'Cria uma nova tarefa no app somente em um dia disponível do usuário, com dia e horário definidos pelo usuário ou sugeridos pela IA. Nunca crie em dia bloqueado.',
     parameters: {
       type: "OBJECT",
       properties: {
@@ -103,7 +104,7 @@ export const assistantTools: ToolDecl[] = [
   },
   {
     name: 'update_task',
-    description: 'Modifica detalhes de uma tarefa existente (título, instrução, data, horário ou duração).',
+    description: 'Modifica detalhes de uma tarefa existente (título, instrução, data, horário ou duração). Se alterar a data, use somente dia disponível.',
     parameters: {
       type: "OBJECT",
       properties: {
