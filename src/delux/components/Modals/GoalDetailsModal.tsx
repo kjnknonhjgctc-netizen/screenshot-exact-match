@@ -85,10 +85,11 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
       showToast("O título não pode ser vazio.", "error");
       return;
     }
-    updateGoal(goal.id, {
+    const updated = updateGoal(goal.id, {
       title: editTitle.trim(),
       reason: editReason.trim() || undefined,
     });
+    if (!updated) return;
     setIsEditingGoal(false);
   };
 
