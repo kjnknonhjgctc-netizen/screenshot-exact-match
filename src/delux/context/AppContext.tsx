@@ -45,18 +45,18 @@ interface AppContextType {
   addGoal: (
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
     manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
-  ) => { goal: Goal; tasks: Task[] };
+  ) => { goal: Goal; tasks: Task[] } | null;
   updateGoal: (id: string, partial: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
 
-  addTask: (taskData: Omit<Task, 'id' | 'completed' | 'stepOrder'>) => Task;
-  updateTask: (id: string, partial: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
+  addTask: (taskData: Omit<Task, 'id' | 'completed' | 'stepOrder'>) => Task | null;
+  updateTask: (id: string, partial: Partial<Task>) => boolean;
+  deleteTask: (id: string) => boolean;
   toggleTask: (id: string) => void;
   replanGoal: (goalId: string) => { updatedCount: number };
-  executeAssistantAction: (action: AssistantAction) => void;
+  executeAssistantAction: (action: AssistantAction) => boolean;
 
-  updatePreferences: (partial: Partial<UserPreferences>) => void;
+  updatePreferences: (partial: Partial<UserPreferences>) => boolean;
   resetAllData: () => void;
   exportData: () => string;
   importData: (jsonString: string) => { success: boolean; error?: string };
@@ -95,7 +95,15 @@ const STORAGE_KEYS = {
 };
 
 
+const isValidTaskTime = (time: unknown) => {
+  if (time === undefined || time === null || time === '') return true;
+  if (typeof time !== 'string' || !/^[0-9]{2}:[0-9]{2}$/.test(time)) return false;
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours <= 23 && minutes <= 59;
+};
+
 const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
+  if (!Array.isArray(availableDays) || availableDays.length === 0) return false;
   if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const parsed = new Date(`${date}T12:00:00`);
   return !Number.isNaN(parsed.getTime()) &&
@@ -104,7 +112,11 @@ const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
 };
 
 const nextAllowedScheduleDate = (date: string, availableDays: number[]) => {
-  let candidate = new Date(`${date}T12:00:00`);
+  if (!Array.isArray(availableDays) || availableDays.length === 0) return null;
+  const parsed = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ? new Date(`${date}T12:00:00`)
+    : new Date();
+  let candidate = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
   for (let i = 0; i < 7; i++) {
     if (availableDays.includes(candidate.getDay())) return getLocalDateString(candidate);
     candidate = addDays(candidate, 1);
@@ -119,7 +131,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [goals, setGoals] = useState<Goal[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GOALS);
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed.filter((goal) => goal && typeof goal.id === 'string' && typeof goal.title === 'string') : [];
     } catch {
       return [];
     }
@@ -128,7 +141,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tasks, setTasks] = useState<Task[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((task) => task && typeof task.id === 'string' && typeof task.title === 'string' && typeof task.date === 'string')
+        : [];
     } catch {
       return [];
     }
@@ -137,7 +153,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-      return saved ? { ...DEFAULT_PREFERENCES, ...JSON.parse(saved) } : DEFAULT_PREFERENCES;
+      if (!saved) return DEFAULT_PREFERENCES;
+      const parsed = JSON.parse(saved);
+      const availableDays = Array.isArray(parsed?.availableDays)
+        ? [...new Set(parsed.availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))]
+        : DEFAULT_PREFERENCES.availableDays;
+      return {
+        ...DEFAULT_PREFERENCES,
+        ...parsed,
+        availableDays: availableDays.length > 0 ? availableDays : DEFAULT_PREFERENCES.availableDays,
+        dailyMinutes: Number.isInteger(parsed?.dailyMinutes) && parsed.dailyMinutes >= 5 && parsed.dailyMinutes <= 1440
+          ? parsed.dailyMinutes
+          : DEFAULT_PREFERENCES.dailyMinutes,
+        preferredTime: ['morning', 'afternoon', 'evening'].includes(parsed?.preferredTime)
+          ? parsed.preferredTime
+          : DEFAULT_PREFERENCES.preferredTime,
+        rhythm: ['light', 'balanced', 'intense'].includes(parsed?.rhythm)
+          ? parsed.rhythm
+          : DEFAULT_PREFERENCES.rhythm,
+        reducedMotion: typeof parsed?.reducedMotion === 'boolean' ? parsed.reducedMotion : DEFAULT_PREFERENCES.reducedMotion,
+        soundEnabled: typeof parsed?.soundEnabled === 'boolean' ? parsed.soundEnabled : DEFAULT_PREFERENCES.soundEnabled,
+      };
     } catch {
       return DEFAULT_PREFERENCES;
     }
@@ -165,6 +201,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem(STORAGE_KEYS.HISTORY);
       if (!saved) return [];
       const parsed: HistoryEvent[] = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
       // Clean up and ensure all historical events have unique IDs
       const seenIds = new Set<string>();
       return parsed.map((item, idx) => {
@@ -187,6 +224,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isCreateGoalOpen, setIsCreateGoalOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  // Repair legacy pending tasks that were previously stored on unavailable days.
+  useEffect(() => {
+    const repairedTasks = tasks.map((task) => {
+      if (task.completed || isAllowedScheduleDate(task.date, preferences.availableDays)) return task;
+      const nextDate = nextAllowedScheduleDate(task.date, preferences.availableDays);
+      return nextDate ? { ...task, date: nextDate } : task;
+    });
+    if (repairedTasks.some((task, index) => task !== tasks[index])) setTasks(repairedTasks);
+  }, []);
 
   // Sync state to localStorage safely
   useEffect(() => {
@@ -251,8 +298,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const streakDays = useMemo(() => {
     const completedDates = new Set(
       tasks
-        .filter((t) => t.completed && t.date)
-        .map((t) => t.date)
+        .filter((t) => t.completed && (t.completedAt || t.date))
+        .map((t) => t.completedAt ? getLocalDateString(new Date(t.completedAt)) : t.date)
     );
 
     if (completedDates.size === 0) return 0;
@@ -282,6 +329,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Check achievements after updates
   const evaluateAchievements = (updatedGoals: Goal[], updatedTasks: Task[]) => {
     const completedTasksCount = updatedTasks.filter((t) => t.completed).length;
+    const completedDates = new Set(
+      updatedTasks
+        .filter((task) => task.completed && (task.completedAt || task.date))
+        .map((task) => task.completedAt ? getLocalDateString(new Date(task.completedAt)) : task.date),
+    );
+    const today = new Date();
+    let streakCursor = completedDates.has(getLocalDateString(today))
+      ? today
+      : completedDates.has(getLocalDateString(addDays(today, -1)))
+        ? addDays(today, -1)
+        : null;
+    let currentStreak = 0;
+    while (streakCursor && completedDates.has(getLocalDateString(streakCursor))) {
+      currentStreak += 1;
+      streakCursor = addDays(streakCursor, -1);
+    }
     const hasFinishedGoal = updatedGoals.some((g) => {
       const gTasks = updatedTasks.filter((t) => t.goalId === g.id);
       return gTasks.length > 0 && gTasks.every((t) => t.completed);
@@ -296,7 +359,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (ach.id === 'first_task' && completedTasksCount >= 1) shouldUnlock = true;
         if (ach.id === 'five_tasks' && completedTasksCount >= 5) shouldUnlock = true;
         if (ach.id === 'ten_tasks' && completedTasksCount >= 10) shouldUnlock = true;
-        if (ach.id === 'streak_three' && streakDays >= 3) shouldUnlock = true;
+        if (ach.id === 'streak_three' && currentStreak >= 3) shouldUnlock = true;
         if (ach.id === 'goal_completed' && hasFinishedGoal) shouldUnlock = true;
 
         if (shouldUnlock) {
@@ -324,6 +387,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
     manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => {
+    if (!goalData.title?.trim()) {
+      showToast('O título da meta é obrigatório.', 'error');
+      return null;
+    }
+    if (!Array.isArray(preferences.availableDays) || preferences.availableDays.length === 0) {
+      showToast('Escolha ao menos um dia disponível antes de criar um plano.', 'error');
+      return null;
+    }
+    if (goalData.method === 'manual') {
+      const invalidTask = (manualTasks || []).find((task) =>
+        !task.title?.trim() ||
+        !isAllowedScheduleDate(task.date, preferences.availableDays) ||
+        !Number.isInteger(task.durationMinutes) || task.durationMinutes < 5 || task.durationMinutes > 1440 ||
+        !isValidTaskTime(task.time),
+      );
+      if (invalidTask) {
+        showToast('Revise as etapas manuais: cada uma precisa de título e uma data em dia disponível.', 'error');
+        return null;
+      }
+    }
     const newGoalId = createUniqueId('goal');
     const newGoal: Goal = {
       ...goalData,
@@ -385,6 +468,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Delete Goal action: cascades to all associated tasks safely
   const deleteGoal = (id: string) => {
     const targetGoal = goals.find((g) => g.id === id);
+    if (!targetGoal) {
+      showToast('Não encontrei essa meta para excluir.', 'error');
+      return;
+    }
     setGoals((prev) => prev.filter((g) => g.id !== id));
     setTasks((prev) => prev.filter((t) => t.goalId !== id));
 
@@ -396,7 +483,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {
         id: createUniqueId('hist_goal_deleted'),
         timestamp: new Date().toISOString(),
-        type: 'goal_created',
+        type: 'goal_deleted',
         title: `Meta removida`,
         description: targetGoal ? `Meta "${targetGoal.title}" e suas tarefas foram excluídas.` : 'Meta excluída.',
       },
@@ -408,6 +495,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Add standalone or manual task
   const addTask = (taskData: Omit<Task, 'id' | 'completed' | 'stepOrder'>) => {
+    if (!taskData?.title?.trim()) {
+      showToast('O título da tarefa é obrigatório.', 'error');
+      return null;
+    }
+    if (!isAllowedScheduleDate(taskData.date, preferences.availableDays)) {
+      showToast('Não foi possível salvar: escolha um dia disponível na sua rotina.', 'error');
+      return null;
+    }
+    const duration = Number(taskData.durationMinutes);
+    if (!Number.isInteger(duration) || duration < 5 || duration > 1440) {
+      showToast('A duração deve estar entre 5 minutos e 24 horas.', 'error');
+      return null;
+    }
+    if (!isValidTaskTime(taskData.time)) {
+      showToast('Informe um horário válido no formato HH:MM.', 'error');
+      return null;
+    }
     const existingForGoal = tasks.filter((t) => t.goalId === taskData.goalId);
     const newTask: Task = {
       ...taskData,
@@ -423,13 +527,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTask = (id: string, partial: Partial<Task>) => {
+    const target = tasks.find((task) => task.id === id);
+    if (!target) {
+      showToast('Não encontrei essa tarefa para atualizar.', 'error');
+      return false;
+    }
+    if (partial.date !== undefined && partial.date !== target.date && !isAllowedScheduleDate(partial.date, preferences.availableDays)) {
+      showToast('Não foi possível salvar: escolha um dia disponível na sua rotina.', 'error');
+      return false;
+    }
+    if (partial.durationMinutes !== undefined &&
+      (!Number.isInteger(partial.durationMinutes) || partial.durationMinutes < 5 || partial.durationMinutes > 1440)) {
+      showToast('A duração deve estar entre 5 minutos e 24 horas.', 'error');
+      return false;
+    }
+    if (partial.time !== undefined && !isValidTaskTime(partial.time)) {
+      showToast('Informe um horário válido no formato HH:MM.', 'error');
+      return false;
+    }
+    if (partial.title !== undefined && !partial.title.trim()) {
+      showToast('O título da tarefa não pode ficar vazio.', 'error');
+      return false;
+    }
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...partial } : t)));
     showToast('Tarefa atualizada.', 'info');
+    return true;
   };
 
   const deleteTask = (id: string) => {
+    if (!tasks.some((task) => task.id === id)) {
+      showToast('Não encontrei essa tarefa para excluir.', 'error');
+      return false;
+    }
     setTasks((prev) => prev.filter((t) => t.id !== id));
     showToast('Tarefa removida.', 'info');
+    return true;
   };
 
   // Toggle Task Completion: the heartbeat of the app
@@ -474,7 +606,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('Etapa reaberta.', 'info');
     }
 
-    evaluateAchievements(goals, updatedTasks);
+    const updatedGoals = goals.map((goal) => {
+      if (goal.id !== target.goalId || goal.status === 'paused') return goal;
+      const goalTasks = updatedTasks.filter((task) => task.goalId === goal.id);
+      const isComplete = goalTasks.length > 0 && goalTasks.every((task) => task.completed);
+      return { ...goal, status: isComplete ? 'completed' : 'active' };
+    });
+    if (updatedGoals.some((goal, index) => goal !== goals[index])) setGoals(updatedGoals);
+    evaluateAchievements(updatedGoals, updatedTasks);
   };
 
   // Replan Goal: redistributes only remaining pending tasks starting from next available day
@@ -512,194 +651,203 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { updatedCount: pending.length };
   };
 
-  const executeAssistantAction = (action: AssistantAction) => {
+  const executeAssistantAction = (action: AssistantAction): boolean => {
     switch (action.type) {
       case 'reschedule_task': {
         const { taskId, newDate, newTime, summary } = action.payload || {};
-        if (!taskId || !newDate) return;
-        if (!isAllowedScheduleDate(newDate, preferences.availableDays)) {
-          showToast('Esse dia não está disponível na sua rotina. Ajuste seus dias disponíveis ou escolha outra data.', 'error');
-          break;
+        if (!taskId || !isAllowedScheduleDate(newDate, preferences.availableDays) || !isValidTaskTime(newTime)) {
+          showToast('Não foi possível reagendar: confira a tarefa e escolha um dia disponível.', 'error');
+          return false;
         }
-        if (!tasks.some((task) => task.id === taskId)) {
+        const task = tasks.find((item) => item.id === taskId);
+        if (!task) {
           showToast('Não encontrei essa tarefa para reagendar.', 'error');
-          break;
+          return false;
         }
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === taskId
-              ? {
-                  ...t,
-                  date: newDate,
-                  ...(newTime !== undefined ? { time: newTime || undefined } : {}),
-                }
-              : t
-          )
-        );
-        const task = tasks.find((t) => t.id === taskId);
-        setHistory((prev) => [
-          {
-            id: createUniqueId('hist_ai_reschedule'),
-            timestamp: new Date().toISOString(),
-            type: 'task_uncompleted',
-            title: `Reagendado pelo Delux IA: ${task?.title || 'Tarefa'}`,
-            description: summary || `Nova data: ${newDate}${newTime ? ` às ${newTime}` : ''}`,
-            taskId,
-          },
-          ...prev,
-        ]);
+        setTasks((prev) => prev.map((item) => item.id === taskId
+          ? { ...item, date: newDate, ...(newTime !== undefined ? { time: newTime || undefined } : {}) }
+          : item));
+        setHistory((prev) => [{
+          id: createUniqueId('hist_ai_reschedule'),
+          timestamp: new Date().toISOString(),
+          type: 'task_uncompleted',
+          title: `Reagendado pelo Delux IA: ${task.title}`,
+          description: summary || `Nova data: ${newDate}${newTime ? ` às ${newTime}` : ''}`,
+          taskId,
+        }, ...prev]);
         showToast(summary || 'Tarefa reagendada com sucesso pelo Assistente IA.', 'success');
-        break;
+        return true;
       }
 
       case 'batch_reschedule_tasks': {
         const { updates, summary } = action.payload || {};
-        if (!Array.isArray(updates) || updates.length === 0) return;
-        const validUpdates = updates.filter((u: any) =>
-          u?.taskId && isAllowedScheduleDate(u.newDate, preferences.availableDays) && tasks.some((task) => task.id === u.taskId)
-        );
-        if (validUpdates.length === 0) {
-          showToast('Nenhuma tarefa foi reagendada: as datas precisam respeitar seus dias disponíveis.', 'error');
-          break;
+        if (!Array.isArray(updates) || updates.length === 0) {
+          showToast('Nenhuma alteração de data foi recebida.', 'error');
+          return false;
         }
-        const updateMap = new Map<string, { newDate: string; newTime?: string }>();
-        validUpdates.forEach((u: any) => {
-          if (u.taskId && u.newDate) {
-            updateMap.set(u.taskId, { newDate: u.newDate, newTime: u.newTime });
+        const validUpdates = new Map<string, { newDate: string; newTime?: string }>();
+        updates.forEach((update: any) => {
+          if (update?.taskId &&
+            tasks.some((task) => task.id === update.taskId) &&
+            isAllowedScheduleDate(update.newDate, preferences.availableDays) && isValidTaskTime(update.newTime)) {
+            validUpdates.set(update.taskId, { newDate: update.newDate, newTime: update.newTime });
           }
         });
-
-        setTasks((prev) =>
-          prev.map((t) => {
-            const upd = updateMap.get(t.id);
-            if (!upd) return t;
-            return {
-              ...t,
-              date: upd.newDate,
-              ...(upd.newTime !== undefined ? { time: upd.newTime || undefined } : {}),
-            };
-          })
+        if (validUpdates.size === 0) {
+          showToast('Nenhuma tarefa foi reagendada: confira os IDs e os dias disponíveis.', 'error');
+          return false;
+        }
+        setTasks((prev) => prev.map((task) => {
+          const update = validUpdates.get(task.id);
+          return update
+            ? { ...task, date: update.newDate, ...(update.newTime !== undefined ? { time: update.newTime || undefined } : {}) }
+            : task;
+        }));
+        const skipped = updates.length - validUpdates.size;
+        showToast(
+          skipped > 0
+            ? `${validUpdates.size} tarefa(s) reagendada(s). ${skipped} alteração(ões) inválida(s) foram ignoradas.`
+            : (summary || `${validUpdates.size} tarefas reagendadas pelo Delux IA.`),
+          skipped > 0 ? 'info' : 'success',
         );
-        showToast(validUpdates.length < updates.length ? `${validUpdates.length} tarefa(s) reagendada(s). As demais foram ignoradas por conflito com seus dias disponíveis.` : (summary || `${validUpdates.length} tarefas reagendadas pelo Delux IA.`), validUpdates.length < updates.length ? 'info' : 'success');
-        break;
+        return true;
       }
 
       case 'create_task': {
         const { title, instruction, date, time, durationMinutes, goalId, summary } = action.payload || {};
-        if (!title || !date) return;
-        if (!isAllowedScheduleDate(date, preferences.availableDays)) {
-          showToast('Não criei a tarefa: a data escolhida não é um dia disponível na sua rotina.', 'error');
-          break;
+        if (!title || !isAllowedScheduleDate(date, preferences.availableDays)) {
+          showToast('Não criei a tarefa: informe um título e escolha um dia disponível.', 'error');
+          return false;
         }
-        const targetGoalId = goalId && goals.some((g) => g.id === goalId)
+        const targetGoalId = goalId && goals.some((goal) => goal.id === goalId)
           ? goalId
           : (goals[0]?.id || 'manual');
-
-        addTask({
+        const created = addTask({
           goalId: targetGoalId,
-          title,
+          title: String(title).trim(),
           instruction: instruction || undefined,
           date,
           time: time || undefined,
-          durationMinutes: durationMinutes || preferences.dailyMinutes,
+          durationMinutes: Number.isInteger(durationMinutes) ? durationMinutes : preferences.dailyMinutes,
           isAutomated: false,
         });
-        showToast(summary || `Tarefa "${title}" criada com sucesso pelo Delux IA.`, 'success');
-        break;
+        if (!created) return false;
+        if (summary) showToast(summary, 'success');
+        return true;
       }
 
       case 'update_task': {
         const { taskId, title, instruction, date, time, durationMinutes, summary } = action.payload || {};
-        if (!taskId) return;
-        if (date && !isAllowedScheduleDate(date, preferences.availableDays)) {
-          showToast('Não alterei a data: ela não corresponde a um dia disponível na sua rotina.', 'error');
-          break;
-        }
-        if (!tasks.some((task) => task.id === taskId)) {
-          showToast('Não encontrei essa tarefa para atualizar.', 'error');
-          break;
-        }
-        updateTask(taskId, {
-          ...(title ? { title } : {}),
+        if (!taskId) return false;
+        const applied = updateTask(taskId, {
+          ...(title !== undefined ? { title: String(title).trim() } : {}),
           ...(instruction !== undefined ? { instruction } : {}),
-          ...(date ? { date } : {}),
+          ...(date !== undefined ? { date } : {}),
           ...(time !== undefined ? { time: time || undefined } : {}),
-          ...(durationMinutes ? { durationMinutes } : {}),
+          ...(durationMinutes !== undefined ? { durationMinutes } : {}),
         });
-        if (summary) showToast(summary, 'info');
-        break;
+        if (applied && summary) showToast(summary, 'success');
+        return applied;
       }
 
       case 'toggle_task_completion': {
         const { taskId, completed, summary } = action.payload || {};
-        if (!taskId) return;
-        const target = tasks.find((t) => t.id === taskId);
-        if (target && target.completed !== completed) {
-          toggleTask(taskId);
+        const target = tasks.find((task) => task.id === taskId);
+        if (!target || typeof completed !== 'boolean') {
+          showToast('Não consegui identificar a tarefa para atualizar o status.', 'error');
+          return false;
         }
+        if (target.completed !== completed) toggleTask(taskId);
         if (summary) showToast(summary, 'success');
-        break;
+        return true;
       }
 
       case 'delete_task': {
         const { taskId, summary } = action.payload || {};
-        if (!taskId) return;
-        deleteTask(taskId);
-        if (summary) showToast(summary, 'info');
-        break;
+        const deleted = taskId ? deleteTask(taskId) : false;
+        if (deleted && summary) showToast(summary, 'info');
+        return deleted;
       }
 
       case 'adjust_routine_days_and_time': {
         const { availableDays, dailyMinutes, rhythm, preferredTime, summary } = action.payload || {};
         const partial: Partial<UserPreferences> = {};
-        if (Array.isArray(availableDays) && availableDays.length > 0 && availableDays.every((day: number) => Number.isInteger(day) && day >= 0 && day <= 6)) {
+        if (availableDays !== undefined) {
+          if (!Array.isArray(availableDays) || availableDays.length === 0 ||
+            !availableDays.every((day: number) => Number.isInteger(day) && day >= 0 && day <= 6)) {
+            showToast('A rotina precisa ter pelo menos um dia válido entre domingo e sábado.', 'error');
+            return false;
+          }
           partial.availableDays = [...new Set(availableDays)].sort((a: number, b: number) => a - b);
         }
-        if (dailyMinutes && typeof dailyMinutes === 'number') {
-          partial.dailyMinutes = dailyMinutes;
-        }
-        if (rhythm) {
-          partial.rhythm = rhythm;
-        }
-        if (preferredTime) {
-          partial.preferredTime = preferredTime;
-        }
-        updatePreferences(partial);
-        showToast(summary || 'Rotina e agendamento atualizados pelo Delux IA.', 'success');
-        break;
+        if (dailyMinutes !== undefined) partial.dailyMinutes = dailyMinutes;
+        if (rhythm !== undefined) partial.rhythm = rhythm;
+        if (preferredTime !== undefined) partial.preferredTime = preferredTime;
+        const updated = updatePreferences(partial);
+        if (updated && summary) showToast(summary, 'success');
+        return updated;
       }
 
       case 'create_goal': {
         const { title, category, reason, deadline, summary } = action.payload || {};
-        if (!title) return;
-        addGoal({
-          title,
+        if (typeof title !== 'string' || !title.trim()) {
+          showToast('Informe um título válido para criar a meta.', 'error');
+          return false;
+        }
+        const created = addGoal({
+          title: title.trim(),
           category: category || 'Estudos',
           reason: reason || undefined,
           deadline: deadline || undefined,
           method: 'auto',
           dailyMinutes: preferences.dailyMinutes,
         });
-        showToast(summary || `Meta "${title}" criada pelo Delux IA com plano integrado!`, 'achievement');
-        break;
+        if (!created) return false;
+        if (summary) showToast(summary, 'achievement');
+        return true;
       }
 
       case 'replan_goal': {
         const { goalId, summary } = action.payload || {};
-        if (!goalId) return;
-        replanGoal(goalId);
+        const result = goalId ? replanGoal(goalId) : { updatedCount: 0 };
+        if (result.updatedCount === 0) {
+          showToast('Não foi possível replanejar: confira a meta e se ainda existem etapas pendentes.', 'error');
+          return false;
+        }
         if (summary) showToast(summary, 'success');
-        break;
+        return true;
       }
+
+      default:
+        showToast('A ação solicitada não é reconhecida pelo Delux.', 'error');
+        return false;
     }
   };
 
-  const updatePreferences = (partial: Partial<UserPreferences>) => {
+  const updatePreferences = (partial: Partial<UserPreferences>): boolean => {
     const nextPreferences = { ...preferences, ...partial };
-    if (!nextPreferences.availableDays.length) {
-      showToast('Mantenha ao menos um dia disponível na semana.', 'error');
-      return;
+    const validDays = Array.isArray(nextPreferences.availableDays) &&
+      nextPreferences.availableDays.length > 0 &&
+      nextPreferences.availableDays.every((day) => Number.isInteger(day) && day >= 0 && day <= 6);
+    if (!validDays) {
+      showToast('Mantenha ao menos um dia disponível válido na semana.', 'error');
+      return false;
     }
+    if (!Number.isInteger(nextPreferences.dailyMinutes) ||
+      nextPreferences.dailyMinutes < 5 || nextPreferences.dailyMinutes > 1440) {
+      showToast('O tempo diário deve ficar entre 5 minutos e 24 horas.', 'error');
+      return false;
+    }
+    if (!['morning', 'afternoon', 'evening'].includes(nextPreferences.preferredTime)) {
+      showToast('Selecione um período válido para sua rotina.', 'error');
+      return false;
+    }
+    if (!['light', 'balanced', 'intense'].includes(nextPreferences.rhythm)) {
+      showToast('Selecione um ritmo válido para sua rotina.', 'error');
+      return false;
+    }
+
+    nextPreferences.availableDays = [...new Set(nextPreferences.availableDays)].sort((a, b) => a - b);
     setPreferences(nextPreferences);
 
     if (partial.availableDays) {
@@ -714,10 +862,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ? { ...task, date: movedTasks.get(task.id)! }
           : task));
         showToast(`Rotina atualizada. ${movedTasks.size} tarefa(s) pendente(s) foram movidas para dias disponíveis.`, 'success');
-        return;
+        return true;
       }
     }
     showToast('Preferências atualizadas.', 'success');
+    return true;
   };
 
   const resetAllData = () => {
@@ -726,6 +875,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEYS.PREFERENCES);
     localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
     localStorage.removeItem(STORAGE_KEYS.HISTORY);
+    localStorage.removeItem('delux_assistant_chat');
 
     setGoals([]);
     setTasks([]);
@@ -755,13 +905,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!Array.isArray(data.goals) || !Array.isArray(data.tasks)) {
         return { success: false, error: 'Arquivo inválido: formato de dados incompatível.' };
       }
+      if (data.goals.some((goal: any) => !goal || typeof goal.id !== 'string' || typeof goal.title !== 'string') ||
+        data.tasks.some((task: any) => !task || typeof task.id !== 'string' || typeof task.title !== 'string' || typeof task.date !== 'string')) {
+        return { success: false, error: 'Arquivo inválido: existem metas ou tarefas sem os campos obrigatórios.' };
+      }
+
+      const importedPreferences = {
+        ...DEFAULT_PREFERENCES,
+        ...(data.preferences && typeof data.preferences === 'object' ? data.preferences : {}),
+      };
+      const importedDays = Array.isArray(importedPreferences.availableDays)
+        ? [...new Set(importedPreferences.availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))]
+        : [];
+      importedPreferences.availableDays = importedDays.length > 0 ? importedDays : DEFAULT_PREFERENCES.availableDays;
+      if (!Number.isInteger(importedPreferences.dailyMinutes) ||
+        importedPreferences.dailyMinutes < 5 || importedPreferences.dailyMinutes > 1440) {
+        importedPreferences.dailyMinutes = DEFAULT_PREFERENCES.dailyMinutes;
+      }
+      if (!['morning', 'afternoon', 'evening'].includes(importedPreferences.preferredTime)) {
+        importedPreferences.preferredTime = DEFAULT_PREFERENCES.preferredTime;
+      }
+      if (!['light', 'balanced', 'intense'].includes(importedPreferences.rhythm)) {
+        importedPreferences.rhythm = DEFAULT_PREFERENCES.rhythm;
+      }
+
+      const importedTasks = data.tasks.map((task: Task) => {
+        if (task.completed || isAllowedScheduleDate(task.date, importedPreferences.availableDays)) return task;
+        const nextDate = nextAllowedScheduleDate(task.date, importedPreferences.availableDays);
+        return nextDate ? { ...task, date: nextDate } : task;
+      });
+
       setGoals(data.goals);
-      setTasks(data.tasks);
-      if (data.preferences) setPreferences({ ...DEFAULT_PREFERENCES, ...data.preferences });
+      setTasks(importedTasks);
+      setPreferences(importedPreferences);
       if (Array.isArray(data.achievements)) setAchievements(data.achievements);
       if (Array.isArray(data.history)) setHistory(data.history);
 
-      showToast('Dados importados com sucesso!', 'success');
+      showToast('Dados importados com sucesso! Tarefas pendentes foram ajustadas aos dias disponíveis.', 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Falha ao processar arquivo JSON.' };

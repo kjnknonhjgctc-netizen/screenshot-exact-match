@@ -62,7 +62,7 @@ export interface Achievement {
 export interface HistoryEvent {
   id: string;
   timestamp: string; // ISO
-  type: 'task_completed' | 'task_uncompleted' | 'goal_created' | 'goal_completed' | 'achievement_unlocked';
+  type: 'task_completed' | 'task_uncompleted' | 'goal_created' | 'goal_deleted' | 'goal_completed' | 'achievement_unlocked';
   title: string;
   description: string;
   goalId?: string;
@@ -86,6 +86,7 @@ export interface AssistantAction {
     | 'replan_goal';
   summary: string;
   payload: any;
+  applied?: boolean;
 }
 
 export interface ChatMessage {

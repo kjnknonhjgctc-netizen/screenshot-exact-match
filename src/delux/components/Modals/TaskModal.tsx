@@ -1,10 +1,10 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { Task } from "../../types";
-import { parseLocalDateString } from "../../utils/dateUtils";
+import { getLocalDateString, parseLocalDateString } from "../../utils/dateUtils";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 interface TaskModalProps {
@@ -31,13 +31,24 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   );
   const [goalId, setGoalId] = useState(taskToEdit ? taskToEdit.goalId : goals[0]?.id || "");
 
+  // The modal stays mounted between openings; refresh fields for each selected task/date.
+  useEffect(() => {
+    if (!isOpen) return;
+    setTitle(taskToEdit?.title || "");
+    setInstruction(taskToEdit?.instruction || "");
+    setDate(taskToEdit?.date || initialDate || getLocalDateString(new Date()));
+    setTime(taskToEdit?.time || "");
+    setDurationMinutes(taskToEdit?.durationMinutes ?? preferences.dailyMinutes);
+    setGoalId(taskToEdit?.goalId || goals[0]?.id || "");
+  }, [isOpen, taskToEdit?.id, initialDate, preferences.dailyMinutes]);
+
   const present = useAnimatedPresence(isOpen, preferences.reducedMotion);
   if (!present) return null;
 
   // Check if selected date is an unavailable day
   const targetDateObj = date ? parseLocalDateString(date) : null;
   const isDateUnavailable = targetDateObj
-    ? !preferences.availableDays.includes(targetDateObj.getDay())
+    ? !preferences.availableDays.includes(targetDateObj.getDay()) && (!taskToEdit || date !== taskToEdit.date)
     : false;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,8 +62,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       return;
     }
 
+    if (isDateUnavailable) {
+      showToast('Escolha um dia disponível na sua rotina antes de salvar.', 'error');
+      return;
+    }
+
     if (taskToEdit) {
-      updateTask(taskToEdit.id, {
+      const updated = updateTask(taskToEdit.id, {
         title: title.trim(),
         instruction: instruction.trim() || undefined,
         date,
@@ -60,8 +76,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         durationMinutes,
         goalId: goalId || taskToEdit.goalId,
       });
+      if (!updated) return;
     } else {
-      addTask({
+      const created = addTask({
         goalId: goalId || (goals[0] ? goals[0].id : "manual"),
         title: title.trim(),
         instruction: instruction.trim() || undefined,
@@ -70,6 +87,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         durationMinutes,
         isAutomated: false,
       });
+      if (!created) return;
     }
 
     onClose();
@@ -221,6 +239,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               variant="delux"
               size="delux"
               type="submit"
+              disabled={isDateUnavailable}
               className="flex-1 sm:flex-none px-6 py-2.5 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-md min-h-[44px]"
             >
               Salvar Tarefa

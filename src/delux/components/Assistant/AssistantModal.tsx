@@ -48,7 +48,17 @@ export const AssistantModal: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
       const saved = localStorage.getItem("delux_assistant_chat");
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((message) => message && typeof message.id === 'string' &&
+            ['user', 'assistant'].includes(message.role) && typeof message.content === 'string')
+            .map((message) => ({
+              ...message,
+              actions: Array.isArray(message.actions)
+                ? message.actions.filter((action) => action && typeof action === 'object')
+                : [],
+            }))
+        : [];
     } catch {
       return [];
     }
@@ -154,26 +164,35 @@ export const AssistantModal: React.FC = () => {
         }),
       });
 
-      clearTimeout(timeoutId);
       const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || "Erro na comunicação com o assistente de IA.");
       }
 
-      // Execute returned assistant actions directly in AppContext
-      if (data.actions && Array.isArray(data.actions)) {
-        for (const action of data.actions) {
-          executeAssistantAction(action);
-        }
-      }
+      // Apply actions and preserve the real execution result in the chat.
+      const assistantActions = Array.isArray(data.actions)
+        ? data.actions
+            .filter((action: any) => action && typeof action === 'object')
+            .map((action: any) => {
+              try {
+                return { ...action, applied: executeAssistantAction(action) };
+              } catch (actionError) {
+                console.error('Failed to apply assistant action:', actionError);
+                return { ...action, applied: false };
+              }
+            })
+        : [];
+      const failedActions = assistantActions.filter((action: any) => !action.applied).length;
 
       const assistantMessage: ChatMessage = {
         id: `msg_ai_${Date.now()}`,
         role: "assistant",
-        content: data.reply,
+        content: failedActions > 0
+          ? `${data.reply}\n\nAtenção: ${failedActions} alteração(ões) não foi(ram) aplicada(s). Confira a validação exibida antes de considerar sua programação atualizada.`
+          : data.reply,
         timestamp: new Date().toISOString(),
-        actions: data.actions || [],
+        actions: assistantActions,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -187,6 +206,7 @@ export const AssistantModal: React.FC = () => {
         setError(err.message || "Falha ao conectar com a IA.");
       }
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
@@ -339,7 +359,7 @@ export const AssistantModal: React.FC = () => {
                     <div className="pt-2 border-t border-delux-border space-y-1.5 mt-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-delux-purple-light">
                         <Zap className="w-3 h-3 text-delux-purple-light" />
-                        <span>Ações aplicadas no app</span>
+                        <span>{m.actions.every((act) => act.applied !== false) ? "Ações aplicadas no app" : m.actions.some((act) => act.applied !== false) ? "Algumas ações foram aplicadas" : "Nenhuma ação foi aplicada"}</span>
                       </div>
                       <div className="space-y-1">
                         {m.actions.map((act) => (
@@ -347,8 +367,8 @@ export const AssistantModal: React.FC = () => {
                             key={act.id}
                             className="p-2 rounded-xl bg-delux-canvas/80 border border-delux-purple/30 text-[11px] text-delux-ai-text flex items-center gap-2"
                           >
-                            <span className="w-5 h-5 rounded-md bg-delux-purple/20 text-delux-purple-light flex items-center justify-center shrink-0">
-                              <Check className="w-3 h-3 stroke-[3]" />
+                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied !== false ? "bg-delux-purple/20 text-delux-purple-light" : "bg-delux-danger/20 text-delux-red"}`}>
+                              {act.applied !== false ? <Check className="w-3 h-3 stroke-[3]" /> : <AlertCircle className="w-3 h-3" />}
                             </span>
                             <span className="font-medium text-delux-text leading-tight flex-1">
                               {act.summary}

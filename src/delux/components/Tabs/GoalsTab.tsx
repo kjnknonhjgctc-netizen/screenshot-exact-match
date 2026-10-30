@@ -30,7 +30,7 @@ export const GoalsTab: React.FC = () => {
   });
 
   const filteredGoals = goalsWithStats.filter((g) => {
-    if (filter === 'active') return !g.isCompleted;
+    if (filter === 'active') return g.status !== 'paused' && !g.isCompleted;
     if (filter === 'completed') return g.isCompleted;
     return true;
   });

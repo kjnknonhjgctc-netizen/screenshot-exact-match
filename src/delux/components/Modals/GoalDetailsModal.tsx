@@ -5,7 +5,7 @@ import { X, Calendar, Clock, Trash2, RotateCw, Plus, Edit2, Check } from "lucide
 import { useApp } from "../../context/AppContext";
 import { ProgressBar } from "../Common/ProgressBar";
 import { ConfirmModal } from "../Common/ConfirmModal";
-import { formatFriendlyDate, getLocalDateString } from "../../utils/dateUtils";
+import { addDays, formatFriendlyDate, getLocalDateString } from "../../utils/dateUtils";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 interface GoalDetailsModalProps {
@@ -17,6 +17,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
   const {
     goals,
     tasks,
+    preferences,
     toggleTask,
     deleteGoal,
     addTask,
@@ -28,9 +29,19 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const getNextAvailableTaskDate = () => {
+    let candidate = new Date();
+    candidate.setHours(0, 0, 0, 0);
+    for (let offset = 0; offset < 7; offset += 1) {
+      if (preferences.availableDays.includes(candidate.getDay())) return getLocalDateString(candidate);
+      candidate = addDays(candidate, 1);
+    }
+    return getLocalDateString(new Date());
+  };
+
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDate, setNewTaskDate] = useState(getLocalDateString(new Date()));
-  const [newTaskDuration, setNewTaskDuration] = useState(25);
+  const [newTaskDate, setNewTaskDate] = useState(getNextAvailableTaskDate);
+  const [newTaskDuration, setNewTaskDuration] = useState(Math.min(180, Math.max(5, preferences.dailyMinutes)));
 
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editTitle, setEditTitle] = useState("");
@@ -38,7 +49,15 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
 
   const [retainedGoalId, setRetainedGoalId] = useState(goalId);
   useEffect(() => {
-    if (goalId) setRetainedGoalId(goalId);
+    if (goalId) {
+      setRetainedGoalId(goalId);
+      setIsAddingTask(false);
+      setNewTaskTitle("");
+      setNewTaskDate(getNextAvailableTaskDate());
+      setNewTaskDuration(Math.min(180, Math.max(5, preferences.dailyMinutes)));
+      setIsEditingGoal(false);
+      setIsDeleteConfirmOpen(false);
+    }
   }, [goalId]);
   const present = useAnimatedPresence(Boolean(goalId));
   if (!present) return null;
@@ -77,7 +96,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
 
-    addTask({
+    const created = addTask({
       goalId: goal.id,
       title: newTaskTitle.trim(),
       instruction: "",
@@ -85,6 +104,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
       durationMinutes: newTaskDuration,
       isAutomated: false,
     });
+    if (!created) return;
 
     setNewTaskTitle("");
     setIsAddingTask(false);
