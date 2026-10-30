@@ -136,7 +136,7 @@ export const CreateGoalModal: React.FC = () => {
 
       const data = await res.json();
       const validSteps = Array.isArray(data.steps)
-        ? data.steps.filter((step: any) => step && typeof step.title === 'string' && step.title.trim()).slice(0, 12)
+        ? data.steps.filter((step: any) => step && typeof step.title === 'string' && step.title.trim()).slice(0, 14)
         : [];
       if (validSteps.length > 0) {
         let currentDate = new Date();
@@ -156,7 +156,7 @@ export const CreateGoalModal: React.FC = () => {
             instruction: typeof st.instruction === "string" ? st.instruction : "",
             date: taskDate,
             durationMinutes: Number.isFinite(Number(st.durationMinutes))
-              ? Math.min(240, Math.max(5, Math.round(Number(st.durationMinutes))))
+              ? Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(st.durationMinutes))))
               : preferences.dailyMinutes,
           };
         });
