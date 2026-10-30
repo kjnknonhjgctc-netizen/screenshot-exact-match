@@ -192,17 +192,26 @@
     --text-primary: oklch(0.971 0.007 285);
     --text-secondary: oklch(0.719 0.027 285);
     --text-muted: oklch(0.59 0.029 285);
-    --glass-base: oklch(0.21 0.023 285 / 69%);
-    --glass-panel-base: oklch(0.185 0.018 285 / 87%);
-    --glass-edge: oklch(0.93 0.015 285 / 15%);
-    --glass-reflection: oklch(1 0 0 / 12%);
-    --glass-tint: oklch(0.58 0.19 285 / 10%);
-    --glass-blue-tint: oklch(0.55 0.18 263 / 7%);
-    --glass-selected: oklch(0.63 0.17 285 / 19%);
-    --glass-shadow: 0 12px 36px oklch(0 0 0 / 32%), inset 0 1px 0 var(--glass-reflection);
+    --glass-base: oklch(0.2 0.02 285 / 42%);
+    --glass-panel-base: oklch(0.18 0.018 285 / 72%);
+    --glass-edge: oklch(1 0 0 / 10%);
+    --glass-reflection: oklch(1 0 0 / 22%);
+    --glass-tint: oklch(0.58 0.19 285 / 8%);
+    --glass-blue-tint: oklch(0.55 0.18 263 / 6%);
+    --glass-selected: oklch(1 0 0 / 12%);
+    --glass-rim: linear-gradient(
+      160deg,
+      oklch(1 0 0 / 45%) 0%,
+      oklch(1 0 0 / 8%) 30%,
+      oklch(1 0 0 / 2%) 60%,
+      oklch(1 0 0 / 18%) 100%
+    );
+    --glass-shadow:
+      0 10px 30px oklch(0 0 0 / 35%), inset 0 1px 0 var(--glass-reflection),
+      inset 0 -1px 0 oklch(1 0 0 / 5%);
     --glass-panel-shadow: 0 24px 64px oklch(0 0 0 / 45%), inset 0 1px 0 var(--glass-reflection);
-    --glass-overlay: oklch(0.08 0.012 285 / 50%);
-    --glass-action-shadow: 0 4px 16px oklch(0 0 0 / 20%), inset 0 1px 0 oklch(1 0 0 / 18%);
+    --glass-overlay: oklch(0.08 0.012 285 / 45%);
+    --glass-action-shadow: 0 4px 16px oklch(0 0 0 / 22%), inset 0 1px 0 oklch(1 0 0 / 25%);
     --glass-action-gradient: linear-gradient(
       125deg,
       oklch(0.58 0.22 293 / 90%),
