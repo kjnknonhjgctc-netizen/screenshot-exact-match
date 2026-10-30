@@ -40,7 +40,19 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     setTime(taskToEdit?.time || "");
     setDurationMinutes(taskToEdit?.durationMinutes ?? preferences.dailyMinutes);
     setGoalId(taskToEdit?.goalId || goals[0]?.id || "");
-  }, [isOpen, taskToEdit?.id, initialDate, preferences.dailyMinutes]);
+  }, [
+    isOpen,
+    taskToEdit?.id,
+    taskToEdit?.title,
+    taskToEdit?.instruction,
+    taskToEdit?.date,
+    taskToEdit?.time,
+    taskToEdit?.durationMinutes,
+    taskToEdit?.goalId,
+    initialDate,
+    preferences.dailyMinutes,
+    goals,
+  ]);
 
   const present = useAnimatedPresence(isOpen, preferences.reducedMotion);
   if (!present) return null;
