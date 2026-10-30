@@ -304,8 +304,8 @@ REGRAS OBRIGATÓRIAS:
             : dailyMinutes,
         };
       });
-    if (steps.length === 0) {
-      return json({ error: "O Gemini não retornou etapas válidas. Tente novamente." }, 502);
+    if (steps.length < 10) {
+      return json({ error: "O plano gerado ficou incompleto. Gere novamente para receber pelo menos 10 sessões práticas." }, 502);
     }
     return json({ steps, advice: cleanText(parsed.advice, 800) });
   } catch (err) {
