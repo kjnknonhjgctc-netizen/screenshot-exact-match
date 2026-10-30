@@ -1,11 +1,11 @@
 import { DELUX_SYSTEM_INSTRUCTION, assistantTools } from "./prompts.server";
 
 const MODELS = [
+  "gemini-3.8-flash",
   "gemini-3.5-flash-lite",
   "gemini-3.1-flash-lite",
-  "gemini-flash-latest",
-  "gemini-2.5-flash-lite",
   "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
 ];
 
 function json(body: unknown, status = 200) {
@@ -201,7 +201,7 @@ ${ctx}`
       const msgs = actions.map((action) => cleanText(action.payload?.replyMessage, 300) || action.summary).filter(Boolean);
       finalReply = msgs.length === 1
         ? msgs[0]
-        : `Preparei ${actions.length} alterações para aplicar no Delux:\\n\\n${actions.map((action) => `• ${action.summary}`).join("\\n")}\\n\\nVou confirmar cada alteração antes de considerar sua rotina atualizada.`;
+        : `Preparei ${actions.length} alterações para aplicar no Delux:\n\n${actions.map((action) => `• ${action.summary}`).join("\n")}\n\nVou confirmar cada alteração antes de considerar sua rotina atualizada.`;
     }
     if (!finalReply) finalReply = "Como posso ajudar a organizar suas etapas e rotina hoje?";
     return json({ reply: finalReply, actions, model: out.model });
