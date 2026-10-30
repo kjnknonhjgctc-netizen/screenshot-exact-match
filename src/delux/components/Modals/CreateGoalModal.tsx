@@ -234,8 +234,33 @@ export const CreateGoalModal: React.FC = () => {
           setAiGeneratedTasks(planTasks);
           if (data.advice) setAiAdvice(data.advice);
         } catch (error: any) {
-          showToast(error?.name === "AbortError" ? "A geração do plano demorou demais. Tente novamente." : (error?.message || "Erro ao gerar plano."), "error");
-          return;
+          // Keep the core planning flow usable even when Gemini is unavailable
+          // (missing key, quota, network error or timeout).
+          const fallbackSteps = getStepsForGoal(title.trim(), category, preferences.dailyMinutes);
+          let fallbackDate = new Date();
+          fallbackDate.setHours(0, 0, 0, 0);
+          const availableDays = new Set(preferences.availableDays);
+          for (let offset = 0; offset < 7 && !availableDays.has(fallbackDate.getDay()); offset += 1) {
+            fallbackDate = addDays(fallbackDate, 1);
+          }
+          if (!availableDays.has(fallbackDate.getDay())) {
+            showToast("Não encontrei um próximo dia disponível. Confira suas preferências.", "error");
+            return;
+          }
+          planTasks = fallbackSteps.map((step) => {
+            while (!availableDays.has(fallbackDate.getDay())) fallbackDate = addDays(fallbackDate, 1);
+            const taskDate = getLocalDateString(fallbackDate);
+            fallbackDate = addDays(fallbackDate, 1);
+            return {
+              title: step.title,
+              instruction: step.instruction,
+              date: taskDate,
+              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes)),
+            };
+          });
+          setAiGeneratedTasks(planTasks);
+          setAiAdvice(null);
+          showToast("A IA está indisponível no momento. Criamos um plano de apoio para você não ficar parado.", "info");
         } finally {
           window.clearTimeout(timeoutId);
           setIsGeneratingWithAi(false);
