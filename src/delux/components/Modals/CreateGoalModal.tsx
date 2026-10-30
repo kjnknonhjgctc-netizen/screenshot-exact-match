@@ -226,6 +226,12 @@ export const CreateGoalModal: React.FC = () => {
     setDeadline("");
     setCategory("Estudos");
     setMethod("auto");
+    setManualTasks([{
+      title: "",
+      instruction: "",
+      date: getLocalDateString(new Date()),
+      durationMinutes: preferences.dailyMinutes,
+    }]);
     setAiAdvice(null);
   };
 
