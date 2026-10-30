@@ -14,6 +14,7 @@ import { Task } from "../../types";
 import {
   addDays,
   getLocalDateString,
+  parseLocalDateString,
   getWeekDays,
   MONTH_NAMES,
   SHORT_MONTH_NAMES,
@@ -44,10 +45,12 @@ export const CalendarTab: React.FC = () => {
 
   const handlePrevWeek = () => {
     setCurrentWeekReference((curr) => addDays(curr, -7));
+    setSelectedMobileDayStr((curr) => getLocalDateString(addDays(parseLocalDateString(curr), -7)));
   };
 
   const handleNextWeek = () => {
     setCurrentWeekReference((curr) => addDays(curr, 7));
+    setSelectedMobileDayStr((curr) => getLocalDateString(addDays(parseLocalDateString(curr), 7)));
   };
 
   const handleToday = () => {
