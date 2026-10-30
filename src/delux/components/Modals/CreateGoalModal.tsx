@@ -36,6 +36,16 @@ interface ManualTaskInput {
   durationMinutes: number;
 }
 
+const getNextAvailableDate = (availableDays: number[]) => {
+  let candidate = new Date();
+  candidate.setHours(0, 0, 0, 0);
+  for (let offset = 0; offset < 7; offset += 1) {
+    if (availableDays.includes(candidate.getDay())) return getLocalDateString(candidate);
+    candidate = addDays(candidate, 1);
+  }
+  return getLocalDateString(candidate);
+};
+
 export const CreateGoalModal: React.FC = () => {
   const { isCreateGoalOpen, setIsCreateGoalOpen, preferences, addGoal, openDrawer, showToast } =
     useApp();
@@ -53,7 +63,7 @@ export const CreateGoalModal: React.FC = () => {
     {
       title: "",
       instruction: "",
-      date: getLocalDateString(new Date()),
+      date: getNextAvailableDate(preferences.availableDays),
       durationMinutes: preferences.dailyMinutes,
     },
   ]);
@@ -72,7 +82,7 @@ export const CreateGoalModal: React.FC = () => {
       {
         title: "",
         instruction: "",
-        date: getLocalDateString(new Date()),
+        date: getNextAvailableDate(preferences.availableDays),
         durationMinutes: preferences.dailyMinutes,
       },
     ]);
@@ -141,7 +151,7 @@ export const CreateGoalModal: React.FC = () => {
 
           return {
             title: st.title || "Ação prática",
-            instruction: st.instruction || "",
+            instruction: typeof st.instruction === "string" ? st.instruction : "",
             date: taskDate,
             durationMinutes: Number.isFinite(Number(st.durationMinutes))
               ? Math.min(240, Math.max(5, Math.round(Number(st.durationMinutes))))
@@ -229,7 +239,7 @@ export const CreateGoalModal: React.FC = () => {
     setManualTasks([{
       title: "",
       instruction: "",
-      date: getLocalDateString(new Date()),
+      date: getNextAvailableDate(preferences.availableDays),
       durationMinutes: preferences.dailyMinutes,
     }]);
     setAiAdvice(null);
