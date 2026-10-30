@@ -96,7 +96,7 @@ const STORAGE_KEYS = {
 
 
 const isAllowedScheduleDate = (date: unknown, availableDays: number[]) => {
-  if (typeof date !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return false;
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const parsed = new Date(`${date}T12:00:00`);
   return !Number.isNaN(parsed.getTime()) &&
     getLocalDateString(parsed) === date &&
