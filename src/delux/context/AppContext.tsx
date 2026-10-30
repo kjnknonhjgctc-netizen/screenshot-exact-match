@@ -44,7 +44,8 @@ interface AppContextType {
   // Actions
   addGoal: (
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
-    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
+    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[],
+    generatedPlanTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => { goal: Goal; tasks: Task[] } | null;
   updateGoal: (id: string, partial: Partial<Goal>) => boolean;
   deleteGoal: (id: string) => void;
@@ -406,7 +407,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Add Goal action
   const addGoal = (
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
-    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
+    manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[],
+    generatedPlanTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => {
     const tasks = tasksRef.current;
     const goals = goalsRef.current;
@@ -419,15 +421,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('Escolha ao menos um dia disponível antes de criar um plano.', 'error');
       return null;
     }
-    if (goalData.method === 'manual') {
-      const invalidTask = (manualTasks || []).find((task) =>
+    const tasksToValidate = goalData.method === 'manual' ? (manualTasks || []) : (generatedPlanTasks || []);
+    if (tasksToValidate.length > 0) {
+      const invalidTask = tasksToValidate.find((task) =>
         !task.title?.trim() ||
         !isAllowedScheduleDate(task.date, preferences.availableDays) ||
         !Number.isInteger(task.durationMinutes) || task.durationMinutes < 5 || task.durationMinutes > 1440 ||
         !isValidTaskTime(task.time),
       );
       if (invalidTask) {
-        showToast('Revise as etapas manuais: cada uma precisa de título e uma data em dia disponível.', 'error');
+        showToast('Revise as etapas: cada uma precisa de título, data disponível e duração válida.', 'error');
         return null;
       }
     }
@@ -442,7 +445,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     let generatedTasks: Task[] = [];
 
-    if (goalData.method === 'auto') {
+    if (goalData.method === 'auto' && generatedPlanTasks && generatedPlanTasks.length > 0) {
+      generatedTasks = generatedPlanTasks.map((mt, idx) => ({
+        id: createUniqueId(`task_${newGoalId}_${idx + 1}`),
+        goalId: newGoalId,
+        title: mt.title,
+        instruction: mt.instruction || '',
+        date: mt.date,
+        time: mt.time,
+        durationMinutes: Math.min(mt.durationMinutes || preferences.dailyMinutes, preferences.dailyMinutes),
+        completed: false,
+        stepOrder: idx + 1,
+        isAutomated: true,
+      }));
+    } else if (goalData.method === 'auto') {
       const res = generateTasksForGoal(newGoalId, goalData.title, goalData.category, preferences);
       generatedTasks = res.tasks;
     } else if (manualTasks && manualTasks.length > 0) {
