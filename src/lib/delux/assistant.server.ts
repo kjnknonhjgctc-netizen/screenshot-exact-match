@@ -73,6 +73,30 @@ function errorResponse(err: unknown, fallback: string) {
   return json({ error: message }, status >= 400 && status < 600 ? status : 500);
 }
 
+async function readJsonBody(request: Request, maxBytes: number): Promise<{ body?: any; error?: Response }> {
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
+    return { error: json({ error: "A solicitação excede o limite permitido." }, 413) };
+  }
+
+  let raw: string;
+  try {
+    raw = await request.text();
+  } catch {
+    return { error: json({ error: "Não foi possível ler a solicitação." }, 400) };
+  }
+
+  if (new TextEncoder().encode(raw).byteLength > maxBytes) {
+    return { error: json({ error: "A solicitação excede o limite permitido." }, 413) };
+  }
+
+  try {
+    return { body: JSON.parse(raw) };
+  } catch {
+    return { error: json({ error: "Corpo JSON inválido." }, 400) };
+  }
+}
+
 function cleanText(value: unknown, maxLength = 180): string {
   return typeof value === "string"
     ? value.replace(/[\x00-\x1f]/g, " ").trim().slice(0, maxLength)
@@ -147,24 +171,27 @@ ${taskListText}
 export async function handleChat(request: Request) {
   const apiKey = process.env['GEMINI_API_KEY'];
   if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
-  const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 250000) return json({ error: "A solicitação excede o limite permitido." }, 413);
-
   try {
-    let body: any;
-    try {
-      body = await request.json();
-    } catch {
-      return json({ error: "Corpo JSON inválido." }, 400);
+    const parsed = await readJsonBody(request, 250000);
+    if (parsed.error) return parsed.error;
+    const body = parsed.body;
+    if (!Array.isArray(body?.messages) || body.messages.length === 0 || body.messages.length > 8) {
+      return json({ error: "Envie de 1 a 8 mensagens para continuar a conversa." }, 400);
     }
-    const messages = (Array.isArray(body?.messages) ? body.messages : [])
-      .filter((message: any) =>
-        message && typeof message === "object" &&
-        ["user", "assistant"].includes(message.role) &&
-        typeof message.content === "string" && message.content.trim(),
-      )
-      .slice(-8);
-    if (messages.length === 0) return json({ error: "Nenhuma mensagem válida fornecida." }, 400);
+    const messages = body.messages;
+    const hasInvalidMessage = messages.some((message: any) =>
+      !message || typeof message !== "object" ||
+      !["user", "assistant"].includes(message.role) ||
+      typeof message.content !== "string" ||
+      !message.content.trim() ||
+      message.content.length > 6000
+    );
+    if (hasInvalidMessage) {
+      return json({ error: "Uma das mensagens é inválida ou excede o limite de 6.000 caracteres." }, 400);
+    }
+    if (messages[messages.length - 1].role !== "user" || !messages.some((message: any) => message.role === "user")) {
+      return json({ error: "A última mensagem precisa ser uma mensagem do usuário." }, 400);
+    }
 
     const contents = messages.map((message: any) => ({
       role: message.role === "assistant" ? "model" : "user",
@@ -213,16 +240,10 @@ ${ctx}`
 export async function handleGeneratePlan(request: Request) {
   const apiKey = process.env['GEMINI_API_KEY'];
   if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
-  const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 20000) return json({ error: "A solicitação excede o limite permitido." }, 413);
-
   try {
-    let body: any;
-    try {
-      body = await request.json();
-    } catch {
-      return json({ error: "Corpo JSON inválido." }, 400);
-    }
+    const parsed = await readJsonBody(request, 20000);
+    if (parsed.error) return parsed.error;
+    const body = parsed.body;
     const goalTitle = cleanText(body?.goalTitle, 160);
     if (goalTitle.length < 2) return json({ error: "Informe um título de objetivo válido." }, 400);
     const category = cleanText(body?.category, 80) || "Geral";
