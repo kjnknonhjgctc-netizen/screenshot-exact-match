@@ -895,13 +895,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!Array.isArray(data.goals) || !Array.isArray(data.tasks)) {
         return { success: false, error: 'Arquivo inválido: formato de dados incompatível.' };
       }
+      if (data.goals.some((goal: any) => !goal || typeof goal.id !== 'string' || typeof goal.title !== 'string') ||
+        data.tasks.some((task: any) => !task || typeof task.id !== 'string' || typeof task.title !== 'string' || typeof task.date !== 'string')) {
+        return { success: false, error: 'Arquivo inválido: existem metas ou tarefas sem os campos obrigatórios.' };
+      }
+
+      const importedPreferences = {
+        ...DEFAULT_PREFERENCES,
+        ...(data.preferences && typeof data.preferences === 'object' ? data.preferences : {}),
+      };
+      const importedDays = Array.isArray(importedPreferences.availableDays)
+        ? [...new Set(importedPreferences.availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))]
+        : [];
+      importedPreferences.availableDays = importedDays.length > 0 ? importedDays : DEFAULT_PREFERENCES.availableDays;
+      if (!Number.isInteger(importedPreferences.dailyMinutes) ||
+        importedPreferences.dailyMinutes < 5 || importedPreferences.dailyMinutes > 1440) {
+        importedPreferences.dailyMinutes = DEFAULT_PREFERENCES.dailyMinutes;
+      }
+      if (!['morning', 'afternoon', 'evening'].includes(importedPreferences.preferredTime)) {
+        importedPreferences.preferredTime = DEFAULT_PREFERENCES.preferredTime;
+      }
+      if (!['light', 'balanced', 'intense'].includes(importedPreferences.rhythm)) {
+        importedPreferences.rhythm = DEFAULT_PREFERENCES.rhythm;
+      }
+
+      const importedTasks = data.tasks.map((task: Task) => {
+        if (task.completed || isAllowedScheduleDate(task.date, importedPreferences.availableDays)) return task;
+        const nextDate = nextAllowedScheduleDate(task.date, importedPreferences.availableDays);
+        return nextDate ? { ...task, date: nextDate } : task;
+      });
+
       setGoals(data.goals);
-      setTasks(data.tasks);
-      if (data.preferences) setPreferences({ ...DEFAULT_PREFERENCES, ...data.preferences });
+      setTasks(importedTasks);
+      setPreferences(importedPreferences);
       if (Array.isArray(data.achievements)) setAchievements(data.achievements);
       if (Array.isArray(data.history)) setHistory(data.history);
 
-      showToast('Dados importados com sucesso!', 'success');
+      showToast('Dados importados com sucesso! Tarefas pendentes foram ajustadas aos dias disponíveis.', 'success');
       return { success: true };
     } catch {
       return { success: false, error: 'Falha ao processar arquivo JSON.' };
