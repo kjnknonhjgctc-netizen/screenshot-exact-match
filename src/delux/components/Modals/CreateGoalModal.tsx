@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { GoalCategory, PlanningMethod } from "../../types";
-import { DAY_NAMES, getLocalDateString, addDays } from "../../utils/dateUtils";
+import { DAY_NAMES, getLocalDateString, addDays, parseLocalDateString } from "../../utils/dateUtils";
 import { getStepsForGoal } from "../../utils/planGenerator";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
@@ -165,7 +165,7 @@ export const CreateGoalModal: React.FC = () => {
         showToast("Nenhum dia disponível configurado nas preferências.", "error");
         return;
       }
-      addGoal({
+      const created = addGoal({
         title: title.trim(),
         reason: reason.trim() || undefined,
         category,
@@ -173,13 +173,23 @@ export const CreateGoalModal: React.FC = () => {
         deadline: deadline || undefined,
         dailyMinutes: preferences.dailyMinutes,
       });
+      if (!created) return;
     } else {
       const validTasks = manualTasks.filter((t) => t.title.trim().length > 0);
       if (validTasks.length === 0) {
         showToast("Adicione ao menos uma etapa para o plano manual.", "error");
         return;
       }
-      addGoal(
+      const invalidTask = validTasks.find((task) =>
+        !task.date ||
+        getLocalDateString(parseLocalDateString(task.date)) !== task.date ||
+        !preferences.availableDays.includes(parseLocalDateString(task.date).getDay()),
+      );
+      if (invalidTask) {
+        showToast('Uma ou mais etapas estão em dias indisponíveis. Ajuste as datas antes de criar o plano.', 'error');
+        return;
+      }
+      const created = addGoal(
         {
           title: title.trim(),
           reason: reason.trim() || undefined,
@@ -190,6 +200,7 @@ export const CreateGoalModal: React.FC = () => {
         },
         validTasks,
       );
+      if (!created) return;
     }
 
     setIsCreateGoalOpen(false);
