@@ -48,7 +48,11 @@ export const AssistantModal: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
       const saved = localStorage.getItem("delux_assistant_chat");
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((message) => message && typeof message.id === 'string' &&
+            ['user', 'assistant'].includes(message.role) && typeof message.content === 'string')
+        : [];
     } catch {
       return [];
     }
@@ -154,7 +158,6 @@ export const AssistantModal: React.FC = () => {
         }),
       });
 
-      clearTimeout(timeoutId);
       const data = await res.json();
 
       if (!res.ok) {
@@ -191,6 +194,7 @@ export const AssistantModal: React.FC = () => {
         setError(err.message || "Falha ao conectar com a IA.");
       }
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
