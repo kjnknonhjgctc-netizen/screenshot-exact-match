@@ -46,7 +46,7 @@ interface AppContextType {
     goalData: Omit<Goal, 'id' | 'createdAt' | 'status' | 'order'>,
     manualTasks?: Omit<Task, 'id' | 'goalId' | 'completed' | 'stepOrder' | 'isAutomated'>[]
   ) => { goal: Goal; tasks: Task[] } | null;
-  updateGoal: (id: string, partial: Partial<Goal>) => void;
+  updateGoal: (id: string, partial: Partial<Goal>) => boolean;
   deleteGoal: (id: string) => void;
 
   addTask: (taskData: Omit<Task, 'id' | 'completed' | 'stepOrder'>) => Task | null;
@@ -460,9 +460,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Update Goal action
-  const updateGoal = (id: string, partial: Partial<Goal>) => {
-    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...partial } : g)));
+  const updateGoal = (id: string, partial: Partial<Goal>): boolean => {
+    if (!goals.some((goal) => goal.id === id)) {
+      showToast('Não encontrei essa meta para atualizar.', 'error');
+      return false;
+    }
+    if (partial.title !== undefined && !partial.title.trim()) {
+      showToast('O título da meta não pode ficar vazio.', 'error');
+      return false;
+    }
+    if (partial.dailyMinutes !== undefined &&
+      (!Number.isInteger(partial.dailyMinutes) || partial.dailyMinutes < 5 || partial.dailyMinutes > 1440)) {
+      showToast('O tempo diário da meta deve ficar entre 5 minutos e 24 horas.', 'error');
+      return false;
+    }
+    setGoals((prev) => prev.map((goal) => (goal.id === id ? { ...goal, ...partial } : goal)));
     showToast('Meta atualizada.', 'info');
+    return true;
   };
 
   // Delete Goal action: cascades to all associated tasks safely
@@ -619,7 +633,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Replan Goal: redistributes only remaining pending tasks starting from next available day
   const replanGoal = (goalId: string) => {
     const goal = goals.find((g) => g.id === goalId);
-    if (!goal || !preferences.availableDays.length) return { updatedCount: 0 };
+    const availableDays = Array.isArray(preferences.availableDays)
+      ? preferences.availableDays.filter((day) => Number.isInteger(day) && day >= 0 && day <= 6)
+      : [];
+    if (!goal || availableDays.length === 0) return { updatedCount: 0 };
 
     const goalTasks = tasks.filter((t) => t.goalId === goalId);
     const pending = goalTasks.filter((t) => !t.completed).sort((a, b) => a.stepOrder - b.stepOrder);
@@ -629,16 +646,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
 
-    // Skip to first allowed day
-    while (!preferences.availableDays.includes(currentDate.getDay())) {
+    // Skip to the next allowed day with a bounded search, even if stored data is malformed.
+    for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
       currentDate = addDays(currentDate, 1);
     }
+    if (!availableDays.includes(currentDate.getDay())) return { updatedCount: 0 };
 
     const updatedMap = new Map<string, string>();
     pending.forEach((task) => {
       updatedMap.set(task.id, getLocalDateString(currentDate));
       currentDate = addDays(currentDate, 1);
-      while (!preferences.availableDays.includes(currentDate.getDay())) {
+      for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
         currentDate = addDays(currentDate, 1);
       }
     });
