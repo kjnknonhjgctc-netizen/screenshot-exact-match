@@ -126,6 +126,25 @@ const nextAllowedScheduleDate = (date: string, availableDays: number[]) => {
   return null;
 };
 
+const hasAnyScheduleConflict = (allTasks: Task[]) => {
+  const grouped = new Map<string, Array<{ id: string; start: number; end: number }>>();
+  for (const task of allTasks) {
+    if (task.completed || !task.time) continue;
+    const [hours, minutes] = task.time.split(':').map(Number);
+    const start = hours * 60 + minutes;
+    const items = grouped.get(task.date) || [];
+    items.push({ id: task.id, start, end: start + task.durationMinutes });
+    grouped.set(task.date, items);
+  }
+  for (const items of grouped.values()) {
+    items.sort((a, b) => a.start - b.start);
+    for (let index = 1; index < items.length; index += 1) {
+      if (items[index].start < items[index - 1].end) return true;
+    }
+  }
+  return false;
+};
+
 const hasScheduleConflict = (candidate: Partial<Task>, allTasks: Task[], ignoreId?: string) => {
   if (!candidate.date || !candidate.time) return false;
   const start = candidate.time.split(':').map(Number);
@@ -774,9 +793,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           showToast('Não encontrei essa tarefa para reagendar.', 'error');
           return false;
         }
-        setTasks((prev) => prev.map((item) => item.id === taskId
-          ? { ...item, date: newDate, ...(newTime !== undefined ? { time: newTime || undefined } : {}) }
-          : item));
+        const updated = updateTask(taskId, {
+          date: newDate,
+          ...(newTime !== undefined ? { time: newTime || undefined } : {}),
+        });
+        if (!updated) return false;
         setHistory((prev) => [{
           id: createUniqueId('hist_ai_reschedule'),
           timestamp: new Date().toISOString(),
@@ -813,12 +834,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
           validUpdates.set(update.taskId, { newDate: update.newDate, newTime: update.newTime });
         }
-        setTasks((prev) => prev.map((task) => {
+        const proposedTasks = tasks.map((task) => {
           const update = validUpdates.get(task.id);
           return update
             ? { ...task, date: update.newDate, ...(update.newTime !== undefined ? { time: update.newTime || undefined } : {}) }
             : task;
-        }));
+        });
+        if (hasAnyScheduleConflict(proposedTasks)) {
+          showToast('Nenhuma tarefa foi reagendada: a proposta cria sobreposição de horários.', 'error');
+          return false;
+        }
+        setTasks(proposedTasks);
         showToast(summary || `${validUpdates.size} tarefas reagendadas pelo Delux IA.`, 'success');
         return true;
       }
