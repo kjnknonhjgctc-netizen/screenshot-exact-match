@@ -170,26 +170,18 @@ export const AssistantModal: React.FC = () => {
         throw new Error(data.error || "Erro na comunicação com o assistente de IA.");
       }
 
-      // Apply actions and preserve the real execution result in the chat.
+      // Assistant actions are proposals only. Nothing mutates the app until the user approves.
       const assistantActions = Array.isArray(data.actions)
         ? data.actions
             .filter((action: any) => action && typeof action === 'object')
-            .map((action: any) => {
-              try {
-                return { ...action, applied: executeAssistantAction(action) };
-              } catch (actionError) {
-                console.error('Failed to apply assistant action:', actionError);
-                return { ...action, applied: false };
-              }
-            })
+            .map((action: any) => ({ ...action, applied: false }))
         : [];
-      const failedActions = assistantActions.filter((action: any) => !action.applied).length;
 
       const assistantMessage: ChatMessage = {
         id: `msg_ai_${Date.now()}`,
         role: "assistant",
-        content: failedActions > 0
-          ? `${data.reply}\n\nAtenção: ${failedActions} alteração(ões) não foi(ram) aplicada(s). Confira a validação exibida antes de considerar sua programação atualizada.`
+        content: assistantActions.length > 0
+          ? `${data.reply}\n\nRevise as alterações sugeridas abaixo. Nada será alterado até você aprovar.`
           : data.reply,
         timestamp: new Date().toISOString(),
         actions: assistantActions,
@@ -209,6 +201,34 @@ export const AssistantModal: React.FC = () => {
       clearTimeout(timeoutId);
       setIsLoading(false);
     }
+  };
+
+  const handleApproveAction = (messageId: string, actionId: string) => {
+    const targetMessage = messages.find((message) => message.id === messageId);
+    const targetAction = targetMessage?.actions?.find((action) => action.id === actionId);
+    if (!targetAction || targetAction.applied !== false) return;
+    let applied = false;
+    try {
+      applied = executeAssistantAction(targetAction);
+    } catch (actionError) {
+      console.error('Failed to apply approved assistant action:', actionError);
+    }
+    setMessages((prev) => prev.map((message) => message.id !== messageId ? message : {
+      ...message,
+      actions: message.actions?.map((action) => action.id === actionId
+        ? { ...action, applied }
+        : action),
+    }));
+    if (!applied) showToast('A alteração não foi aplicada. Revise os dados e tente novamente.', 'error');
+  };
+
+  const handleDiscardAction = (messageId: string, actionId: string) => {
+    setMessages((prev) => prev.map((message) => message.id !== messageId ? message : {
+      ...message,
+      actions: message.actions?.map((action) => action.id === actionId
+        ? { ...action, applied: undefined }
+        : action),
+    }));
   };
 
   const handleClearChat = () => {
@@ -354,28 +374,28 @@ export const AssistantModal: React.FC = () => {
                 >
                   <p className="whitespace-pre-wrap">{m.content}</p>
 
-                  {/* Render executed actions if any */}
                   {m.actions && m.actions.length > 0 && (
-                    <div className="pt-2 border-t border-delux-border space-y-1.5 mt-2">
+                    <div className="pt-2 border-t border-delux-border space-y-2 mt-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-delux-purple-light">
-                        <Zap className="w-3 h-3 text-delux-purple-light" />
-                        <span>{m.actions.every((act) => act.applied === true) ? "Ações aplicadas no app" : m.actions.some((act) => act.applied === true) ? "Algumas ações foram aplicadas" : "Nenhuma ação foi aplicada"}</span>
+                        <Zap className="w-3 h-3" />
+                        <span>{m.actions.every((act) => act.applied === true) ? "Alterações aplicadas" : m.actions.some((act) => act.applied === false) ? "Aguardando sua aprovação" : "Alterações descartadas"}</span>
                       </div>
-                      <div className="space-y-1">
-                        {m.actions.map((act) => (
-                          <div
-                            key={act.id}
-                            className="p-2 rounded-xl bg-delux-canvas/80 border border-delux-purple/30 text-[11px] text-delux-ai-text flex items-center gap-2"
-                          >
-                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied !== false ? "bg-delux-purple/20 text-delux-purple-light" : "bg-delux-danger/20 text-delux-red"}`}>
-                              {act.applied !== false ? <Check className="w-3 h-3 stroke-[3]" /> : <AlertCircle className="w-3 h-3" />}
+                      {m.actions.map((act) => (
+                        <div key={act.id} className="p-2.5 rounded-xl bg-delux-canvas/80 border border-delux-purple/30 space-y-2">
+                          <div className="flex items-start gap-2 text-[11px]">
+                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied === true ? "bg-delux-green/20 text-delux-green" : act.applied === false ? "bg-delux-amber/20 text-delux-amber" : "bg-delux-muted/20 text-delux-muted"}`}>
+                              {act.applied === true ? <Check className="w-3 h-3 stroke-[3]" /> : act.applied === false ? <AlertCircle className="w-3 h-3" /> : <X className="w-3 h-3" />}
                             </span>
-                            <span className="font-medium text-delux-text leading-tight flex-1">
-                              {act.summary}
-                            </span>
+                            <span className="font-medium text-delux-text leading-tight flex-1">{act.summary}</span>
                           </div>
-                        ))}
-                      </div>
+                          {act.applied === false && (
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="delux" size="delux" type="button" onClick={() => handleDiscardAction(m.id, act.id)} className="px-3 py-1.5 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold">Descartar</Button>
+                              <Button variant="delux" size="delux" type="button" onClick={() => handleApproveAction(m.id, act.id)} className="px-3 py-1.5 rounded-lg bg-delux-purple text-delux-light text-[11px] font-semibold">Aprovar e aplicar</Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
