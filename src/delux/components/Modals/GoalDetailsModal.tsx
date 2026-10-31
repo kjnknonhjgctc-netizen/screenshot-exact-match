@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { X, Calendar, Clock, Trash2, RotateCw, Plus, Edit2, Check } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { Task } from "../../types";
 import { ProgressBar } from "../Common/ProgressBar";
 import { ConfirmModal } from "../Common/ConfirmModal";
 import { addDays, formatFriendlyDate, getLocalDateString } from "../../utils/dateUtils";
@@ -29,6 +30,8 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [replanProposal, setReplanProposal] = useState<Task[] | null>(null);
+  const [replanError, setReplanError] = useState<string | null>(null);
   const getNextAvailableTaskDate = () => {
     let candidate = new Date();
     candidate.setHours(0, 0, 0, 0);
@@ -52,6 +55,8 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
     if (goalId) {
       setRetainedGoalId(goalId);
       setIsAddingTask(false);
+      setReplanProposal(null);
+      setReplanError(null);
       setNewTaskTitle("");
       setNewTaskDate(getNextAvailableTaskDate());
       setNewTaskDuration(Math.min(180, Math.max(5, preferences.dailyMinutes)));
@@ -259,8 +264,12 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                   variant="delux"
                   size="delux"
                   type="button"
-                  onClick={() => replanGoal(goal.id)}
-                  title="Ajustar tarefas pendentes aos dias disponíveis atuais"
+                  onClick={() => {
+                    const result = replanGoal(goal.id, false);
+                    setReplanError(result.error || null);
+                    setReplanProposal(result.proposal || null);
+                  }}
+                  title="Visualizar uma proposta antes de alterar o calendário"
                   className="flex items-center gap-1 text-[11px] text-delux-purple-light hover:text-delux-light px-2 py-1.5 rounded-lg hover:bg-delux-elevated transition-colors"
                 >
                   <RotateCw className="w-3 h-3" />
@@ -278,6 +287,40 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                 </Button>
               </div>
             </div>
+
+            {replanError && (
+              <div className="p-3 rounded-xl bg-delux-amber/10 border border-delux-amber/30 text-xs text-delux-amber">
+                {replanError}
+              </div>
+            )}
+            {replanProposal && (
+              <div className="p-3.5 rounded-2xl bg-delux-purple/10 border border-delux-purple/30 space-y-3">
+                <div>
+                  <p className="text-xs font-bold text-delux-text">Prévia do replanejamento</p>
+                  <p className="text-[11px] text-delux-secondary mt-0.5">Confira as novas datas e horários. Nada foi alterado ainda.</p>
+                </div>
+                <div className="max-h-44 overflow-y-auto space-y-1.5">
+                  {replanProposal.map((task) => (
+                    <div key={task.id} className="flex items-center justify-between gap-3 text-[11px]">
+                      <span className="text-delux-text min-w-0 truncate">{task.title}</span>
+                      <span className="text-delux-purple-light font-semibold tabular-nums shrink-0">{task.date} · {task.time || "sem horário"}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="delux" size="delux" type="button" onClick={() => setReplanProposal(null)} className="px-3 py-2 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold">Cancelar</Button>
+                  <Button variant="delux" size="delux" type="button" onClick={() => {
+                    const result = replanGoal(goal.id, true);
+                    if (result.updatedCount > 0) {
+                      setReplanProposal(null);
+                      setReplanError(null);
+                    } else {
+                      setReplanError(result.error || "Não foi possível aplicar o replanejamento.");
+                    }
+                  }} className="px-3 py-2 rounded-lg bg-delux-purple text-delux-light text-[11px] font-semibold">Confirmar alterações</Button>
+                </div>
+              </div>
+            )}
 
             {/* Add Task Form Inline */}
             {isAddingTask && (
