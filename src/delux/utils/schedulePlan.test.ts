@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { schedulePlanTasks } from './schedulePlan';
+import type { UserPreferences } from '../types';
 
-const preferences = { availableDays: [1, 3, 5], dailyMinutes: 60, preferredTime: 'afternoon', rhythm: 'balanced', reducedMotion: false, soundEnabled: true };
+const preferences: UserPreferences = { availableDays: [1, 3, 5], dailyMinutes: 60, preferredTime: 'afternoon', rhythm: 'balanced', reducedMotion: false, soundEnabled: true };
 
 describe('schedulePlanTasks', () => {
   it('schedules only on available days, within the daily budget and preferred period', () => {
@@ -12,9 +13,9 @@ describe('schedulePlanTasks', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.tasks.every((task) => [1, 3, 5].includes(new Date(`${task.date}T12:00:00`).getDay())).toBe(true);
-      expect(result.tasks[0].time).toBe('13:00');
-      expect(result.tasks[1].time).toBe('13:40');
-      expect(result.tasks[0].date).toBe(result.tasks[1].date);
+      expect(result.tasks[0]!.time).toBe('13:00');
+      expect(result.tasks[1]!.time).toBe('13:40');
+      expect(result.tasks[0]!.date).toBe(result.tasks[1]!.date);
     }
   });
 
@@ -25,7 +26,7 @@ describe('schedulePlanTasks', () => {
       preferences,
     });
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.tasks[0].time).toBe('13:40');
+    if (result.ok) expect(result.tasks[0]!.time).toBe('13:40');
   });
 
   it('rejects a plan that cannot fit before its deadline', () => {
