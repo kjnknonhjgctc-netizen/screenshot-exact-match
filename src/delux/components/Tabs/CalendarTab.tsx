@@ -34,6 +34,19 @@ export const CalendarTab: React.FC = () => {
   );
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
+  // Keep each day's agenda in actual clock order. Tasks without a time appear last;
+  // stepOrder keeps generated plan steps stable when times are equal or unspecified.
+  const getTasksForDay = (dateStr: string) =>
+    tasks
+      .filter((task) => task.date === dateStr)
+      .sort((a, b) => {
+        const timeA = a.time || "99:99";
+        const timeB = b.time || "99:99";
+        const timeOrder = timeA.localeCompare(timeB);
+        if (timeOrder !== 0) return timeOrder;
+        return (a.stepOrder ?? Number.MAX_SAFE_INTEGER) - (b.stepOrder ?? Number.MAX_SAFE_INTEGER);
+      });
+
   const weekDays = getWeekDays(currentWeekReference);
   const firstDay = weekDays[0].date;
   const lastDay = weekDays[6].date;
@@ -135,7 +148,7 @@ export const CalendarTab: React.FC = () => {
           {weekDays.map((d) => {
             const isSelected = selectedMobileDayStr === d.dateStr;
             const isAvailable = preferences.availableDays.includes(d.dayOfWeek);
-            const dayTasks = tasks.filter((t) => t.date === d.dateStr);
+            const dayTasks = getTasksForDay(d.dateStr);
             const allDone = dayTasks.length > 0 && dayTasks.every((t) => t.completed);
 
             return (
@@ -187,7 +200,7 @@ export const CalendarTab: React.FC = () => {
           const selectedDayObj =
             weekDays.find((d) => d.dateStr === selectedMobileDayStr) || weekDays[0];
           const isAvailable = preferences.availableDays.includes(selectedDayObj.dayOfWeek);
-          const dayTasks = tasks.filter((t) => t.date === selectedMobileDayStr);
+          const dayTasks = getTasksForDay(selectedMobileDayStr);
 
           return (
             <div className="p-4 sm:p-5 rounded-2xl bg-delux-surface border border-delux-border space-y-4">
@@ -307,7 +320,7 @@ export const CalendarTab: React.FC = () => {
       <div className="hidden lg:grid grid-cols-7 gap-3">
         {weekDays.map((d) => {
           const isAvailable = preferences.availableDays.includes(d.dayOfWeek);
-          const dayTasks = tasks.filter((t) => t.date === d.dateStr);
+          const dayTasks = getTasksForDay(d.dateStr);
 
           return (
             <div
