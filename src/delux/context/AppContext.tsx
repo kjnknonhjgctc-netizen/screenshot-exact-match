@@ -925,9 +925,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       case 'create_goal': {
-        const { title, category, reason, deadline, summary } = action.payload || {};
-        if (typeof title !== 'string' || !title.trim()) {
-          showToast('Informe um título válido para criar a meta.', 'error');
+        const { title, category, reason, deadline, steps, summary } = action.payload || {};
+        if (typeof title !== 'string' || !title.trim() || !Array.isArray(steps) || steps.length < 1) {
+          showToast('A proposta precisa conter um título e etapas concretas antes de ser aprovada.', 'error');
+          return false;
+        }
+        const today = getLocalDateString(new Date());
+        const planTasks = steps.slice(0, 14).map((step: any) => ({
+          title: typeof step?.title === 'string' ? step.title.trim() : '',
+          instruction: typeof step?.instruction === 'string' ? step.instruction : '',
+          date: today,
+          durationMinutes: Number.isInteger(step?.durationMinutes)
+            ? Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes))
+            : preferences.dailyMinutes,
+        }));
+        if (planTasks.some((task) => !task.title)) {
+          showToast('A proposta contém uma etapa sem título. Peça à IA para revisar o plano.', 'error');
           return false;
         }
         const created = addGoal({
@@ -937,7 +950,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           deadline: deadline || undefined,
           method: 'auto',
           dailyMinutes: preferences.dailyMinutes,
-        });
+        }, undefined, planTasks);
         if (!created) return false;
         if (summary) showToast(summary, 'achievement');
         return true;
