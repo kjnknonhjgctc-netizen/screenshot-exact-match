@@ -211,6 +211,7 @@ export const CreateGoalModal: React.FC = () => {
         return;
       }
       let planTasks = aiGeneratedTasks;
+      let generatedInThisSubmit = false;
       if (!planTasks || planTasks.length === 0) {
         setIsGeneratingWithAi(true);
         const controller = new AbortController();
@@ -280,6 +281,11 @@ export const CreateGoalModal: React.FC = () => {
           window.clearTimeout(timeoutId);
           setIsGeneratingWithAi(false);
         }
+        generatedInThisSubmit = true;
+      }
+      if (generatedInThisSubmit) {
+        showToast("Seu plano foi gerado. Revise as etapas e a prévia do calendário antes de confirmar novamente.", "success");
+        return;
       }
       const created = addGoal({
         title: title.trim(),
