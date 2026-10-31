@@ -68,6 +68,6 @@ describe("generateTasksForGoal", () => {
 
     expect(warning).toBeUndefined();
     expect(tasks.length).toBeGreaterThan(0);
-    expect([2, 4]).toContain(new Date(`${tasks[0].date}T12:00:00`).getDay());
+    expect([2, 4]).toContain(new Date(`${tasks[0]!.date}T12:00:00`).getDay());
   });
 });

@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { handleChat, handleGeneratePlan } from "../lib/delux/assistant.server";
 
-const originalApiKey = process.env.GEMINI_API_KEY;
+const originalApiKey = process.env['GEMINI_API_KEY'];
 
 afterEach(() => {
   vi.restoreAllMocks();
-  if (originalApiKey === undefined) delete process.env.GEMINI_API_KEY;
-  else process.env.GEMINI_API_KEY = originalApiKey;
+  if (originalApiKey === undefined) delete process.env['GEMINI_API_KEY'];
+  else process.env['GEMINI_API_KEY'] = originalApiKey;
 });
 
 describe("assistant API request validation", () => {
   it("rejects malformed JSON without calling Gemini", async () => {
-    process.env.GEMINI_API_KEY = "test-key";
+    process.env['GEMINI_API_KEY'] = "test-key";
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const response = await handleChat(new Request("http://localhost/api/assistant/chat", {
       method: "POST",
@@ -25,7 +25,7 @@ describe("assistant API request validation", () => {
   });
 
   it("rejects oversized bodies even when content-length is absent", async () => {
-    process.env.GEMINI_API_KEY = "test-key";
+    process.env['GEMINI_API_KEY'] = "test-key";
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const response = await handleChat(new Request("http://localhost/api/assistant/chat", {
       method: "POST",
@@ -38,7 +38,7 @@ describe("assistant API request validation", () => {
   });
 
   it("rejects malformed conversation messages instead of silently filtering them", async () => {
-    process.env.GEMINI_API_KEY = "test-key";
+    process.env['GEMINI_API_KEY'] = "test-key";
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const response = await handleChat(new Request("http://localhost/api/assistant/chat", {
       method: "POST",
@@ -51,7 +51,7 @@ describe("assistant API request validation", () => {
   });
 
   it("requires the last conversation message to come from the user", async () => {
-    process.env.GEMINI_API_KEY = "test-key";
+    process.env['GEMINI_API_KEY'] = "test-key";
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const response = await handleChat(new Request("http://localhost/api/assistant/chat", {
       method: "POST",
@@ -69,7 +69,7 @@ describe("assistant API request validation", () => {
   });
 
   it("rejects malformed plan JSON", async () => {
-    process.env.GEMINI_API_KEY = "test-key";
+    process.env['GEMINI_API_KEY'] = "test-key";
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const response = await handleGeneratePlan(new Request("http://localhost/api/assistant/generate-plan", {
       method: "POST",

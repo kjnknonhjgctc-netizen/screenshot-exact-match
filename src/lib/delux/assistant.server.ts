@@ -103,7 +103,7 @@ function buildContext(context: any): string {
   if (!context || typeof context !== "object") return "";
   const daysMap = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
   const availableDays = Array.isArray(context.availableDays)
-    ? [...new Set(context.availableDays.filter((day: unknown) => Number.isInteger(day) && Number(day) >= 0 && Number(day) <= 6))]
+    ? [...new Set(context.availableDays.filter((day: unknown): day is number => Number.isInteger(day) && Number(day) >= 0 && Number(day) <= 6))]
     : [];
   const availableDaysText = availableDays.length
     ? availableDays.map((day: number) => daysMap[day]).join(", ")
@@ -223,7 +223,7 @@ ${ctx}`
     if (!finalReply && actions.length > 0) {
       const msgs = actions.map((action) => cleanText(action.payload?.replyMessage, 300) || action.summary).filter(Boolean);
       finalReply = msgs.length === 1
-        ? msgs[0]
+        ? msgs[0] ?? ""
         : `Preparei ${actions.length} alterações para aplicar no Delux:\n\n${actions.map((action) => `• ${action.summary}`).join("\n")}\n\nVou confirmar cada alteração antes de considerar sua rotina atualizada.`;
     }
     if (!finalReply) finalReply = "Como posso ajudar a organizar suas etapas e rotina hoje?";
@@ -248,7 +248,7 @@ export async function handleGeneratePlan(request: Request) {
       ? body.dailyMinutes
       : 30;
     const availableDays = Array.isArray(body?.availableDays)
-      ? [...new Set(body.availableDays.filter((day: unknown) => Number.isInteger(day) && Number(day) >= 0 && Number(day) <= 6))]
+      ? [...new Set(body.availableDays.filter((day: unknown): day is number => Number.isInteger(day) && Number(day) >= 0 && Number(day) <= 6))]
       : [1, 2, 3, 4, 5];
     const daysMap = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
     const availableDaysText = availableDays.map((day: number) => daysMap[day]).join(", ");
