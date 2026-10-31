@@ -97,6 +97,17 @@ function SchedulingHarness() {
         id: "assistant-create-task", type: "create_task", summary: "Criar tarefa",
         payload: { title: "Tarefa criada pela IA", date: MONDAY, durationMinutes: 20 },
       }) ? "created" : "rejected")}>Criar tarefa válida pelo assistente</button>
+      <button onClick={() => {
+        const first = executeAssistantAction({
+          id: "assistant-create-first", type: "create_task", summary: "Primeira tarefa",
+          payload: { title: "Primeira ação da IA", date: MONDAY, durationMinutes: 15 },
+        });
+        const second = executeAssistantAction({
+          id: "assistant-create-second", type: "create_task", summary: "Segunda tarefa",
+          payload: { title: "Segunda ação da IA", date: WEDNESDAY, durationMinutes: 15 },
+        });
+        setLastResult(first && second ? "both-created" : "rejected");
+      }}>Executar duas ações do assistente juntas</button>
       <button onClick={() => setLastResult(executeAssistantAction({
         id: "assistant-update-task", type: "update_task", summary: "Atualizar tarefa",
         payload: { taskId: tasks[0]?.id, title: "Tarefa atualizada pela IA" },
@@ -223,6 +234,19 @@ describe("AppContext scheduling guardrails", () => {
     expect(savedTasks.length).toBeGreaterThan(0);
     expect(savedTasks.every((task: any) => task.durationMinutes <= 30)).toBe(true);
     expect(savedTasks.every((task: any) => [1, 3].includes(new Date(`${task.date}T12:00:00`).getDay()))).toBe(true);
+  });
+
+  it("keeps every task when multiple assistant actions execute in the same response", () => {
+    renderSchedulingHarness([1, 3]);
+
+    fireEvent.click(screen.getByText("Executar duas ações do assistente juntas"));
+
+    expect(screen.getByTestId("last-result")).toHaveTextContent("both-created");
+    const savedTasks = JSON.parse(screen.getByTestId("task-list").textContent || "[]");
+    expect(savedTasks.map((task: any) => task.title)).toEqual([
+      "Primeira ação da IA",
+      "Segunda ação da IA",
+    ]);
   });
 });
 
