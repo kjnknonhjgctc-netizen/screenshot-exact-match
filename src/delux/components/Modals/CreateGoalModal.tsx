@@ -16,6 +16,7 @@ import { useApp } from "../../context/AppContext";
 import { GoalCategory, PlanningMethod } from "../../types";
 import { DAY_NAMES, getLocalDateString, addDays, parseLocalDateString } from "../../utils/dateUtils";
 import { getStepsForGoal } from "../../utils/planGenerator";
+import { schedulePlanTasks } from "../../utils/schedulePlan";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
 
 const CATEGORIES: GoalCategory[] = [
@@ -47,7 +48,7 @@ const getNextAvailableDate = (availableDays: number[]) => {
 };
 
 export const CreateGoalModal: React.FC = () => {
-  const { isCreateGoalOpen, setIsCreateGoalOpen, preferences, addGoal, openDrawer, showToast } =
+  const { isCreateGoalOpen, setIsCreateGoalOpen, preferences, tasks, addGoal, openDrawer, showToast } =
     useApp();
 
   const [title, setTitle] = useState("");
@@ -76,6 +77,20 @@ export const CreateGoalModal: React.FC = () => {
     method === "auto" && title.trim().length > 2
       ? getStepsForGoal(title, category, preferences.dailyMinutes)
       : [];
+  const previewSource = method === "auto"
+    ? (aiGeneratedTasks?.length ? aiGeneratedTasks : previewSteps.map((step) => ({
+        ...step,
+        date: getLocalDateString(new Date()),
+      })))
+    : [];
+  const schedulePreview = previewSource.length > 0
+    ? schedulePlanTasks({
+        planTasks: previewSource,
+        existingTasks: tasks,
+        preferences,
+        deadline: deadline || undefined,
+      })
+    : null;
 
   const handleAddManualTask = () => {
     setManualTasks((prev) => [
@@ -605,6 +620,11 @@ export const CreateGoalModal: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-delux-text truncate">{s.title}</p>
                       <p className="text-[10px] text-delux-muted whitespace-normal leading-relaxed">{s.instruction}</p>
+                      {schedulePreview?.ok && (
+                        <p className="text-[10px] text-delux-purple-light font-semibold mt-1 tabular-nums">
+                          {schedulePreview.tasks[idx]?.date} · {schedulePreview.tasks[idx]?.time}
+                        </p>
+                      )}
                     </div>
                     <span className="text-[10px] text-delux-secondary tabular-nums shrink-0">
                       {s.durationMinutes}m
@@ -693,6 +713,19 @@ export const CreateGoalModal: React.FC = () => {
             </div>
           )}
 
+          {method === "auto" && schedulePreview && (
+            <div className={`p-3 rounded-xl border text-[11px] space-y-1 ${schedulePreview.ok ? "bg-delux-green/10 border-delux-green/30 text-delux-green" : "bg-delux-danger/10 border-delux-danger/30 text-delux-red"}`}>
+              {schedulePreview.ok ? (
+                <>
+                  <p className="font-bold">Prévia do calendário pronta</p>
+                  <p>{schedulePreview.tasks.length} tarefas distribuídas conforme seus dias, limite diário e horário preferido. Primeira atividade: {schedulePreview.tasks[0]?.date} às {schedulePreview.tasks[0]?.time}. Última: {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.date} às {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.time}.</p>
+                </>
+              ) : (
+                <p>{schedulePreview.error}</p>
+              )}
+            </div>
+          )}
+
           {/* Sticky Bottom Thumb Zone Actions */}
           <div className="pt-3 pb-2 sm:pb-0 border-t border-delux-border flex items-center justify-end gap-3 shrink-0">
             <Button
@@ -708,6 +741,7 @@ export const CreateGoalModal: React.FC = () => {
               variant="delux"
               size="delux"
               type="submit"
+              disabled={isGeneratingWithAi || (method === "auto" && schedulePreview !== null && !schedulePreview.ok)}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-lg shadow-delux-purple/30 transition-all min-h-[48px]"
             >
               <span>Gerar e Salvar Plano</span>
