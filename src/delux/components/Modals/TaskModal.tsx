@@ -200,7 +200,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <input
                 type="number"
                 min="5"
-                max="240"
+                max="1440"
                 value={durationMinutes}
                 onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10) || 15)}
                 className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
