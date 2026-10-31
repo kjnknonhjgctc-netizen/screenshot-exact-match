@@ -388,6 +388,17 @@ export const AssistantModal: React.FC = () => {
                             </span>
                             <span className="font-medium text-delux-text leading-tight flex-1">{act.summary}</span>
                           </div>
+                          {act.type === "create_goal" && Array.isArray(act.payload?.steps) && (
+                            <div className="pl-7 space-y-1">
+                              {act.payload.steps.slice(0, 14).map((step: any, index: number) => (
+                                <div key={index} className="text-[10px] text-delux-secondary">
+                                  <span className="font-semibold text-delux-text">{index + 1}. {step.title}</span>
+                                  <span> · {Math.min(preferences.dailyMinutes, Number(step.durationMinutes) || preferences.dailyMinutes)} min</span>
+                                  {step.instruction && <p className="mt-0.5 leading-relaxed">{step.instruction}</p>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                           {act.applied === false && (
                             <div className="flex gap-2 justify-end">
                               <Button variant="delux" size="delux" type="button" onClick={() => handleDiscardAction(m.id, act.id)} className="px-3 py-1.5 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold">Descartar</Button>
