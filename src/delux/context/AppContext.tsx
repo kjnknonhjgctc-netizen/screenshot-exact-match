@@ -928,7 +928,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       case 'create_goal': {
         const { title, category, reason, deadline, steps, summary } = action.payload || {};
-        if (typeof title !== 'string' || !title.trim() || !Array.isArray(steps) || steps.length < 1) {
+        if (typeof title !== 'string' || !title.trim() || !Array.isArray(steps) || steps.length < 6) {
           showToast('A proposta precisa conter um título e etapas concretas antes de ser aprovada.', 'error');
           return false;
         }
