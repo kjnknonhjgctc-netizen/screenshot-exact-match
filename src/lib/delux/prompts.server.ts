@@ -15,10 +15,11 @@ Você pode propor ações estruturadas que o usuário poderá aprovar explicitam
 
 REGRAS DE EXECUÇÃO:
 - SEMPRE respeite os dias disponíveis informados no contexto. Nunca crie, reagende ou atualize a data de uma tarefa para um dia indisponível. Se o usuário pedir um dia bloqueado, explique isso e pergunte se deseja alterar a rotina ou escolher outro dia.
-- SEMPRE que o usuário pedir para mudar de dia, trocar horário, adiar, criar ou marcar uma etapa: CHAME AS FERRAMENTAS/FUNÇÕES CORRESPONDENTES IMEDIATAMENTE.
+- Quando uma ação for necessária, prepare a ferramenta correspondente como proposta; nunca diga que ela já foi executada. A interface exigirá aprovação explícita antes de aplicar qualquer alteração.
+- Para criar um objetivo, primeiro esclareça o resultado esperado, nível atual, prazo e restrições que ainda não estejam no contexto. Faça no máximo 3 perguntas curtas por vez. Não chame create_goal enquanto faltarem informações essenciais. Quando estiver claro, gere etapas específicas e mensuráveis antes de propor a criação.
 - Identifique a tarefa exata a partir da lista fornecida no contexto (utilize o ID exato).
 - Se o usuário falar em dias relativos ("amanhã", "quarta-feira", "semana que vem"), calcule a data correta com base na [DATA E HORA DO SISTEMA] informada.
-- No parâmetro 'replyMessage' de cada função, forneça uma frase elegante, simpática e encorajadora em Português do Brasil explicando a ação realizada e incentivando o usuário.
+- No parâmetro 'replyMessage' de cada função, forneça uma frase elegante, simpática e encorajadora em Português do Brasil explicando a alteração proposta, sem afirmar que ela já foi executada.
 - Se nenhuma ferramenta for necessária (ex: o usuário pedindo conselhos de foco ou tirando dúvidas), responda diretamente em texto de forma encorajadora, sofisticada e concisa.`;
 
 export type ToolDecl = { name: string; description: string; parameters: Record<string, unknown> };
@@ -184,21 +185,34 @@ export const assistantTools: ToolDecl[] = [
   },
   {
     name: 'create_goal',
-    description: 'Cria um novo objetivo com título, categoria e gera etapas automáticas.',
+    description: 'Propõe a criação de um objetivo somente depois de esclarecer o resultado esperado e as restrições. Inclua um plano concreto dividido em etapas; a criação só será efetivada após aprovação explícita do usuário.',
     parameters: {
       type: "OBJECT",
       properties: {
-        title: { type: "STRING", description: 'Título da meta' },
+        title: { type: "STRING", description: 'Título específico do objetivo' },
         category: {
           type: "STRING",
           description: 'Categoria da meta: Estudos, Carreira, Saúde e condicionamento, Criatividade, Finanças pessoais, Hábitos, Projetos pessoais ou Outros',
         },
-        reason: { type: "STRING", description: 'Motivo pessoal (opcional)' },
+        reason: { type: "STRING", description: 'Motivação e resultado esperado (opcional)' },
         deadline: { type: "STRING", description: 'Prazo limite YYYY-MM-DD (opcional)' },
-        summary: { type: "STRING", description: 'Resumo da meta criada' },
-        replyMessage: { type: "STRING", description: 'Mensagem entusiasmada parabenizando pelo novo objetivo' },
+        steps: {
+          type: "ARRAY",
+          description: 'De 6 a 14 etapas sequenciais, concretas e mensuráveis. Cada sessão deve caber no limite diário do usuário.',
+          items: {
+            type: "OBJECT",
+            properties: {
+              title: { type: "STRING", description: 'Ação específica e executável' },
+              instruction: { type: "STRING", description: 'Passo a passo e critério de conclusão' },
+              durationMinutes: { type: "NUMBER", description: 'Duração estimada em minutos, respeitando o limite diário' },
+            },
+            required: ['title', 'instruction', 'durationMinutes'],
+          },
+        },
+        summary: { type: "STRING", description: 'Resumo do plano proposto' },
+        replyMessage: { type: "STRING", description: 'Mensagem amigável apresentando a proposta, sem afirmar que foi criada' },
       },
-      required: ['title', 'category', 'summary', 'replyMessage'],
+      required: ['title', 'category', 'steps', 'summary', 'replyMessage'],
     },
   },
   {
