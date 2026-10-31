@@ -13,7 +13,7 @@ type ScheduleResult = { ok: true; tasks: PlanTask[] } | { ok: false; error: stri
 
 const toMinutes = (time?: string) => {
   if (!time || !/^\d{2}:\d{2}$/.test(time)) return null;
-  const [h, m] = time.split(':').map(Number);
+  const [h = -1, m = -1] = time.split(':').map(Number);
   return h <= 23 && m <= 59 ? h * 60 + m : null;
 };
 const toTime = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
