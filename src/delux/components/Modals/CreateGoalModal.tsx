@@ -228,7 +228,7 @@ export const CreateGoalModal: React.FC = () => {
               title: step.title,
               instruction: step.instruction || "",
               date,
-              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, Number(step.durationMinutes) || preferences.dailyMinutes)),
+              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(step.durationMinutes) || preferences.dailyMinutes))),
             };
           });
           setAiGeneratedTasks(planTasks);
