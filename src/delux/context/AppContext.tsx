@@ -13,6 +13,7 @@ import {
 import { INITIAL_ACHIEVEMENTS } from '../utils/achievements';
 import { addDays, getLocalDateString } from '../utils/dateUtils';
 import { generateTasksForGoal } from '../utils/planGenerator';
+import { schedulePlanTasks } from '../utils/schedulePlan';
 
 interface ToastState {
   id: number;
@@ -123,6 +124,20 @@ const nextAllowedScheduleDate = (date: string, availableDays: number[]) => {
     candidate = addDays(candidate, 1);
   }
   return null;
+};
+
+const hasScheduleConflict = (candidate: Partial<Task>, allTasks: Task[], ignoreId?: string) => {
+  if (!candidate.date || !candidate.time) return false;
+  const start = candidate.time.split(':').map(Number);
+  const startMinutes = start[0] * 60 + start[1];
+  const endMinutes = startMinutes + (Number(candidate.durationMinutes) || 0);
+  return allTasks.some((task) => {
+    if (task.id === ignoreId || task.completed || task.date !== candidate.date || !task.time) return false;
+    const parts = task.time.split(':').map(Number);
+    const otherStart = parts[0] * 60 + parts[1];
+    const otherEnd = otherStart + (task.durationMinutes || 0);
+    return startMinutes < otherEnd && otherStart < endMinutes;
+  });
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -421,7 +436,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('Escolha ao menos um dia disponível antes de criar um plano.', 'error');
       return null;
     }
-    const tasksToValidate = goalData.method === 'manual' ? (manualTasks || []) : (generatedPlanTasks || []);
+    let scheduledPlanTasks = generatedPlanTasks || [];
+    if (goalData.method === 'auto') {
+      const rawTasks = scheduledPlanTasks.length > 0
+        ? scheduledPlanTasks
+        : generateTasksForGoal('pending', goalData.title, goalData.category, preferences).tasks;
+      if (rawTasks.length === 0) {
+        showToast('Não foi possível montar tarefas para este objetivo. Revise sua disponibilidade.', 'error');
+        return null;
+      }
+      const scheduled = schedulePlanTasks({
+        planTasks: rawTasks,
+        existingTasks: tasks,
+        preferences,
+        deadline: goalData.deadline,
+      });
+      if (!scheduled.ok) {
+        showToast(scheduled.error, 'error');
+        return null;
+      }
+      scheduledPlanTasks = scheduled.tasks;
+    }
+    const tasksToValidate = goalData.method === 'manual' ? (manualTasks || []) : scheduledPlanTasks;
     if (tasksToValidate.length > 0) {
       const invalidTask = tasksToValidate.find((task) =>
         !task.title?.trim() ||
@@ -445,8 +481,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     let generatedTasks: Task[] = [];
 
-    if (goalData.method === 'auto' && generatedPlanTasks && generatedPlanTasks.length > 0) {
-      generatedTasks = generatedPlanTasks.map((mt, idx) => ({
+    if (goalData.method === 'auto' && scheduledPlanTasks.length > 0) {
+      generatedTasks = scheduledPlanTasks.map((mt, idx) => ({
         id: createUniqueId(`task_${newGoalId}_${idx + 1}`),
         goalId: newGoalId,
         title: mt.title,
@@ -459,8 +495,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isAutomated: true,
       }));
     } else if (goalData.method === 'auto') {
-      const res = generateTasksForGoal(newGoalId, goalData.title, goalData.category, preferences);
-      generatedTasks = res.tasks;
+      generatedTasks = []; // The scheduler above has already validated and prepared the complete plan.
     } else if (manualTasks && manualTasks.length > 0) {
       generatedTasks = manualTasks.map((mt, idx) => ({
         id: createUniqueId(`task_${newGoalId}_${idx + 1}`),
@@ -571,6 +606,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast('Informe um horário válido no formato HH:MM.', 'error');
       return null;
     }
+    if (hasScheduleConflict(taskData, tasks)) {
+      showToast('Este horário conflita com outra tarefa. Escolha outro horário.', 'error');
+      return null;
+    }
     const existingForGoal = tasks.filter((t) => t.goalId === taskData.goalId);
     const newTask: Task = {
       ...taskData,
@@ -604,6 +643,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     if (partial.time !== undefined && !isValidTaskTime(partial.time)) {
       showToast('Informe um horário válido no formato HH:MM.', 'error');
+      return false;
+    }
+    if (hasScheduleConflict({ ...target, ...partial }, tasks, id)) {
+      showToast('Este horário conflita com outra tarefa. Escolha outro horário.', 'error');
       return false;
     }
     if (partial.title !== undefined && !partial.title.trim()) {
