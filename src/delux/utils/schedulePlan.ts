@@ -1,6 +1,6 @@
 import type { Task, UserPreferences } from '../types';
 
-type PlanTask = Pick<Task, 'title' | 'date' | 'durationMinutes'> & Partial<Pick<Task, 'instruction' | 'time' | 'stepOrder' | 'isAutomated' | 'goalId'>>;
+type PlanTask = Pick<Task, 'title' | 'date' | 'durationMinutes'> & Partial<Pick<Task, 'id' | 'instruction' | 'time' | 'stepOrder' | 'isAutomated' | 'goalId'>>;
 
 type ScheduleInput = {
   planTasks: PlanTask[];
