@@ -55,7 +55,7 @@ interface AppContextType {
   updateTask: (id: string, partial: Partial<Task>) => boolean;
   deleteTask: (id: string) => boolean;
   toggleTask: (id: string) => void;
-  replanGoal: (goalId: string) => { updatedCount: number };
+  replanGoal: (goalId: string, apply?: boolean) => { updatedCount: number; proposal?: Task[]; error?: string };
   executeAssistantAction: (action: AssistantAction) => boolean;
 
   updatePreferences: (partial: Partial<UserPreferences>) => boolean;
@@ -723,46 +723,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     evaluateAchievements(updatedGoals, updatedTasks);
   };
 
-  // Replan Goal: redistributes only remaining pending tasks starting from next available day
-  const replanGoal = (goalId: string) => {
-    const tasks = tasksRef.current;
-    const goals = goalsRef.current;
-    const preferences = prefsRef.current;
-    const goal = goals.find((g) => g.id === goalId);
-    const availableDays = Array.isArray(preferences.availableDays)
-      ? preferences.availableDays.filter((day) => Number.isInteger(day) && day >= 0 && day <= 6)
-      : [];
-    if (!goal || availableDays.length === 0) return { updatedCount: 0 };
+  // Build a conflict-aware proposal first; callers must explicitly apply it.
+  const replanGoal = (goalId: string, apply = true) => {
+    const currentTasks = tasksRef.current;
+    const currentGoals = goalsRef.current;
+    const currentPreferences = prefsRef.current;
+    const goal = currentGoals.find((item) => item.id === goalId);
+    if (!goal) return { updatedCount: 0, error: 'Meta não encontrada.' };
+    const pending = currentTasks
+      .filter((task) => task.goalId === goalId && !task.completed)
+      .sort((a, b) => a.stepOrder - b.stepOrder);
+    if (!pending.length) return { updatedCount: 0, error: 'Não há tarefas pendentes para reorganizar.' };
 
-    const goalTasks = tasks.filter((t) => t.goalId === goalId);
-    const pending = goalTasks.filter((t) => !t.completed).sort((a, b) => a.stepOrder - b.stepOrder);
-
-    if (pending.length === 0) return { updatedCount: 0 };
-
-    let currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    // Skip to the next allowed day with a bounded search, even if stored data is malformed.
-    for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
-      currentDate = addDays(currentDate, 1);
-    }
-    if (!availableDays.includes(currentDate.getDay())) return { updatedCount: 0 };
-
-    const updatedMap = new Map<string, string>();
-    pending.forEach((task) => {
-      updatedMap.set(task.id, getLocalDateString(currentDate));
-      currentDate = addDays(currentDate, 1);
-      for (let offset = 0; offset < 7 && !availableDays.includes(currentDate.getDay()); offset += 1) {
-        currentDate = addDays(currentDate, 1);
-      }
+    const today = getLocalDateString(new Date());
+    const scheduled = schedulePlanTasks({
+      planTasks: pending.map((task) => ({ ...task, date: today })),
+      existingTasks: currentTasks.filter((task) => task.goalId !== goalId || task.completed),
+      preferences: currentPreferences,
+      deadline: goal.deadline,
     });
+    if (!scheduled.ok) {
+      if (apply) showToast(scheduled.error, 'error');
+      return { updatedCount: 0, error: scheduled.error };
+    }
+    if (!apply) return { updatedCount: 0, proposal: scheduled.tasks as Task[] };
 
-    setTasks((prev) =>
-      prev.map((t) => (updatedMap.has(t.id) ? { ...t, date: updatedMap.get(t.id)! } : t))
-    );
-
-    showToast(`Plano replanejado para os seus dias disponíveis.`, 'success');
-    return { updatedCount: pending.length };
+    const proposalById = new Map(scheduled.tasks.map((task) => [task.id, task]));
+    const updatedTasks = currentTasks.map((task) => {
+      const proposal = proposalById.get(task.id);
+      return proposal ? { ...task, date: proposal.date, time: proposal.time, durationMinutes: proposal.durationMinutes } : task;
+    });
+    setTasks(updatedTasks);
+    showToast('Replanejamento aprovado e aplicado sem alterar tarefas concluídas.', 'success');
+    return { updatedCount: scheduled.tasks.length, proposal: scheduled.tasks as Task[] };
   };
 
   const executeAssistantAction = (action: AssistantAction): boolean => {
