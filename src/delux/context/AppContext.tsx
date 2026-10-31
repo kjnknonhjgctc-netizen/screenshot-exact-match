@@ -139,7 +139,9 @@ const hasAnyScheduleConflict = (allTasks: Task[]) => {
   for (const items of grouped.values()) {
     items.sort((a, b) => a.start - b.start);
     for (let index = 1; index < items.length; index += 1) {
-      if (items[index].start < items[index - 1].end) return true;
+      const current = items[index]!;
+      const previous = items[index - 1]!;
+      if (current.start < previous.end) return true;
     }
   }
   return false;
@@ -767,7 +769,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     if (!apply) return { updatedCount: 0, proposal: scheduled.tasks as Task[] };
 
-    const proposalById = new Map(scheduled.tasks.map((task) => [task.id, task]));
+    const proposalById = new Map(scheduled.tasks.map((task) => [task.id, task] as const));
     const updatedTasks = currentTasks.map((task) => {
       const proposal = proposalById.get(task.id);
       return proposal ? { ...task, date: proposal.date, time: proposal.time, durationMinutes: proposal.durationMinutes } : task;
