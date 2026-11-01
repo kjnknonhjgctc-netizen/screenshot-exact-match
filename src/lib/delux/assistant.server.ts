@@ -119,7 +119,8 @@ function buildContext(context: any): string {
           const time = cleanText(task.time, 5);
           const goalTitle = cleanText(task.goalTitle, 100) || "Geral";
           const duration = Number.isInteger(task.durationMinutes) ? task.durationMinutes : 0;
-          const instruction = cleanText(task.instruction, 500);\n          return `- [ID: ${id}] "${title}" | Data: ${date} ${time ? `às ${time}` : "(sem horário)"} | Duração: ${duration}min | Status: ${task.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${goalTitle}${instruction ? ` | Instrução: ${instruction}` : ""}`;
+          const instruction = cleanText(task.instruction, 500);
+          return `- [ID: ${id}] "${title}" | Data: ${date} ${time ? `às ${time}` : "(sem horário)"} | Duração: ${duration}min | Status: ${task.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${goalTitle}${instruction ? ` | Instrução: ${instruction}` : ""}`;
         })
         .join("\n")
     : "Nenhuma tarefa cadastrada no momento.";
