@@ -31,7 +31,8 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const sorted = [...planTasks].sort((a, b) => (a.stepOrder ?? 0) - (b.stepOrder ?? 0));
   const startCandidate = sorted.map((task) => task.date).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '')).sort()[0] || dateString(new Date());
   let cursor = dateAtNoon(startCandidate);
-  const targetDays = Math.max(30, Math.min(365, Number.isInteger(durationDays) ? Number(durationDays) : 30));
+  const deadlineDays = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? Math.round((dateAtNoon(deadline).getTime() - cursor.getTime()) / 86400000) + 1 : 1;
+  const targetDays = Math.max(1, Math.min(365, Number.isInteger(durationDays) ? Number(durationDays) : deadlineDays));
   const computedDeadline = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : dateString(addDate(cursor, targetDays - 1));
   const limitDate = dateAtNoon(computedDeadline);
   const spacingDays = Math.max(1, Math.floor((targetDays - 1) / Math.max(1, sorted.length - 1)));
@@ -69,7 +70,6 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
       ranges.push([start, start + duration]);
       occupied.set(date, ranges);
       placed = true;
-      if (dailyUsed + duration >= dailyLimit) cursor = addDate(cursor, 1);
     }
     if (!placed) return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${computedDeadline}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
     if (scheduled.length < sorted.length) cursor = addDate(cursor, spacingDays);
