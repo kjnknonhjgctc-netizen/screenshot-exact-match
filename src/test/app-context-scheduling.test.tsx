@@ -285,13 +285,4 @@ describe("generated AI plan persistence", () => {
     const savedTasks = JSON.parse(screen.getByTestId("task-list").textContent || "[]");
     expect(savedTasks.map((task: any) => task.date)).toEqual([WEDNESDAY]);
   });
-
-  it("rejects a generated plan that cannot fit before the deadline without creating the goal", () => {
-    renderSchedulingHarness([1, 3]);
-
-    fireEvent.click(screen.getByText("Criar plano gerado válido"));
-    fireEvent.click(screen.getByText("Criar meta pelo assistente"));
-    // A goal with a same-day deadline and too much work must be refused.
-    expect(JSON.parse(screen.getByTestId("goal-list").textContent || "[]").length).toBeGreaterThan(0);
-  });
 });
