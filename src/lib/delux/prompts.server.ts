@@ -221,7 +221,8 @@ export const assistantTools: ToolDecl[] = [
           description: 'Categoria da meta: Estudos, Carreira, Saúde e condicionamento, Criatividade, Finanças pessoais, Hábitos, Projetos pessoais ou Outros',
         },
         reason: { type: "STRING", description: 'Motivação e resultado esperado (opcional)' },
-        deadline: { type: "STRING", description: 'Prazo limite YYYY-MM-DD (opcional)' },
+        deadline: { type: "STRING", description: 'Data final do plano YYYY-MM-DD, calculada a partir de durationDays se o usuário não informar uma data exata' },
+        durationDays: { type: "NUMBER", description: 'Duração total escolhida pelo usuário: no mínimo 30 dias e no máximo 365. Pergunte quantos dias deseja se não estiver claro; nunca escolha prazo inferior a 30 dias.' },
         steps: {
           type: "ARRAY",
           description: 'OBRIGATÓRIO: 6 a 14 etapas sequenciais, específicas e detalhadas. Cada etapa deve ensinar exatamente como executar a ação, com passos práticos, ferramentas pertinentes, exemplos, possíveis erros e critério de conclusão quando aplicável. Não use títulos vagos. Cada sessão deve caber no limite diário do usuário.',
@@ -238,7 +239,7 @@ export const assistantTools: ToolDecl[] = [
         summary: { type: "STRING", description: 'Resumo do plano proposto' },
         replyMessage: { type: "STRING", description: 'Mensagem amigável apresentando a proposta, sem afirmar que foi criada' },
       },
-      required: ['title', 'category', 'steps', 'summary', 'replyMessage'],
+      required: ['title', 'category', 'durationDays', 'steps', 'summary', 'replyMessage'],
     },
   },
   {
