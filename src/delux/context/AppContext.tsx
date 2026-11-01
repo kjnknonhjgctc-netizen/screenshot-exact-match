@@ -927,12 +927,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       case 'create_goal': {
-        const { title, category, reason, deadline, steps, summary } = action.payload || {};
+        const { title, category, reason, deadline, durationDays, steps, summary } = action.payload || {};
         if (typeof title !== 'string' || !title.trim() || !Array.isArray(steps) || steps.length < 6) {
           showToast('A proposta precisa conter um título e etapas concretas antes de ser aprovada.', 'error');
           return false;
         }
         const today = getLocalDateString(new Date());
+        const selectedDurationDays = Number.isInteger(durationDays) ? Math.max(30, Math.min(365, durationDays)) : 30;
+        const calculatedDeadline = new Date(`${today}T12:00:00`);
+        calculatedDeadline.setDate(calculatedDeadline.getDate() + selectedDurationDays - 1);
+        const effectiveDeadline = deadline && /^\\d{4}-\\d{2}-\\d{2}$/.test(deadline)
+          ? deadline
+          : `${calculatedDeadline.getFullYear()}-${String(calculatedDeadline.getMonth() + 1).padStart(2, '0')}-${String(calculatedDeadline.getDate()).padStart(2, '0')}`;
         const planTasks = steps.slice(0, 14).map((step: any) => ({
           title: typeof step?.title === 'string' ? step.title.trim() : '',
           instruction: typeof step?.instruction === 'string' ? step.instruction : '',
@@ -949,7 +955,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           title: title.trim(),
           category: category || 'Estudos',
           reason: reason || undefined,
-          deadline: deadline || undefined,
+          deadline: effectiveDeadline,
           method: 'auto',
           dailyMinutes: preferences.dailyMinutes,
         }, undefined, planTasks);
