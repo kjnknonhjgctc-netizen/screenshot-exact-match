@@ -7,6 +7,7 @@ type ScheduleInput = {
   existingTasks: Task[];
   preferences: UserPreferences;
   deadline?: string;
+  durationDays?: number;
 };
 
 type ScheduleResult = { ok: true; tasks: PlanTask[] } | { ok: false; error: string };
@@ -21,7 +22,7 @@ const dateAtNoon = (value: string) => new Date(`${value}T12:00:00`);
 const dateString = (value: Date) => `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;
 const addDate = (value: Date, days: number) => { const next = new Date(value); next.setDate(next.getDate()+days); return next; };
 
-export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadline }: ScheduleInput): ScheduleResult {
+export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadline, durationDays }: ScheduleInput): ScheduleResult {
   const days = [...new Set((preferences.availableDays || []).filter((day) => Number.isInteger(day) && day >= 0 && day <= 6))];
   if (!days.length) return { ok: false, error: 'Selecione ao menos um dia disponível antes de confirmar o plano.' };
   const dailyLimit = Math.max(5, Math.min(1440, Number(preferences.dailyMinutes) || 30));
@@ -30,7 +31,10 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const sorted = [...planTasks].sort((a, b) => (a.stepOrder ?? 0) - (b.stepOrder ?? 0));
   const startCandidate = sorted.map((task) => task.date).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '')).sort()[0] || dateString(new Date());
   let cursor = dateAtNoon(startCandidate);
-  const limitDate = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? dateAtNoon(deadline) : addDate(cursor, 365);
+  const targetDays = Math.max(30, Math.min(365, Number.isInteger(durationDays) ? Number(durationDays) : 30));
+  const computedDeadline = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : dateString(addDate(cursor, targetDays - 1));
+  const limitDate = dateAtNoon(computedDeadline);
+  const spacingDays = Math.max(1, Math.floor((targetDays - 1) / Math.max(1, sorted.length - 1)));
   const scheduled: PlanTask[] = [];
   const used = new Map<string, number>();
   const occupied = new Map<string, Array<[number, number]>>();
@@ -67,7 +71,8 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
       placed = true;
       if (dailyUsed + duration >= dailyLimit) cursor = addDate(cursor, 1);
     }
-    if (!placed) return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${deadline || 'o prazo calculado'}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
+    if (!placed) return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${computedDeadline}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
+    if (scheduled.length < sorted.length) cursor = addDate(cursor, spacingDays);
   }
   return { ok: true, tasks: scheduled };
 }
