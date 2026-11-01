@@ -12,7 +12,7 @@ describe('schedulePlanTasks', () => {
     });
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.tasks.every((task) => [1, 3, 5].includes(new Date(`${task.date}T12:00:00`).getDay())).toBe(true);
+      expect(result.tasks.every((task) => [1, 3, 5].includes(new Date(`${task.date}T12:00:00`).getDay()))).toBe(true);
       expect(result.tasks[0]!.time).toBe('13:00');
       expect(result.tasks[1]!.time).toBe('13:40');
       expect(result.tasks[0]!.date).toBe(result.tasks[1]!.date);

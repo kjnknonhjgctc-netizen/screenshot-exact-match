@@ -122,7 +122,15 @@ function SchedulingHarness() {
       }) ? "deleted" : "rejected")}>Excluir tarefa pelo assistente</button>
       <button onClick={() => setLastResult(executeAssistantAction({
         id: "assistant-create-goal", type: "create_goal", summary: "Criar meta",
-        payload: { title: "Aprender violão", category: "Estudos" },
+        payload: {
+          title: "Aprender violão",
+          category: "Estudos",
+          steps: Array.from({ length: 6 }, (_, i) => ({
+            title: `Etapa ${i + 1}`,
+            instruction: "Praticar",
+            durationMinutes: 45,
+          })),
+        },
       }) ? "goal-created" : "rejected")}>Criar meta pelo assistente</button>
       <output data-testid="last-result">{lastResult}</output>
       <output data-testid="task-list">{JSON.stringify(tasks)}</output>\n      <output data-testid="goal-list">{JSON.stringify(goals)}</output>
@@ -268,13 +276,13 @@ describe("generated AI plan persistence", () => {
     expect(JSON.parse(screen.getByTestId("goal-list").textContent || "[]")).toHaveLength(1);
   });
 
-  it("rejects a generated plan containing a session on an unavailable weekday without creating the goal", () => {
+  it("moves a generated session from an unavailable weekday to the next available day", () => {
     renderSchedulingHarness([1, 3]);
 
     fireEvent.click(screen.getByText("Criar plano gerado em dia bloqueado"));
 
-    expect(screen.getByTestId("last-result")).toHaveTextContent("rejected");
-    expect(screen.getByTestId("task-list")).toHaveTextContent("[]");
-    expect(screen.getByTestId("goal-list")).toHaveTextContent("[]");
+    expect(screen.getByTestId("last-result")).toHaveTextContent("created");
+    const savedTasks = JSON.parse(screen.getByTestId("task-list").textContent || "[]");
+    expect(savedTasks.map((task: any) => task.date)).toEqual([WEDNESDAY]);
   });
 });
