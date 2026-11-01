@@ -936,7 +936,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const selectedDurationDays = Number.isInteger(durationDays) ? Math.max(30, Math.min(365, durationDays)) : 30;
         const calculatedDeadline = new Date(`${today}T12:00:00`);
         calculatedDeadline.setDate(calculatedDeadline.getDate() + selectedDurationDays - 1);
-        const effectiveDeadline = deadline && /^\\d{4}-\\d{2}-\\d{2}$/.test(deadline)
+        const effectiveDeadline = deadline && deadline.length === 10 && deadline[4] === '-' && deadline[7] === '-'
           ? deadline
           : `${calculatedDeadline.getFullYear()}-${String(calculatedDeadline.getMonth() + 1).padStart(2, '0')}-${String(calculatedDeadline.getDate()).padStart(2, '0')}`;
         const planTasks = steps.slice(0, 14).map((step: any) => ({
