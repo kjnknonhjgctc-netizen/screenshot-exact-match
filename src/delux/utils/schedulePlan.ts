@@ -25,7 +25,7 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const days = [...new Set((preferences.availableDays || []).filter((day) => Number.isInteger(day) && day >= 0 && day <= 6))];
   if (!days.length) return { ok: false, error: 'Selecione ao menos um dia disponível antes de confirmar o plano.' };
   const dailyLimit = Math.max(5, Math.min(1440, Number(preferences.dailyMinutes) || 30));
-  const period = preferences.preferredTime === 'evening' ? [18 * 60, 22 * 60]
+  const period: [number, number] = preferences.preferredTime === 'evening' ? [18 * 60, 22 * 60]
     : preferences.preferredTime === 'afternoon' ? [13 * 60, 17 * 60] : [8 * 60, 12 * 60];
   const sorted = [...planTasks].sort((a, b) => (a.stepOrder ?? 0) - (b.stepOrder ?? 0));
   const startCandidate = sorted.map((task) => task.date).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '')).sort()[0] || dateString(new Date());
