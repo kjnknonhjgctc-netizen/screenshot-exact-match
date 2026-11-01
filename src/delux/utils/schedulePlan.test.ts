@@ -36,4 +36,26 @@ describe('schedulePlanTasks', () => {
     });
     expect(result.ok).toBe(false);
   });
+  it('spreads plan steps across the selected 30-day period instead of concentrating them in one week', () => {
+    const result = schedulePlanTasks({
+      planTasks: Array.from({ length: 6 }, (_, index) => ({
+        title: `Etapa ${index + 1}`,
+        date: '2026-11-02',
+        durationMinutes: 30,
+      })),
+      existingTasks: [],
+      preferences,
+      durationDays: 30,
+      deadline: '2026-12-01',
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const dates = result.tasks.map((task) => task.date);
+      expect(new Set(dates).size).toBe(6);
+      expect(new Date(`${dates[5]}T12:00:00`).getTime() - new Date(`${dates[0]}T12:00:00`).getTime()).toBeGreaterThanOrEqual(20 * 86400000);
+      expect(dates.every((date) => date <= '2026-12-01')).toBe(true);
+      expect(result.tasks.every((task) => [1, 3, 5].includes(new Date(`${task.date}T12:00:00`).getDay()))).toBe(true);
+    }
+  });
+
 });
