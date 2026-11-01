@@ -21,7 +21,7 @@ class GeminiError extends Error {
 async function gemini(apiKey: string, body: Record<string, unknown>) {
   let last: GeminiError | null = null;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 55000);
+  const timeoutId = setTimeout(() => controller.abort(), 80000);
 
   try {
     for (const model of MODELS) {
@@ -205,6 +205,7 @@ ${ctx}`
       systemInstruction: { parts: [{ text: systemText }] },
       contents,
       tools: [{ functionDeclarations: assistantTools }],
+      toolConfig: { functionCallingConfig: { mode: "AUTO" } },
       generationConfig: { temperature: 0.25, maxOutputTokens: 8192 },
     });
     const replyText = (out.text || "").trim();
