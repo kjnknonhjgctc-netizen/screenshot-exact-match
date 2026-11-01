@@ -119,7 +119,7 @@ function buildContext(context: any): string {
           const time = cleanText(task.time, 5);
           const goalTitle = cleanText(task.goalTitle, 100) || "Geral";
           const duration = Number.isInteger(task.durationMinutes) ? task.durationMinutes : 0;
-          return `- [ID: ${id}] "${title}" | Data: ${date} ${time ? `às ${time}` : "(sem horário)"} | Duração: ${duration}min | Status: ${task.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${goalTitle}`;
+          const instruction = cleanText(task.instruction, 500);\n          return `- [ID: ${id}] "${title}" | Data: ${date} ${time ? `às ${time}` : "(sem horário)"} | Duração: ${duration}min | Status: ${task.completed ? "CONCLUÍDA" : "PENDENTE"} | Meta: ${goalTitle}${instruction ? ` | Instrução: ${instruction}` : ""}`;
         })
         .join("\n")
     : "Nenhuma tarefa cadastrada no momento.";
@@ -204,7 +204,7 @@ ${ctx}`
       systemInstruction: { parts: [{ text: systemText }] },
       contents,
       tools: [{ functionDeclarations: assistantTools }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+      generationConfig: { temperature: 0.25, maxOutputTokens: 8192 },
     });
     const replyText = (out.text || "").trim();
     const validToolNames = new Set(assistantTools.map((tool) => tool.name));
