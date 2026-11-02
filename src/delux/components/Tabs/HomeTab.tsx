@@ -155,7 +155,9 @@ export const HomeTab: React.FC = () => {
             <div className="space-y-1">
               {nextPendingTask.goal && (
                 <Button variant="delux" size="delux"
-                  onClick={() => setSelectedGoalId(nextPendingTask.goal?.id)}
+                  onClick={() => {
+                    if (nextPendingTask.goal) setSelectedGoalId(nextPendingTask.goal.id);
+                  }}
                   className="text-[11px] font-semibold text-delux-accent hover:underline block"
                 >
                   Meta: {nextPendingTask.goal.title}
