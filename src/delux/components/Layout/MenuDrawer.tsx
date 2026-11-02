@@ -203,7 +203,9 @@ export const MenuDrawer: React.FC = () => {
 
               {/* Tempo Diário */}
               <div>
-                <h4 className="text-sm font-semibold text-delux-text mb-1">Tempo diário disponível</h4>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">
+                  Tempo diário disponível
+                </h4>
                 <p className="text-xs text-delux-secondary mb-3">
                   Duração estimada para as tarefas práticas.
                 </p>

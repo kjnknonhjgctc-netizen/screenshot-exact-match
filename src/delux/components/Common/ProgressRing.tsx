@@ -1,5 +1,5 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React from 'react';
+import React from "react";
 
 interface ProgressRingProps {
   progress: number; // 0 to 100
@@ -14,8 +14,8 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   progress,
   size = 72,
   strokeWidth = 7,
-  color = 'var(--color-delux-action)',
-  backgroundColor = 'var(--color-delux-border)',
+  color = "var(--color-delux-action)",
+  backgroundColor = "var(--color-delux-border)",
   showText = true,
 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -24,7 +24,10 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
 
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="rotate-[-90deg]">
         <circle
           cx={size / 2}
@@ -56,14 +59,16 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   );
 };
 
-export const ProgressBar: React.FC<{ progress: number; className?: string; colorClass?: string }> = ({
-  progress,
-  className = 'h-2',
-  colorClass = 'bg-delux-action',
-}) => {
+export const ProgressBar: React.FC<{
+  progress: number;
+  className?: string;
+  colorClass?: string;
+}> = ({ progress, className = "h-2", colorClass = "bg-delux-action" }) => {
   const clamped = Math.min(Math.max(progress, 0), 100);
   return (
-    <div className={`w-full bg-delux-elevated border border-delux-border/60 rounded-full overflow-hidden ${className}`}>
+    <div
+      className={`w-full bg-delux-elevated border border-delux-border/60 rounded-full overflow-hidden ${className}`}
+    >
       <div
         className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-out`}
         style={{ width: `${clamped}%` }}

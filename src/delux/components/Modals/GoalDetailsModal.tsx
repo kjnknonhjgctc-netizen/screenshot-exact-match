@@ -36,7 +36,8 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
     let candidate = new Date();
     candidate.setHours(0, 0, 0, 0);
     for (let offset = 0; offset < 7; offset += 1) {
-      if (preferences.availableDays.includes(candidate.getDay())) return getLocalDateString(candidate);
+      if (preferences.availableDays.includes(candidate.getDay()))
+        return getLocalDateString(candidate);
       candidate = addDays(candidate, 1);
     }
     return getLocalDateString(new Date());
@@ -44,7 +45,9 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDate, setNewTaskDate] = useState(getNextAvailableTaskDate);
-  const [newTaskDuration, setNewTaskDuration] = useState(Math.min(180, Math.max(5, preferences.dailyMinutes)));
+  const [newTaskDuration, setNewTaskDuration] = useState(
+    Math.min(180, Math.max(5, preferences.dailyMinutes)),
+  );
 
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editTitle, setEditTitle] = useState("");
@@ -297,27 +300,52 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
               <div className="p-3.5 rounded-lg bg-delux-action/10 border border-delux-action/30 space-y-3">
                 <div>
                   <p className="text-xs font-semibold text-delux-text">Prévia do replanejamento</p>
-                  <p className="text-[11px] text-delux-secondary mt-0.5">Confira as novas datas e horários. Nada foi alterado ainda.</p>
+                  <p className="text-[11px] text-delux-secondary mt-0.5">
+                    Confira as novas datas e horários. Nada foi alterado ainda.
+                  </p>
                 </div>
                 <div className="max-h-44 overflow-y-auto space-y-1.5">
                   {replanProposal.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between gap-3 text-[11px]">
+                    <div
+                      key={task.id}
+                      className="flex items-center justify-between gap-3 text-[11px]"
+                    >
                       <span className="text-delux-text min-w-0 truncate">{task.title}</span>
-                      <span className="text-delux-accent font-semibold tabular-nums shrink-0">{task.date} · {task.time || "sem horário"}</span>
+                      <span className="text-delux-accent font-semibold tabular-nums shrink-0">
+                        {task.date} · {task.time || "sem horário"}
+                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="delux" size="delux" type="button" onClick={() => setReplanProposal(null)} className="px-3 py-2 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold">Cancelar</Button>
-                  <Button variant="delux" size="delux" type="button" onClick={() => {
-                    const result = replanGoal(goal.id, true);
-                    if (result.updatedCount > 0) {
-                      setReplanProposal(null);
-                      setReplanError(null);
-                    } else {
-                      setReplanError(result.error || "Não foi possível aplicar o replanejamento.");
-                    }
-                  }} className="px-3 py-2 rounded-lg bg-delux-action text-delux-light text-[11px] font-semibold">Confirmar alterações</Button>
+                  <Button
+                    variant="delux"
+                    size="delux"
+                    type="button"
+                    onClick={() => setReplanProposal(null)}
+                    className="px-3 py-2 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="delux"
+                    size="delux"
+                    type="button"
+                    onClick={() => {
+                      const result = replanGoal(goal.id, true);
+                      if (result.updatedCount > 0) {
+                        setReplanProposal(null);
+                        setReplanError(null);
+                      } else {
+                        setReplanError(
+                          result.error || "Não foi possível aplicar o replanejamento.",
+                        );
+                      }
+                    }}
+                    className="px-3 py-2 rounded-lg bg-delux-action text-delux-light text-[11px] font-semibold"
+                  >
+                    Confirmar alterações
+                  </Button>
                 </div>
               </div>
             )}

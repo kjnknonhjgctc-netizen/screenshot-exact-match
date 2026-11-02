@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { GoalCategory, PlanningMethod } from "../../types";
-import { DAY_NAMES, getLocalDateString, addDays, parseLocalDateString } from "../../utils/dateUtils";
+import {
+  DAY_NAMES,
+  getLocalDateString,
+  addDays,
+  parseLocalDateString,
+} from "../../utils/dateUtils";
 import { getStepsForGoal } from "../../utils/planGenerator";
 import { schedulePlanTasks } from "../../utils/schedulePlan";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
@@ -48,8 +53,15 @@ const getNextAvailableDate = (availableDays: number[]) => {
 };
 
 export const CreateGoalModal: React.FC = () => {
-  const { isCreateGoalOpen, setIsCreateGoalOpen, preferences, tasks, addGoal, openDrawer, showToast } =
-    useApp();
+  const {
+    isCreateGoalOpen,
+    setIsCreateGoalOpen,
+    preferences,
+    tasks,
+    addGoal,
+    openDrawer,
+    showToast,
+  } = useApp();
 
   const [title, setTitle] = useState("");
   const [reason, setReason] = useState("");
@@ -77,20 +89,24 @@ export const CreateGoalModal: React.FC = () => {
     method === "auto" && title.trim().length > 2
       ? getStepsForGoal(title, category, preferences.dailyMinutes)
       : [];
-  const previewSource = method === "auto"
-    ? (aiGeneratedTasks?.length ? aiGeneratedTasks : previewSteps.map((step) => ({
-        ...step,
-        date: getLocalDateString(new Date()),
-      })))
-    : [];
-  const schedulePreview = previewSource.length > 0
-    ? schedulePlanTasks({
-        planTasks: previewSource,
-        existingTasks: tasks,
-        preferences,
-        deadline: deadline || undefined,
-      })
-    : null;
+  const previewSource =
+    method === "auto"
+      ? aiGeneratedTasks?.length
+        ? aiGeneratedTasks
+        : previewSteps.map((step) => ({
+            ...step,
+            date: getLocalDateString(new Date()),
+          }))
+      : [];
+  const schedulePreview =
+    previewSource.length > 0
+      ? schedulePlanTasks({
+          planTasks: previewSource,
+          existingTasks: tasks,
+          preferences,
+          deadline: deadline || undefined,
+        })
+      : null;
 
   const handleAddManualTask = () => {
     setManualTasks((prev) => [
@@ -121,7 +137,7 @@ export const CreateGoalModal: React.FC = () => {
     }
 
     if (!Array.isArray(preferences.availableDays) || preferences.availableDays.length === 0) {
-      showToast('Configure ao menos um dia disponível antes de gerar o plano.', 'error');
+      showToast("Configure ao menos um dia disponível antes de gerar o plano.", "error");
       return;
     }
 
@@ -152,7 +168,9 @@ export const CreateGoalModal: React.FC = () => {
 
       const data = await res.json();
       const validSteps = Array.isArray(data.steps)
-        ? data.steps.filter((step: any) => step && typeof step.title === 'string' && step.title.trim()).slice(0, 14)
+        ? data.steps
+            .filter((step: any) => step && typeof step.title === "string" && step.title.trim())
+            .slice(0, 14)
         : [];
       if (validSteps.length > 0) {
         let currentDate = new Date();
@@ -172,7 +190,10 @@ export const CreateGoalModal: React.FC = () => {
             instruction: typeof st.instruction === "string" ? st.instruction : "",
             date: taskDate,
             durationMinutes: Number.isFinite(Number(st.durationMinutes))
-              ? Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(st.durationMinutes))))
+              ? Math.min(
+                  preferences.dailyMinutes,
+                  Math.max(5, Math.round(Number(st.durationMinutes))),
+                )
               : preferences.dailyMinutes,
           };
         });
@@ -189,9 +210,12 @@ export const CreateGoalModal: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error in handleGenerateWithGemini:", err);
-      showToast(err.name === 'AbortError'
-        ? 'A geração demorou mais que o esperado. Tente novamente.'
-        : (err.message || "Erro ao gerar etapas com IA."), "error");
+      showToast(
+        err.name === "AbortError"
+          ? "A geração demorou mais que o esperado. Tente novamente."
+          : err.message || "Erro ao gerar etapas com IA.",
+        "error",
+      );
     } finally {
       window.clearTimeout(timeoutId);
       setIsGeneratingWithAi(false);
@@ -232,19 +256,30 @@ export const CreateGoalModal: React.FC = () => {
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || "Não foi possível gerar seu plano agora.");
-          const steps = Array.isArray(data.steps) ? data.steps.filter((step: any) => step?.title?.trim()).slice(0, 14) : [];
-          if (!steps.length) throw new Error("A IA não retornou etapas suficientes para montar seu plano.");
+          const steps = Array.isArray(data.steps)
+            ? data.steps.filter((step: any) => step?.title?.trim()).slice(0, 14)
+            : [];
+          if (!steps.length)
+            throw new Error("A IA não retornou etapas suficientes para montar seu plano.");
           let currentDate = new Date();
           const availableDaysSet = new Set(preferences.availableDays);
           planTasks = steps.map((step: any) => {
-            for (let offset = 0; offset < 7 && !availableDaysSet.has(currentDate.getDay()); offset += 1) currentDate = addDays(currentDate, 1);
+            for (
+              let offset = 0;
+              offset < 7 && !availableDaysSet.has(currentDate.getDay());
+              offset += 1
+            )
+              currentDate = addDays(currentDate, 1);
             const date = getLocalDateString(currentDate);
             currentDate = addDays(currentDate, 1);
             return {
               title: step.title,
               instruction: step.instruction || "",
               date,
-              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(step.durationMinutes) || preferences.dailyMinutes))),
+              durationMinutes: Math.min(
+                preferences.dailyMinutes,
+                Math.max(5, Math.round(Number(step.durationMinutes) || preferences.dailyMinutes)),
+              ),
             };
           });
           setAiGeneratedTasks(planTasks);
@@ -256,27 +291,41 @@ export const CreateGoalModal: React.FC = () => {
           let fallbackDate = new Date();
           fallbackDate.setHours(0, 0, 0, 0);
           const availableDays = new Set(preferences.availableDays);
-          for (let offset = 0; offset < 7 && !availableDays.has(fallbackDate.getDay()); offset += 1) {
+          for (
+            let offset = 0;
+            offset < 7 && !availableDays.has(fallbackDate.getDay());
+            offset += 1
+          ) {
             fallbackDate = addDays(fallbackDate, 1);
           }
           if (!availableDays.has(fallbackDate.getDay())) {
-            showToast("Não encontrei um próximo dia disponível. Confira suas preferências.", "error");
+            showToast(
+              "Não encontrei um próximo dia disponível. Confira suas preferências.",
+              "error",
+            );
             return;
           }
           planTasks = fallbackSteps.map((step) => {
-            while (!availableDays.has(fallbackDate.getDay())) fallbackDate = addDays(fallbackDate, 1);
+            while (!availableDays.has(fallbackDate.getDay()))
+              fallbackDate = addDays(fallbackDate, 1);
             const taskDate = getLocalDateString(fallbackDate);
             fallbackDate = addDays(fallbackDate, 1);
             return {
               title: step.title,
               instruction: step.instruction,
               date: taskDate,
-              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes)),
+              durationMinutes: Math.min(
+                preferences.dailyMinutes,
+                Math.max(5, step.durationMinutes),
+              ),
             };
           });
           setAiGeneratedTasks(planTasks);
           setAiAdvice(null);
-          showToast("A IA está indisponível no momento. Criamos um plano de apoio para você não ficar parado.", "info");
+          showToast(
+            "A IA está indisponível no momento. Criamos um plano de apoio para você não ficar parado.",
+            "info",
+          );
         } finally {
           window.clearTimeout(timeoutId);
           setIsGeneratingWithAi(false);
@@ -284,17 +333,24 @@ export const CreateGoalModal: React.FC = () => {
         generatedInThisSubmit = true;
       }
       if (generatedInThisSubmit) {
-        showToast("Seu plano foi gerado. Revise as etapas e a prévia do calendário antes de confirmar novamente.", "success");
+        showToast(
+          "Seu plano foi gerado. Revise as etapas e a prévia do calendário antes de confirmar novamente.",
+          "success",
+        );
         return;
       }
-      const created = addGoal({
-        title: title.trim(),
-        reason: reason.trim() || undefined,
-        category,
-        method: "auto",
-        deadline: deadline || undefined,
-        dailyMinutes: preferences.dailyMinutes,
-      }, undefined, planTasks);
+      const created = addGoal(
+        {
+          title: title.trim(),
+          reason: reason.trim() || undefined,
+          category,
+          method: "auto",
+          deadline: deadline || undefined,
+          dailyMinutes: preferences.dailyMinutes,
+        },
+        undefined,
+        planTasks,
+      );
       if (!created) return;
     } else {
       const validTasks = manualTasks.filter((t) => t.title.trim().length > 0);
@@ -302,13 +358,17 @@ export const CreateGoalModal: React.FC = () => {
         showToast("Adicione ao menos uma etapa para o plano manual.", "error");
         return;
       }
-      const invalidTask = validTasks.find((task) =>
-        !task.date ||
-        getLocalDateString(parseLocalDateString(task.date)) !== task.date ||
-        !preferences.availableDays.includes(parseLocalDateString(task.date).getDay()),
+      const invalidTask = validTasks.find(
+        (task) =>
+          !task.date ||
+          getLocalDateString(parseLocalDateString(task.date)) !== task.date ||
+          !preferences.availableDays.includes(parseLocalDateString(task.date).getDay()),
       );
       if (invalidTask) {
-        showToast('Uma ou mais etapas estão em dias indisponíveis. Ajuste as datas antes de criar o plano.', 'error');
+        showToast(
+          "Uma ou mais etapas estão em dias indisponíveis. Ajuste as datas antes de criar o plano.",
+          "error",
+        );
         return;
       }
       const created = addGoal(
@@ -332,12 +392,14 @@ export const CreateGoalModal: React.FC = () => {
     setDeadline("");
     setCategory("Estudos");
     setMethod("auto");
-    setManualTasks([{
-      title: "",
-      instruction: "",
-      date: getNextAvailableDate(preferences.availableDays),
-      durationMinutes: preferences.dailyMinutes,
-    }]);
+    setManualTasks([
+      {
+        title: "",
+        instruction: "",
+        date: getNextAvailableDate(preferences.availableDays),
+        durationMinutes: preferences.dailyMinutes,
+      },
+    ]);
     setAiAdvice(null);
     setAiGeneratedTasks(null);
   };
@@ -408,7 +470,11 @@ export const CreateGoalModal: React.FC = () => {
               required
               placeholder="Ex: Aprender violão, Correr 5 km, Dominar React..."
               value={title}
-              onChange={(e) => { setTitle(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setAiGeneratedTasks(null);
+                setAiAdvice(null);
+              }}
               className="w-full px-3.5 py-3 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-sm text-delux-text placeholder-delux-muted transition-colors min-h-[48px]"
             />
           </div>
@@ -427,7 +493,11 @@ export const CreateGoalModal: React.FC = () => {
               type="text"
               placeholder="Ex: Para tocar com amigos, crescer na carreira..."
               value={reason}
-              onChange={(e) => { setReason(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
+              onChange={(e) => {
+                setReason(e.target.value);
+                setAiGeneratedTasks(null);
+                setAiAdvice(null);
+              }}
               className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-xs text-delux-text placeholder-delux-muted transition-colors min-h-[44px]"
             />
           </div>
@@ -444,7 +514,11 @@ export const CreateGoalModal: React.FC = () => {
               <select
                 id="goal-category"
                 value={category}
-                onChange={(e) => { setCategory(e.target.value as GoalCategory); setAiGeneratedTasks(null); setAiAdvice(null); }}
+                onChange={(e) => {
+                  setCategory(e.target.value as GoalCategory);
+                  setAiGeneratedTasks(null);
+                  setAiAdvice(null);
+                }}
                 className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
               >
                 {CATEGORIES.map((cat) => (
@@ -612,7 +686,9 @@ export const CreateGoalModal: React.FC = () => {
           {method === "auto" && (aiGeneratedTasks?.length || previewSteps.length) > 0 && (
             <div>
               <span className="block text-xs font-semibold text-delux-secondary mb-2">
-                {aiGeneratedTasks ? `Plano detalhado gerado pela IA (${aiGeneratedTasks.length} sessões):` : `Prévia de estrutura (${previewSteps.length} etapas; gere com IA para personalizar):`}
+                {aiGeneratedTasks
+                  ? `Plano detalhado gerado pela IA (${aiGeneratedTasks.length} sessões):`
+                  : `Prévia de estrutura (${previewSteps.length} etapas; gere com IA para personalizar):`}
               </span>
               <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
                 {(aiGeneratedTasks || previewSteps).map((s, idx) => (
@@ -625,7 +701,9 @@ export const CreateGoalModal: React.FC = () => {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-delux-text truncate">{s.title}</p>
-                      <p className="text-[10px] text-delux-muted whitespace-normal leading-relaxed">{s.instruction}</p>
+                      <p className="text-[10px] text-delux-muted whitespace-normal leading-relaxed">
+                        {s.instruction}
+                      </p>
                       {schedulePreview?.ok && (
                         <p className="text-[10px] text-delux-accent font-semibold mt-1 tabular-nums">
                           {schedulePreview.tasks[idx]?.date} · {schedulePreview.tasks[idx]?.time}
@@ -720,11 +798,19 @@ export const CreateGoalModal: React.FC = () => {
           )}
 
           {method === "auto" && schedulePreview && (
-            <div className={`p-3 rounded-lg border text-[11px] space-y-1 ${schedulePreview.ok ? "bg-delux-success/10 border-delux-success/30 text-delux-success" : "bg-delux-danger/10 border-delux-danger/30 text-delux-warning"}`}>
+            <div
+              className={`p-3 rounded-lg border text-[11px] space-y-1 ${schedulePreview.ok ? "bg-delux-success/10 border-delux-success/30 text-delux-success" : "bg-delux-danger/10 border-delux-danger/30 text-delux-warning"}`}
+            >
               {schedulePreview.ok ? (
                 <>
                   <p className="font-semibold">Prévia do calendário pronta</p>
-                  <p>{schedulePreview.tasks.length} tarefas distribuídas conforme seus dias, limite diário e horário preferido. Primeira atividade: {schedulePreview.tasks[0]?.date} às {schedulePreview.tasks[0]?.time}. Última: {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.date} às {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.time}.</p>
+                  <p>
+                    {schedulePreview.tasks.length} tarefas distribuídas conforme seus dias, limite
+                    diário e horário preferido. Primeira atividade: {schedulePreview.tasks[0]?.date}{" "}
+                    às {schedulePreview.tasks[0]?.time}. Última:{" "}
+                    {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.date} às{" "}
+                    {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.time}.
+                  </p>
                 </>
               ) : (
                 <p>{schedulePreview.error}</p>
@@ -747,7 +833,10 @@ export const CreateGoalModal: React.FC = () => {
               variant="delux"
               size="delux"
               type="submit"
-              disabled={isGeneratingWithAi || (method === "auto" && schedulePreview !== null && !schedulePreview.ok)}
+              disabled={
+                isGeneratingWithAi ||
+                (method === "auto" && schedulePreview !== null && !schedulePreview.ok)
+              }
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-delux-action hover:bg-delux-action-hover active:opacity-85 text-delux-light text-xs font-semibold rounded-lg shadow-lg shadow-delux-action/30 transition-all min-h-[48px]"
             >
               <span>Gerar e Salvar Plano</span>

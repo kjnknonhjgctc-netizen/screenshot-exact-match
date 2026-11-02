@@ -1,17 +1,10 @@
 import { Button } from "@/components/ui/button";
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React from 'react';
-import {
-  CheckCircle2,
-  Clock,
-  Flame,
-  Trophy,
-  ArrowUpRight,
-  Sparkles,
-} from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { ProgressBar } from '../Common/ProgressBar';
-import { getLocalDateString, getWeekDays } from '../../utils/dateUtils';
+import React from "react";
+import { CheckCircle2, Clock, Flame, Trophy, ArrowUpRight, Sparkles } from "lucide-react";
+import { useApp } from "../../context/AppContext";
+import { ProgressBar } from "../Common/ProgressBar";
+import { getLocalDateString, getWeekDays } from "../../utils/dateUtils";
 
 export const ProgressTab: React.FC = () => {
   const {
@@ -32,7 +25,8 @@ export const ProgressTab: React.FC = () => {
   // Calculate tasks completed per day this week from real data
   const weeklyDistribution = currentWeekDays.map((d) => {
     const completedOnThisDay = tasks.filter(
-      (t) => t.completed && t.completedAt && getLocalDateString(new Date(t.completedAt)) === d.dateStr
+      (t) =>
+        t.completed && t.completedAt && getLocalDateString(new Date(t.completedAt)) === d.dateStr,
     ).length;
     return {
       shortName: d.shortName,
@@ -49,7 +43,9 @@ export const ProgressTab: React.FC = () => {
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-delux-text">Evolução & Progresso</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-delux-text">
+          Evolução & Progresso
+        </h1>
         <p className="text-xs text-delux-secondary mt-0.5">
           Métricas calculadas exclusivamente a partir das ações que você realmente concluiu.
         </p>
@@ -62,7 +58,9 @@ export const ProgressTab: React.FC = () => {
             <span className="text-[11px] font-semibold">Concluídas</span>
             <CheckCircle2 className="w-4 h-4 text-delux-success" />
           </div>
-          <p className="text-2xl font-semibold text-delux-text tabular-nums">{completedTasksCount}</p>
+          <p className="text-2xl font-semibold text-delux-text tabular-nums">
+            {completedTasksCount}
+          </p>
           <span className="text-[10px] text-delux-secondary block">etapas finalizadas</span>
         </div>
 
@@ -89,7 +87,9 @@ export const ProgressTab: React.FC = () => {
             <span className="text-[11px] font-semibold">Taxa Geral</span>
             <Sparkles className="w-4 h-4 text-delux-action" />
           </div>
-          <p className="text-2xl font-semibold text-delux-action tabular-nums">{overallProgress}%</p>
+          <p className="text-2xl font-semibold text-delux-action tabular-nums">
+            {overallProgress}%
+          </p>
           <span className="text-[10px] text-delux-secondary block">aproveitamento</span>
         </div>
       </div>
@@ -98,8 +98,12 @@ export const ProgressTab: React.FC = () => {
       <section className="p-5 sm:p-6 rounded-lg bg-delux-surface border border-delux-border space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-delux-text">Atividade Concluída nesta Semana</h3>
-            <p className="text-xs text-delux-secondary">Distribuição de etapas concluídas por dia.</p>
+            <h3 className="text-sm font-semibold text-delux-text">
+              Atividade Concluída nesta Semana
+            </h3>
+            <p className="text-xs text-delux-secondary">
+              Distribuição de etapas concluídas por dia.
+            </p>
           </div>
           <span className="text-xs text-delux-secondary tabular-nums font-semibold">
             {weeklyDistribution.reduce((acc, curr) => acc + curr.count, 0)} etapas
@@ -112,23 +116,23 @@ export const ProgressTab: React.FC = () => {
             return (
               <div key={idx} className="flex flex-col items-center h-full justify-end group">
                 <span className="text-[10px] font-semibold text-delux-accent mb-1 tabular-nums">
-                  {d.count > 0 ? d.count : ''}
+                  {d.count > 0 ? d.count : ""}
                 </span>
                 <div className="w-full max-w-[32px] sm:max-w-[40px] bg-delux-elevated rounded-lg overflow-hidden flex flex-col justify-end h-24">
                   <div
                     className={`w-full rounded-lg transition-all duration-500 ${
                       d.count > 0
                         ? d.isToday
-                          ? 'bg-delux-action shadow-md shadow-delux-action/40'
-                          : 'bg-delux-success'
-                        : 'bg-transparent'
+                          ? "bg-delux-action shadow-md shadow-delux-action/40"
+                          : "bg-delux-success"
+                        : "bg-transparent"
                     }`}
                     style={{ height: `${heightPercent}%` }}
                   />
                 </div>
                 <span
                   className={`text-[10px] mt-2 uppercase font-semibold ${
-                    d.isToday ? 'text-delux-action' : 'text-delux-muted'
+                    d.isToday ? "text-delux-action" : "text-delux-muted"
                   }`}
                 >
                   {d.shortName}
@@ -156,7 +160,8 @@ export const ProgressTab: React.FC = () => {
             {goals.map((g) => {
               const gTasks = tasks.filter((t) => t.goalId === g.id);
               const gCompleted = gTasks.filter((t) => t.completed).length;
-              const gPercent = gTasks.length > 0 ? Math.round((gCompleted / gTasks.length) * 100) : 0;
+              const gPercent =
+                gTasks.length > 0 ? Math.round((gCompleted / gTasks.length) * 100) : 0;
 
               return (
                 <div
@@ -172,7 +177,7 @@ export const ProgressTab: React.FC = () => {
                   </div>
                   <ProgressBar
                     progress={gPercent}
-                    colorClass={gPercent === 100 ? 'bg-delux-success' : 'bg-delux-action'}
+                    colorClass={gPercent === 100 ? "bg-delux-success" : "bg-delux-action"}
                   />
                 </div>
               );
@@ -188,8 +193,10 @@ export const ProgressTab: React.FC = () => {
             <h3 className="text-sm font-semibold text-delux-text">Conquistas e Marcos</h3>
             <p className="text-xs text-delux-secondary">Reconhecimento das suas vitórias reais.</p>
           </div>
-          <Button variant="delux" size="delux"
-            onClick={() => openDrawer('achievements')}
+          <Button
+            variant="delux"
+            size="delux"
+            onClick={() => openDrawer("achievements")}
             className="flex items-center gap-1 text-xs text-delux-action hover:underline font-semibold"
           >
             <span>Ver todas</span>

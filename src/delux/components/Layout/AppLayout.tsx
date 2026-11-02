@@ -57,9 +57,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         const nextDirection = Math.sign(delta);
 
         if (nextDirection !== 0) {
-          accumulated = nextDirection === direction
-            ? accumulated + Math.abs(delta)
-            : Math.abs(delta);
+          accumulated =
+            nextDirection === direction ? accumulated + Math.abs(delta) : Math.abs(delta);
           direction = nextDirection;
         }
 
@@ -133,7 +132,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-base font-semibold text-delux-text tracking-tight">DELUX</span>
+                <span className="text-base font-semibold text-delux-text tracking-tight">
+                  DELUX
+                </span>
                 <span className="text-[10px] font-semibold text-delux-action bg-delux-action/10 px-1.5 py-0.5 rounded">
                   2.0
                 </span>
@@ -233,7 +234,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header delux-scroll-bar border-b border-delux-border/70 ${mobileBarsHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`} inert={mobileBarsHidden}>
+      <header
+        className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header delux-scroll-bar border-b border-delux-border/70 ${mobileBarsHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
+        inert={mobileBarsHidden}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-delux-elevated via-delux-elevated to-delux-accent p-0.5 shadow-md shadow-delux-elevated/30 flex items-center justify-center relative overflow-hidden">
             <svg
@@ -296,7 +300,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main ref={mainRef} className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-14 md:pt-0 relative">
+      <main
+        ref={mainRef}
+        className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-14 md:pt-0 relative"
+      >
         <div className="flex-1 w-full max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           {children}
         </div>
@@ -306,7 +313,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           variant="delux"
           size="delux"
           onClick={() => setIsAssistantOpen(true)}
-          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant delux-scroll-bar text-delux-light active:opacity-85 ${mobileBarsHidden ? "translate-y-10 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`} inert={mobileBarsHidden}
+          className={`md:hidden fixed bottom-20 right-4 z-40 flex items-center gap-2 pl-3.5 pr-4 py-2.5 rounded-full delux-glass delux-primary-action delux-floating-assistant delux-scroll-bar text-delux-light active:opacity-85 ${mobileBarsHidden ? "translate-y-10 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
+          inert={mobileBarsHidden}
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4" />
@@ -317,7 +325,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE FIXED BOTTOM TAB BAR (iOS Ergonomic Thumb-Zone) */}
       <nav
         aria-label="Navegação inferior mobile"
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav delux-scroll-bar ${mobileBarsHidden ? "translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`} inert={mobileBarsHidden}
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav delux-scroll-bar ${mobileBarsHidden ? "translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
+        inert={mobileBarsHidden}
       >
         <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {

@@ -214,13 +214,25 @@ export const MyPlanTab: React.FC = () => {
 
                   {task.instruction && (
                     <div className="mt-2">
-                      <p className={`text-xs text-delux-secondary leading-relaxed whitespace-pre-line ${expandedTasks[task.id] ? "" : "line-clamp-3"}`}>
+                      <p
+                        className={`text-xs text-delux-secondary leading-relaxed whitespace-pre-line ${expandedTasks[task.id] ? "" : "line-clamp-3"}`}
+                      >
                         {task.instruction}
                       </p>
                       {task.instruction.length > 180 && (
-                        <Button variant="delux" size="delux" type="button" onClick={() => setExpandedTasks((prev) => ({ ...prev, [task.id]: !prev[task.id] }))} className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-delux-accent hover:underline">
+                        <Button
+                          variant="delux"
+                          size="delux"
+                          type="button"
+                          onClick={() =>
+                            setExpandedTasks((prev) => ({ ...prev, [task.id]: !prev[task.id] }))
+                          }
+                          className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-delux-accent hover:underline"
+                        >
                           {expandedTasks[task.id] ? "Mostrar menos" : "Ver passo a passo completo"}
-                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedTasks[task.id] ? "rotate-180" : ""}`} />
+                          <ChevronDown
+                            className={`w-3 h-3 transition-transform ${expandedTasks[task.id] ? "rotate-180" : ""}`}
+                          />
                         </Button>
                       )}
                     </div>

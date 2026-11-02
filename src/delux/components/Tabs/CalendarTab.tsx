@@ -88,7 +88,9 @@ export const CalendarTab: React.FC = () => {
       {/* Calendar Header with navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">Calendário Semanal</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">
+            Calendário Semanal
+          </h1>
           <p className="text-xs text-delux-secondary mt-0.5">
             Organização temporal das suas etapas nos dias disponíveis da sua rotina.
           </p>
@@ -301,9 +303,7 @@ export const CalendarTab: React.FC = () => {
                               {task.durationMinutes} min
                             </span>
                             <span>·</span>
-                            <span className="text-delux-accent font-medium">
-                              Toque para editar
-                            </span>
+                            <span className="text-delux-accent font-medium">Toque para editar</span>
                           </div>
                         </div>
                       </div>
@@ -346,7 +346,9 @@ export const CalendarTab: React.FC = () => {
                       {d.dayNumber}
                     </span>
                     {d.isToday && (
-                      <span className="text-[9px] font-semibold text-delux-action uppercase">Hoje</span>
+                      <span className="text-[9px] font-semibold text-delux-action uppercase">
+                        Hoje
+                      </span>
                     )}
                   </div>
                 </div>

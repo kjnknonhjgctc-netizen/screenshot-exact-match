@@ -162,7 +162,9 @@ export const OnboardingModal: React.FC = () => {
           {step === 2 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               <div>
-                <h3 className="text-lg font-semibold text-delux-text">Sua Disponibilidade Semanal</h3>
+                <h3 className="text-lg font-semibold text-delux-text">
+                  Sua Disponibilidade Semanal
+                </h3>
                 <p className="text-xs text-delux-secondary mt-0.5">
                   O planejador nunca agenda tarefas automáticas em dias que você desmarcar.
                 </p>

@@ -60,7 +60,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   // Check if selected date is an unavailable day
   const targetDateObj = date ? parseLocalDateString(date) : null;
   const isDateUnavailable = targetDateObj
-    ? !preferences.availableDays.includes(targetDateObj.getDay()) && (!taskToEdit || date !== taskToEdit.date)
+    ? !preferences.availableDays.includes(targetDateObj.getDay()) &&
+      (!taskToEdit || date !== taskToEdit.date)
     : false;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,7 +76,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     }
 
     if (isDateUnavailable) {
-      showToast('Escolha um dia disponível na sua rotina antes de salvar.', 'error');
+      showToast("Escolha um dia disponível na sua rotina antes de salvar.", "error");
       return;
     }
 

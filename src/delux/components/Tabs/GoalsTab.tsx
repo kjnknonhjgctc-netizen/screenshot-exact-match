@@ -1,20 +1,15 @@
 import { Button } from "@/components/ui/button";
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React, { useState } from 'react';
-import { Plus, Target, CheckCircle2, Calendar, ChevronRight } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { ProgressBar } from '../Common/ProgressBar';
-import { formatFriendlyDate } from '../../utils/dateUtils';
+import React, { useState } from "react";
+import { Plus, Target, CheckCircle2, Calendar, ChevronRight } from "lucide-react";
+import { useApp } from "../../context/AppContext";
+import { ProgressBar } from "../Common/ProgressBar";
+import { formatFriendlyDate } from "../../utils/dateUtils";
 
 export const GoalsTab: React.FC = () => {
-  const {
-    goals,
-    tasks,
-    setIsCreateGoalOpen,
-    setSelectedGoalId,
-  } = useApp();
+  const { goals, tasks, setIsCreateGoalOpen, setSelectedGoalId } = useApp();
 
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
 
   const goalsWithStats = goals.map((goal) => {
     const goalTasks = tasks.filter((t) => t.goalId === goal.id);
@@ -31,8 +26,8 @@ export const GoalsTab: React.FC = () => {
   });
 
   const filteredGoals = goalsWithStats.filter((g) => {
-    if (filter === 'active') return g.status !== 'paused' && !g.isCompleted;
-    if (filter === 'completed') return g.isCompleted;
+    if (filter === "active") return g.status !== "paused" && !g.isCompleted;
+    if (filter === "completed") return g.isCompleted;
     return true;
   });
 
@@ -41,13 +36,17 @@ export const GoalsTab: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">Metas & Objetivos</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">
+            Metas & Objetivos
+          </h1>
           <p className="text-xs text-delux-secondary mt-0.5">
             Defina o destino e acompanhe a estrutura de execução de cada objetivo.
           </p>
         </div>
 
-        <Button variant="delux" size="delux"
+        <Button
+          variant="delux"
+          size="delux"
           onClick={() => setIsCreateGoalOpen(true)}
           className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-delux-action hover:bg-delux-action-hover active:scale-95 text-delux-light text-xs font-semibold rounded-lg shadow-lg shadow-delux-action/30 transition-all min-h-[48px]"
         >
@@ -59,32 +58,38 @@ export const GoalsTab: React.FC = () => {
       {/* Segmented Filter Control for mobile thumb reach */}
       {goals.length > 0 && (
         <div className="flex items-center gap-1 p-1 bg-delux-surface border border-delux-border rounded-lg overflow-x-auto no-scrollbar w-full sm:w-fit">
-          <Button variant="delux" size="delux"
-            onClick={() => setFilter('all')}
+          <Button
+            variant="delux"
+            size="delux"
+            onClick={() => setFilter("all")}
             className={`flex-1 sm:flex-none px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[38px] ${
-              filter === 'all'
-                ? 'bg-delux-elevated text-delux-text shadow-sm'
-                : 'text-delux-secondary hover:text-delux-text'
+              filter === "all"
+                ? "bg-delux-elevated text-delux-text shadow-sm"
+                : "text-delux-secondary hover:text-delux-text"
             }`}
           >
             Todas ({goals.length})
           </Button>
-          <Button variant="delux" size="delux"
-            onClick={() => setFilter('active')}
+          <Button
+            variant="delux"
+            size="delux"
+            onClick={() => setFilter("active")}
             className={`flex-1 sm:flex-none px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[38px] ${
-              filter === 'active'
-                ? 'bg-delux-elevated text-delux-text shadow-sm'
-                : 'text-delux-secondary hover:text-delux-text'
+              filter === "active"
+                ? "bg-delux-elevated text-delux-text shadow-sm"
+                : "text-delux-secondary hover:text-delux-text"
             }`}
           >
             Em andamento ({goalsWithStats.filter((g) => !g.isCompleted).length})
           </Button>
-          <Button variant="delux" size="delux"
-            onClick={() => setFilter('completed')}
+          <Button
+            variant="delux"
+            size="delux"
+            onClick={() => setFilter("completed")}
             className={`flex-1 sm:flex-none px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap min-h-[38px] ${
-              filter === 'completed'
-                ? 'bg-delux-elevated text-delux-text shadow-sm'
-                : 'text-delux-secondary hover:text-delux-text'
+              filter === "completed"
+                ? "bg-delux-elevated text-delux-text shadow-sm"
+                : "text-delux-secondary hover:text-delux-text"
             }`}
           >
             Concluídas ({goalsWithStats.filter((g) => g.isCompleted).length})
@@ -100,17 +105,21 @@ export const GoalsTab: React.FC = () => {
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-semibold text-delux-text">
-              {goals.length === 0 ? 'Nenhuma meta criada ainda' : 'Nenhuma meta encontrada neste filtro'}
+              {goals.length === 0
+                ? "Nenhuma meta criada ainda"
+                : "Nenhuma meta encontrada neste filtro"}
             </h3>
             <p className="text-xs text-delux-secondary max-w-sm mx-auto leading-relaxed">
               {goals.length === 0
-                ? 'O Delux transforma qualquer objetivo em um plano determinístico que cabe na sua rotina real.'
-                : 'Alterne os filtros acima para visualizar suas outras metas.'}
+                ? "O Delux transforma qualquer objetivo em um plano determinístico que cabe na sua rotina real."
+                : "Alterne os filtros acima para visualizar suas outras metas."}
             </p>
           </div>
 
           {goals.length === 0 && (
-            <Button variant="delux" size="delux"
+            <Button
+              variant="delux"
+              size="delux"
               onClick={() => setIsCreateGoalOpen(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-delux-action hover:bg-delux-action-hover active:scale-95 text-delux-light text-xs font-semibold rounded-lg shadow-lg shadow-delux-action/30 transition-all min-h-[48px]"
             >
@@ -132,7 +141,7 @@ export const GoalsTab: React.FC = () => {
                   <div className="flex items-center gap-2 text-[11px] text-delux-secondary">
                     <span className="font-semibold text-delux-action">{goal.category}</span>
                     <span>·</span>
-                    <span>{goal.method === 'auto' ? 'Automático' : 'Manual'}</span>
+                    <span>{goal.method === "auto" ? "Automático" : "Manual"}</span>
                   </div>
                   {goal.isCompleted && (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-delux-success bg-delux-success/10 px-2 py-0.5 rounded-md">
@@ -163,7 +172,7 @@ export const GoalsTab: React.FC = () => {
                 </div>
                 <ProgressBar
                   progress={goal.progress}
-                  colorClass={goal.isCompleted ? 'bg-delux-success' : 'bg-delux-action'}
+                  colorClass={goal.isCompleted ? "bg-delux-success" : "bg-delux-action"}
                 />
 
                 <div className="flex items-center justify-between text-[11px] text-delux-muted pt-1">

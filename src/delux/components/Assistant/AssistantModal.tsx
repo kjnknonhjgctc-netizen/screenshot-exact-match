@@ -50,12 +50,18 @@ export const AssistantModal: React.FC = () => {
       const saved = localStorage.getItem("delux_assistant_chat");
       const parsed = saved ? JSON.parse(saved) : [];
       return Array.isArray(parsed)
-        ? parsed.filter((message) => message && typeof message.id === 'string' &&
-            ['user', 'assistant'].includes(message.role) && typeof message.content === 'string')
+        ? parsed
+            .filter(
+              (message) =>
+                message &&
+                typeof message.id === "string" &&
+                ["user", "assistant"].includes(message.role) &&
+                typeof message.content === "string",
+            )
             .map((message) => ({
               ...message,
               actions: Array.isArray(message.actions)
-                ? message.actions.filter((action) => action && typeof action === 'object')
+                ? message.actions.filter((action) => action && typeof action === "object")
                 : [],
             }))
         : [];
@@ -82,8 +88,12 @@ export const AssistantModal: React.FC = () => {
   // Scroll to bottom on new messages
   useEffect(() => {
     if (isAssistantOpen) {
-      const reduce = preferences.reducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      messagesEndRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      const reduce =
+        preferences.reducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      messagesEndRef.current?.scrollIntoView({
+        behavior: reduce ? "auto" : "smooth",
+        block: "nearest",
+      });
     }
   }, [messages, isAssistantOpen, isLoading, preferences.reducedMotion]);
 
@@ -173,16 +183,17 @@ export const AssistantModal: React.FC = () => {
       // Assistant actions are proposals only. Nothing mutates the app until the user approves.
       const assistantActions = Array.isArray(data.actions)
         ? data.actions
-            .filter((action: any) => action && typeof action === 'object')
+            .filter((action: any) => action && typeof action === "object")
             .map((action: any) => ({ ...action, applied: false }))
         : [];
 
       const assistantMessage: ChatMessage = {
         id: `msg_ai_${Date.now()}`,
         role: "assistant",
-        content: assistantActions.length > 0
-          ? `${data.reply}\n\nRevise as alterações sugeridas abaixo. Nada será alterado até você aprovar.`
-          : data.reply,
+        content:
+          assistantActions.length > 0
+            ? `${data.reply}\n\nRevise as alterações sugeridas abaixo. Nada será alterado até você aprovar.`
+            : data.reply,
         timestamp: new Date().toISOString(),
         actions: assistantActions,
       };
@@ -211,24 +222,37 @@ export const AssistantModal: React.FC = () => {
     try {
       applied = executeAssistantAction(targetAction);
     } catch (actionError) {
-      console.error('Failed to apply approved assistant action:', actionError);
+      console.error("Failed to apply approved assistant action:", actionError);
     }
-    setMessages((prev) => prev.map((message) => message.id !== messageId ? message : {
-      ...message,
-      actions: message.actions?.map((action) => action.id === actionId
-        ? { ...action, applied }
-        : action),
-    }));
-    if (!applied) showToast('A alteração não foi aplicada. Revise os dados e tente novamente.', 'error');
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id !== messageId
+          ? message
+          : {
+              ...message,
+              actions: message.actions?.map((action) =>
+                action.id === actionId ? { ...action, applied } : action,
+              ),
+            },
+      ),
+    );
+    if (!applied)
+      showToast("A alteração não foi aplicada. Revise os dados e tente novamente.", "error");
   };
 
   const handleDiscardAction = (messageId: string, actionId: string) => {
-    setMessages((prev) => prev.map((message) => message.id !== messageId ? message : {
-      ...message,
-      actions: message.actions?.map((action) => action.id === actionId
-        ? { ...action, applied: undefined }
-        : action),
-    }));
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id !== messageId
+          ? message
+          : {
+              ...message,
+              actions: message.actions?.map((action) =>
+                action.id === actionId ? { ...action, applied: undefined } : action,
+              ),
+            },
+      ),
+    );
   };
 
   const handleClearChat = () => {
@@ -378,31 +402,78 @@ export const AssistantModal: React.FC = () => {
                     <div className="pt-2 border-t border-delux-border space-y-2 mt-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-normal text-delux-accent">
                         <Zap className="w-3 h-3" />
-                        <span>{m.actions.every((act) => act.applied === true) ? "Alterações aplicadas" : m.actions.some((act) => act.applied === false) ? "Aguardando sua aprovação" : "Alterações descartadas"}</span>
+                        <span>
+                          {m.actions.every((act) => act.applied === true)
+                            ? "Alterações aplicadas"
+                            : m.actions.some((act) => act.applied === false)
+                              ? "Aguardando sua aprovação"
+                              : "Alterações descartadas"}
+                        </span>
                       </div>
                       {m.actions.map((act) => (
-                        <div key={act.id} className="p-2.5 rounded-lg bg-delux-canvas/80 border border-delux-action/30 space-y-2">
+                        <div
+                          key={act.id}
+                          className="p-2.5 rounded-lg bg-delux-canvas/80 border border-delux-action/30 space-y-2"
+                        >
                           <div className="flex items-start gap-2 text-[11px]">
-                            <span className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied === true ? "bg-delux-success/20 text-delux-success" : act.applied === false ? "bg-delux-attention/20 text-delux-attention" : "bg-delux-muted/20 text-delux-muted"}`}>
-                              {act.applied === true ? <Check className="w-3 h-3 stroke-[3]" /> : act.applied === false ? <AlertCircle className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                            <span
+                              className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${act.applied === true ? "bg-delux-success/20 text-delux-success" : act.applied === false ? "bg-delux-attention/20 text-delux-attention" : "bg-delux-muted/20 text-delux-muted"}`}
+                            >
+                              {act.applied === true ? (
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              ) : act.applied === false ? (
+                                <AlertCircle className="w-3 h-3" />
+                              ) : (
+                                <X className="w-3 h-3" />
+                              )}
                             </span>
-                            <span className="font-medium text-delux-text leading-tight flex-1">{act.summary}</span>
+                            <span className="font-medium text-delux-text leading-tight flex-1">
+                              {act.summary}
+                            </span>
                           </div>
                           {act.type === "create_goal" && Array.isArray(act.payload?.steps) && (
                             <div className="pl-7 space-y-1">
                               {act.payload.steps.slice(0, 14).map((step: any, index: number) => (
                                 <div key={index} className="text-[10px] text-delux-secondary">
-                                  <span className="font-semibold text-delux-text">{index + 1}. {step.title}</span>
-                                  <span> · {Math.min(preferences.dailyMinutes, Number(step.durationMinutes) || preferences.dailyMinutes)} min</span>
-                                  {step.instruction && <p className="mt-0.5 leading-relaxed">{step.instruction}</p>}
+                                  <span className="font-semibold text-delux-text">
+                                    {index + 1}. {step.title}
+                                  </span>
+                                  <span>
+                                    {" "}
+                                    ·{" "}
+                                    {Math.min(
+                                      preferences.dailyMinutes,
+                                      Number(step.durationMinutes) || preferences.dailyMinutes,
+                                    )}{" "}
+                                    min
+                                  </span>
+                                  {step.instruction && (
+                                    <p className="mt-0.5 leading-relaxed">{step.instruction}</p>
+                                  )}
                                 </div>
                               ))}
                             </div>
                           )}
                           {act.applied === false && (
                             <div className="flex gap-2 justify-end">
-                              <Button variant="delux" size="delux" type="button" onClick={() => handleDiscardAction(m.id, act.id)} className="px-3 py-1.5 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold">Descartar</Button>
-                              <Button variant="delux" size="delux" type="button" onClick={() => handleApproveAction(m.id, act.id)} className="px-3 py-1.5 rounded-lg bg-delux-action text-delux-light text-[11px] font-semibold">Aprovar e aplicar</Button>
+                              <Button
+                                variant="delux"
+                                size="delux"
+                                type="button"
+                                onClick={() => handleDiscardAction(m.id, act.id)}
+                                className="px-3 py-1.5 rounded-lg bg-delux-elevated text-delux-secondary text-[11px] font-semibold"
+                              >
+                                Descartar
+                              </Button>
+                              <Button
+                                variant="delux"
+                                size="delux"
+                                type="button"
+                                onClick={() => handleApproveAction(m.id, act.id)}
+                                className="px-3 py-1.5 rounded-lg bg-delux-action text-delux-light text-[11px] font-semibold"
+                              >
+                                Aprovar e aplicar
+                              </Button>
                             </div>
                           )}
                         </div>

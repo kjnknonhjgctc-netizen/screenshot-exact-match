@@ -10,12 +10,14 @@ export const Route = createFileRoute("/")({
       { title: "Delux 2.0 — Planos Reais para a sua Rotina" },
       {
         name: "description",
-        content: "Transforme seus objetivos em planos que cabem na rotina real, com um coach de IA.",
+        content:
+          "Transforme seus objetivos em planos que cabem na rotina real, com um coach de IA.",
       },
       { property: "og:title", content: "Delux 2.0 — Planos Reais para a sua Rotina" },
       {
         property: "og:description",
-        content: "Transforme seus objetivos em planos que cabem na rotina real, com um coach de IA.",
+        content:
+          "Transforme seus objetivos em planos que cabem na rotina real, com um coach de IA.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

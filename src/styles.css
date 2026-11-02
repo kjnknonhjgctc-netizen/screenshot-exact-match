@@ -172,13 +172,13 @@
 @layer base {
   :root {
     --bg-canvas: oklch(0.121012571 0.003857693 245.473013429);
-    --surface-main: oklch(0.158206859 0.007189170 258.372294948);
-    --surface-elevated: oklch(0.216361497 0.009107672 255.611502790);
-    --surface-card: oklch(0.158206859 0.007189170 258.372294948);
+    --surface-main: oklch(0.158206859 0.00718917 258.372294948);
+    --surface-elevated: oklch(0.216361497 0.009107672 255.61150279);
+    --surface-card: oklch(0.158206859 0.00718917 258.372294948);
     --border-subtle: oklch(0.326543672 0.012684193 252.988881837);
     --border-hover: oklch(0.778828658 0.021608337 254.940891298);
     --accent-ice: oklch(0.875971421 0.061835436 254.471393229);
-    --action-base: oklch(0.216361497 0.009107672 255.611502790);
+    --action-base: oklch(0.216361497 0.009107672 255.61150279);
     --text-primary: oklch(0.962224766 0.013675081 258.344899029);
     --text-secondary: oklch(0.778828658 0.021608337 254.940891298);
     --text-muted: oklch(0.778828658 0.021608337 254.940891298);
@@ -194,7 +194,6 @@
     --glass-overlay: oklch(0 0 0 / 72%);
     --glass-action-shadow: 0 3px 12px oklch(0 0 0 / 24%), inset 0 1px 0 var(--glass-reflection);
     --glass-action-gradient: linear-gradient(135deg, var(--surface-elevated), var(--surface-main));
-
   }
 
   * {
@@ -429,18 +428,30 @@
   animation: delux-drawer-out 200ms ease-out both;
 }
 @keyframes delux-overlay-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 @keyframes delux-panel-out {
-  to { opacity: 0; transform: translateY(16px); }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 @keyframes delux-drawer-out {
-  to { opacity: 0; transform: translateX(32px); }
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .delux-app button:not(:disabled):active { scale: 1; }
+  .delux-app button:not(:disabled):active {
+    scale: 1;
+  }
 }
-.delux-app.reduce-motion button:not(:disabled):active { scale: 1; }
+.delux-app.reduce-motion button:not(:disabled):active {
+  scale: 1;
+}
 .delux-toast {
   bottom: calc(140px + env(safe-area-inset-bottom, 0px));
   white-space: normal;
@@ -500,11 +511,23 @@
   --input: var(--border-subtle);
   --ring: var(--accent-ice);
 }
-.delux-layout { font-family: inherit; }
-.delux-app h1 { font-weight: 600; }
-.delux-app button { letter-spacing: 0; }
-.delux-app input, .delux-app select, .delux-app textarea { accent-color: var(--text-primary); }
-.delux-app button[class~="bg-delux-success"] { color: var(--bg-canvas); }
+.delux-layout {
+  font-family: inherit;
+}
+.delux-app h1 {
+  font-weight: 600;
+}
+.delux-app button {
+  letter-spacing: 0;
+}
+.delux-app input,
+.delux-app select,
+.delux-app textarea {
+  accent-color: var(--text-primary);
+}
+.delux-app button[class~="bg-delux-success"] {
+  color: var(--bg-canvas);
+}
 .delux-app button[class~="bg-delux-action"],
 .delux-primary-action {
   border: 1px solid var(--border-subtle);
@@ -513,7 +536,9 @@
 }
 .delux-selected {
   background: var(--surface-elevated);
-  box-shadow: inset 0 1px 0 var(--glass-reflection), inset 0 0 0 1px var(--border-subtle);
+  box-shadow:
+    inset 0 1px 0 var(--glass-reflection),
+    inset 0 0 0 1px var(--border-subtle);
   color: var(--text-primary);
 }
 .delux-calendar-selected {
@@ -521,14 +546,20 @@
   outline-offset: -1px;
   box-shadow: 0 0 12px color-mix(in oklab, var(--accent-ice) 8%, transparent);
 }
-.delux-assistant-panel { background: var(--bg-canvas); }
-.delux-auth section { backdrop-filter: none; }
+.delux-assistant-panel {
+  background: var(--bg-canvas);
+}
+.delux-auth section {
+  backdrop-filter: none;
+}
 @media (hover: hover) {
   .delux-app button:not(:disabled):hover {
     border-color: color-mix(in oklab, var(--accent-ice) 35%, var(--border-subtle));
   }
   .delux-app button[class~="bg-delux-action"]:hover,
   .delux-glass-action:hover {
-    box-shadow: inset 0 1px 0 var(--glass-reflection), 0 0 12px color-mix(in oklab, var(--accent-ice) 6%, transparent);
+    box-shadow:
+      inset 0 1px 0 var(--glass-reflection),
+      0 0 12px color-mix(in oklab, var(--accent-ice) 6%, transparent);
   }
 }
