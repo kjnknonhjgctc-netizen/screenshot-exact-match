@@ -34,7 +34,7 @@ export const MyPlanTab: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-delux-text">Meu Plano</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">Meu Plano</h1>
           <p className="text-xs text-delux-secondary mt-0.5">
             Trilha de execução: onde você está, o que já conquistou e o próximo passo.
           </p>
@@ -42,7 +42,7 @@ export const MyPlanTab: React.FC = () => {
 
         {/* Mobile Horizontal Goal Selector Pills */}
         {activeGoals.length > 0 && (
-          <div className="flex items-center gap-1.5 p-1 delux-glass border rounded-xl overflow-x-auto no-scrollbar w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 p-1 delux-glass border rounded-lg overflow-x-auto no-scrollbar w-full sm:w-auto">
             <Button
               variant="delux"
               size="delux"
@@ -63,7 +63,7 @@ export const MyPlanTab: React.FC = () => {
                 onClick={() => setSelectedPlanGoalId(g.id)}
                 className={`px-3 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors max-w-[130px] truncate min-h-[38px] ${
                   selectedPlanGoalId === g.id
-                    ? "delux-selected text-delux-purple-light"
+                    ? "delux-selected text-delux-accent"
                     : "text-delux-secondary hover:text-delux-text"
                 }`}
               >
@@ -76,20 +76,20 @@ export const MyPlanTab: React.FC = () => {
 
       {/* Overview Tracker Banner */}
       {displayedTasks.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-delux-surface border border-delux-border flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+        <div className="p-4 sm:p-5 rounded-lg bg-delux-surface border border-delux-border flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="space-y-1.5 w-full sm:w-auto">
             <div className="flex items-center justify-between sm:justify-start gap-2">
-              <span className="text-xs font-bold text-delux-secondary uppercase tracking-wider">
+              <span className="text-xs font-semibold text-delux-secondary uppercase tracking-normal">
                 Progresso da Trilha
               </span>
-              <span className="text-xs font-extrabold text-delux-text tabular-nums">
+              <span className="text-xs font-semibold text-delux-text tabular-nums">
                 {completedCount} / {displayedTasks.length} ({progressPercent}%)
               </span>
             </div>
             <div className="w-full sm:w-64">
               <ProgressBar
                 progress={progressPercent}
-                colorClass={progressPercent === 100 ? "bg-delux-green" : "bg-delux-purple"}
+                colorClass={progressPercent === 100 ? "bg-delux-success" : "bg-delux-action"}
               />
             </div>
           </div>
@@ -104,12 +104,12 @@ export const MyPlanTab: React.FC = () => {
 
       {/* Visual Learning Path (Duolingo-inspired vertical progression nodes) */}
       {displayedTasks.length === 0 ? (
-        <div className="p-10 sm:p-12 rounded-3xl bg-delux-surface border border-delux-border text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-delux-purple/15 text-delux-purple flex items-center justify-center mx-auto">
+        <div className="p-10 sm:p-12 rounded-lg bg-delux-surface border border-delux-border text-center space-y-4">
+          <div className="w-12 h-12 rounded-lg bg-delux-action/15 text-delux-action flex items-center justify-center mx-auto">
             <Compass className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-delux-text">Nenhuma etapa na trilha</h3>
+            <h3 className="text-base font-semibold text-delux-text">Nenhuma etapa na trilha</h3>
             <p className="text-xs text-delux-secondary max-w-sm mx-auto leading-relaxed">
               Crie uma meta com plano automático para visualizar o caminho estruturado com suas
               etapas conectadas.
@@ -119,7 +119,7 @@ export const MyPlanTab: React.FC = () => {
             variant="delux"
             size="delux"
             onClick={() => setIsCreateGoalOpen(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-lg shadow-delux-purple/30 transition-all min-h-[48px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-delux-action hover:bg-delux-action-hover active:opacity-85 text-delux-light text-xs font-semibold rounded-lg shadow-lg shadow-delux-action/30 transition-all min-h-[48px]"
           >
             <span>Iniciar Trilha com uma Meta</span>
             <ArrowRight className="w-4 h-4" />
@@ -142,11 +142,11 @@ export const MyPlanTab: React.FC = () => {
                   data-sound={isCompleted ? "click" : "complete"}
                   onClick={() => toggleTask(task.id)}
                   title={isCompleted ? "Desmarcar etapa" : "Concluir esta etapa"}
-                  className={`relative z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center font-extrabold text-xs sm:text-sm transition-all shrink-0 active:opacity-85 ${
+                  className={`relative z-10 w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center font-semibold text-xs sm:text-sm transition-all shrink-0 active:opacity-85 ${
                     isCompleted
-                      ? "bg-delux-green text-delux-ink shadow-lg shadow-delux-green/20"
+                      ? "bg-delux-success text-delux-ink shadow-lg shadow-delux-success/20"
                       : isCurrent
-                        ? "bg-delux-purple text-delux-light ring-4 ring-delux-purple/30 shadow-xl shadow-delux-purple/40 scale-105"
+                        ? "bg-delux-action text-delux-light ring-4 ring-delux-action/30 shadow-xl shadow-delux-action/40 scale-105"
                         : "bg-delux-elevated text-delux-muted border border-delux-border"
                   }`}
                 >
@@ -159,9 +159,9 @@ export const MyPlanTab: React.FC = () => {
 
                 {/* Step Card */}
                 <div
-                  className={`flex-1 p-4 sm:p-5 rounded-2xl border transition-all ${
+                  className={`flex-1 p-4 sm:p-5 rounded-lg border transition-all ${
                     isCurrent
-                      ? "bg-delux-card border-delux-purple/60 shadow-lg shadow-delux-ink/40 ring-1 ring-delux-purple/20"
+                      ? "bg-delux-card border-delux-action/60 shadow-lg shadow-delux-ink/40 ring-1 ring-delux-action/20"
                       : isCompleted
                         ? "bg-delux-surface/60 border-delux-border/60 text-delux-muted"
                         : "bg-delux-surface border-delux-border"
@@ -174,17 +174,17 @@ export const MyPlanTab: React.FC = () => {
                           variant="delux"
                           size="delux"
                           onClick={() => setSelectedGoalId(goal.id)}
-                          className="font-bold text-delux-purple hover:underline truncate max-w-[150px]"
+                          className="font-semibold text-delux-action hover:underline truncate max-w-[150px]"
                         >
                           {goal.title}
                         </Button>
                       )}
                       <span>·</span>
                       <span className="text-delux-secondary flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-delux-purple-light" />
+                        <Calendar className="w-3 h-3 text-delux-accent" />
                         {formatFriendlyDate(task.date)}
                         {task.time && (
-                          <span className="ml-1 px-1.5 py-0.2 rounded bg-delux-purple/20 text-delux-purple-light font-bold text-[10px]">
+                          <span className="ml-1 px-1.5 py-0.2 rounded bg-delux-action/20 text-delux-accent font-semibold text-[10px]">
                             {task.time}
                           </span>
                         )}
@@ -197,7 +197,7 @@ export const MyPlanTab: React.FC = () => {
                         {task.durationMinutes} min
                       </span>
                       {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-delux-purple/15 text-delux-purple-light text-[10px] font-extrabold">
+                        <span className="px-2 py-0.5 rounded-full bg-delux-action/15 text-delux-accent text-[10px] font-semibold">
                           Próxima Ação
                         </span>
                       )}
@@ -205,7 +205,7 @@ export const MyPlanTab: React.FC = () => {
                   </div>
 
                   <h3
-                    className={`text-sm sm:text-base font-bold leading-snug ${
+                    className={`text-sm sm:text-base font-semibold leading-snug ${
                       isCompleted ? "line-through text-delux-muted" : "text-delux-text"
                     }`}
                   >
@@ -214,14 +214,26 @@ export const MyPlanTab: React.FC = () => {
 
                   {task.instruction && (
                     <div className="mt-2">
-                      <p className={`text-xs text-delux-secondary leading-relaxed whitespace-pre-line ${expandedTasks[task.id] ? "" : "line-clamp-3"}`}>
+                      <p
+                        className={`text-xs text-delux-secondary leading-relaxed whitespace-pre-line ${expandedTasks[task.id] ? "" : "line-clamp-3"}`}
+                      >
                         {task.instruction}
                       </p>
                       {task.instruction.length > 180 && (
-                        <button type="button" onClick={() => setExpandedTasks((prev) => ({ ...prev, [task.id]: !prev[task.id] }))} className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-delux-purple-light hover:underline">
+                        <Button
+                          variant="delux"
+                          size="delux"
+                          type="button"
+                          onClick={() =>
+                            setExpandedTasks((prev) => ({ ...prev, [task.id]: !prev[task.id] }))
+                          }
+                          className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-delux-accent hover:underline"
+                        >
                           {expandedTasks[task.id] ? "Mostrar menos" : "Ver passo a passo completo"}
-                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedTasks[task.id] ? "rotate-180" : ""}`} />
-                        </button>
+                          <ChevronDown
+                            className={`w-3 h-3 transition-transform ${expandedTasks[task.id] ? "rotate-180" : ""}`}
+                          />
+                        </Button>
                       )}
                     </div>
                   )}
@@ -241,11 +253,11 @@ export const MyPlanTab: React.FC = () => {
                       size="delux"
                       type="button"
                       onClick={() => toggleTask(task.id)}
-                      className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all min-h-[40px] active:opacity-85 ${
+                      className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all min-h-[40px] active:opacity-85 ${
                         isCompleted
                           ? "bg-delux-elevated text-delux-secondary"
                           : isCurrent
-                            ? "bg-delux-purple hover:bg-delux-purple-hover text-delux-light shadow-md"
+                            ? "bg-delux-action hover:bg-delux-action-hover text-delux-light shadow-md"
                             : "bg-delux-elevated active:bg-delux-border text-delux-secondary"
                       }`}
                     >

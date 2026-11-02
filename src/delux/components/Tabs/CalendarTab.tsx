@@ -88,14 +88,16 @@ export const CalendarTab: React.FC = () => {
       {/* Calendar Header with navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-delux-text">Calendário Semanal</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-delux-text">
+            Calendário Semanal
+          </h1>
           <p className="text-xs text-delux-secondary mt-0.5">
             Organização temporal das suas etapas nos dias disponíveis da sua rotina.
           </p>
         </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-2">
-          <div className="delux-glass flex items-center border rounded-xl p-1">
+          <div className="delux-glass flex items-center border rounded-lg p-1">
             <Button
               variant="delux"
               size="delux"
@@ -105,7 +107,7 @@ export const CalendarTab: React.FC = () => {
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="px-2.5 text-xs font-bold text-delux-text whitespace-nowrap tabular-nums">
+            <span className="px-2.5 text-xs font-semibold text-delux-text whitespace-nowrap tabular-nums">
               {weekRangeTitle}
             </span>
             <Button
@@ -123,7 +125,7 @@ export const CalendarTab: React.FC = () => {
             variant="delux"
             size="delux"
             onClick={handleToday}
-            className="px-3.5 py-2 bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-bold text-delux-purple-light rounded-xl transition-colors min-h-[38px]"
+            className="px-3.5 py-2 bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-semibold text-delux-accent rounded-lg transition-colors min-h-[38px]"
           >
             Hoje
           </Button>
@@ -132,7 +134,7 @@ export const CalendarTab: React.FC = () => {
             variant="delux"
             size="delux"
             onClick={() => openCreateTaskOnDate(selectedMobileDayStr)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-delux-purple hover:bg-delux-purple-hover text-delux-light text-xs font-bold rounded-xl transition-all shadow-md active:opacity-85 min-h-[38px]"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-delux-action hover:bg-delux-action-hover text-delux-light text-xs font-semibold rounded-lg transition-all shadow-md active:opacity-85 min-h-[38px]"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nova Tarefa</span>
@@ -144,7 +146,7 @@ export const CalendarTab: React.FC = () => {
       {/* MOBILE VIEW: Horizontal Touch Strip + Selected Day Agenda */}
       <div className="block lg:hidden space-y-4">
         {/* Horizontal Days Selector */}
-        <div className="grid grid-cols-7 gap-1 p-1.5 delux-glass border rounded-2xl">
+        <div className="grid grid-cols-7 gap-1 p-1.5 delux-glass border rounded-lg">
           {weekDays.map((d) => {
             const isSelected = selectedMobileDayStr === d.dateStr;
             const isAvailable = preferences.availableDays.includes(d.dayOfWeek);
@@ -157,18 +159,18 @@ export const CalendarTab: React.FC = () => {
                 size="delux"
                 key={d.dateStr}
                 onClick={() => setSelectedMobileDayStr(d.dateStr)}
-                className={`flex flex-col items-center py-2 rounded-xl transition-all min-h-[58px] relative active:opacity-85 ${
+                className={`flex flex-col items-center py-2 rounded-lg transition-all min-h-[58px] relative active:opacity-85 ${
                   isSelected
-                    ? "delux-selected text-delux-text font-extrabold"
+                    ? "delux-selected delux-calendar-selected text-delux-text font-semibold"
                     : d.isToday
-                      ? "bg-delux-elevated text-delux-purple-light border border-delux-purple/40"
+                      ? "bg-delux-elevated text-delux-accent border border-delux-action/40"
                       : "text-delux-secondary hover:bg-delux-elevated"
                 }`}
               >
-                <span className="text-[10px] uppercase font-bold tracking-tight">
+                <span className="text-[10px] uppercase font-semibold tracking-tight">
                   {d.shortName}
                 </span>
-                <span className="text-sm font-extrabold tabular-nums mt-0.5">{d.dayNumber}</span>
+                <span className="text-sm font-semibold tabular-nums mt-0.5">{d.dayNumber}</span>
 
                 {/* Day status indicators */}
                 <div className="flex items-center gap-0.5 mt-1 h-2">
@@ -178,8 +180,8 @@ export const CalendarTab: React.FC = () => {
                         isSelected
                           ? "bg-delux-light"
                           : allDone
-                            ? "bg-delux-green"
-                            : "bg-delux-purple"
+                            ? "bg-delux-success"
+                            : "bg-delux-action"
                       }`}
                     />
                   )}
@@ -203,18 +205,18 @@ export const CalendarTab: React.FC = () => {
           const dayTasks = getTasksForDay(selectedMobileDayStr);
 
           return (
-            <div className="p-4 sm:p-5 rounded-2xl bg-delux-surface border border-delux-border space-y-4">
+            <div className="p-4 sm:p-5 rounded-lg bg-delux-surface border border-delux-border space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-delux-text">
+                  <h3 className="text-sm font-semibold text-delux-text">
                     {selectedDayObj.fullName}, {selectedDayObj.dayNumber} de{" "}
                     {MONTH_NAMES[selectedDayObj.date.getMonth()]}
                   </h3>
                   <div className="flex items-center gap-1.5 text-[11px] mt-0.5 font-medium">
                     {selectedDayObj.isToday && (
-                      <span className="text-delux-purple font-bold">Hoje</span>
+                      <span className="text-delux-action font-semibold">Hoje</span>
                     )}
-                    <span className={isAvailable ? "text-delux-green" : "text-delux-muted"}>
+                    <span className={isAvailable ? "text-delux-success" : "text-delux-muted"}>
                       {isAvailable ? "· Dia disponível" : "· Dia indisponível"}
                     </span>
                     <span>
@@ -227,7 +229,7 @@ export const CalendarTab: React.FC = () => {
                   variant="delux"
                   size="delux"
                   onClick={() => openCreateTaskOnDate(selectedMobileDayStr)}
-                  className="w-10 h-10 rounded-xl bg-delux-purple/15 hover:bg-delux-purple/25 text-delux-purple transition-colors flex items-center justify-center"
+                  className="w-10 h-10 rounded-lg bg-delux-action/15 hover:bg-delux-action/25 text-delux-action transition-colors flex items-center justify-center"
                   title="Adicionar tarefa neste dia"
                 >
                   <Plus className="w-5 h-5" />
@@ -241,7 +243,7 @@ export const CalendarTab: React.FC = () => {
                     variant="delux"
                     size="delux"
                     onClick={() => openCreateTaskOnDate(selectedMobileDayStr)}
-                    className="px-4 py-2 bg-delux-elevated border border-delux-border text-xs text-delux-purple font-bold rounded-xl inline-block"
+                    className="px-4 py-2 bg-delux-elevated border border-delux-border text-xs text-delux-action font-semibold rounded-lg inline-block"
                   >
                     + Agendar tarefa neste dia
                   </Button>
@@ -253,7 +255,7 @@ export const CalendarTab: React.FC = () => {
                     return (
                       <div
                         key={task.id}
-                        className={`p-3.5 rounded-2xl border flex items-start gap-3.5 transition-all ${
+                        className={`p-3.5 rounded-lg border flex items-start gap-3.5 transition-all ${
                           task.completed
                             ? "bg-delux-card border-delux-border/60 text-delux-muted"
                             : "bg-delux-elevated border-delux-border text-delux-text"
@@ -267,8 +269,8 @@ export const CalendarTab: React.FC = () => {
                           onClick={() => toggleTask(task.id)}
                           className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                             task.completed
-                              ? "bg-delux-green text-delux-ink font-bold"
-                              : "border-2 border-delux-border-hover active:border-delux-purple bg-delux-surface"
+                              ? "bg-delux-success text-delux-ink font-semibold"
+                              : "border-2 border-delux-border-hover active:border-delux-action bg-delux-surface"
                           }`}
                         >
                           {task.completed && <Check className="w-4 h-4 stroke-[3]" />}
@@ -279,7 +281,7 @@ export const CalendarTab: React.FC = () => {
                           onClick={() => openEditTask(task)}
                         >
                           {goal && (
-                            <span className="text-[10px] font-bold text-delux-purple block truncate mb-0.5">
+                            <span className="text-[10px] font-semibold text-delux-action block truncate mb-0.5">
                               {goal.title}
                             </span>
                           )}
@@ -292,7 +294,7 @@ export const CalendarTab: React.FC = () => {
                           </p>
                           <div className="flex items-center gap-2 text-[10px] text-delux-secondary mt-1.5">
                             {task.time && (
-                              <span className="px-1.5 py-0.5 rounded-md bg-delux-purple/20 text-delux-purple-light font-bold text-[10px]">
+                              <span className="px-1.5 py-0.5 rounded-md bg-delux-action/20 text-delux-accent font-semibold text-[10px]">
                                 {task.time}
                               </span>
                             )}
@@ -301,9 +303,7 @@ export const CalendarTab: React.FC = () => {
                               {task.durationMinutes} min
                             </span>
                             <span>·</span>
-                            <span className="text-delux-purple-light font-medium">
-                              Toque para editar
-                            </span>
+                            <span className="text-delux-accent font-medium">Toque para editar</span>
                           </div>
                         </div>
                       </div>
@@ -325,28 +325,30 @@ export const CalendarTab: React.FC = () => {
           return (
             <div
               key={d.dateStr}
-              className={`rounded-2xl border flex flex-col min-h-[460px] p-3 transition-colors ${
+              className={`rounded-lg border flex flex-col min-h-[460px] p-3 transition-colors ${
                 d.isToday
-                  ? "bg-delux-card border-delux-purple/50 shadow-md ring-1 ring-delux-purple/20"
+                  ? "bg-delux-card border-delux-action/50 shadow-md ring-1 ring-delux-action/20"
                   : "bg-delux-surface border-delux-border"
               }`}
             >
               {/* Column Day Header */}
               <div className="pb-2.5 mb-2.5 border-b border-delux-border/60 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-bold text-delux-secondary uppercase block">
+                  <span className="text-[11px] font-semibold text-delux-secondary uppercase block">
                     {d.shortName}
                   </span>
                   <div className="flex items-baseline gap-1 mt-0.5">
                     <span
-                      className={`text-base font-extrabold tabular-nums ${
-                        d.isToday ? "text-delux-purple" : "text-delux-text"
+                      className={`text-base font-semibold tabular-nums ${
+                        d.isToday ? "text-delux-action" : "text-delux-text"
                       }`}
                     >
                       {d.dayNumber}
                     </span>
                     {d.isToday && (
-                      <span className="text-[9px] font-bold text-delux-purple uppercase">Hoje</span>
+                      <span className="text-[9px] font-semibold text-delux-action uppercase">
+                        Hoje
+                      </span>
                     )}
                   </div>
                 </div>
@@ -382,10 +384,10 @@ export const CalendarTab: React.FC = () => {
                     return (
                       <div
                         key={task.id}
-                        className={`p-2.5 rounded-xl border text-left text-xs transition-all ${
+                        className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
                           task.completed
                             ? "bg-delux-card border-delux-border/60 opacity-60 text-delux-muted"
-                            : "bg-delux-elevated border-delux-border hover:border-delux-purple/50 text-delux-text shadow-sm"
+                            : "bg-delux-elevated border-delux-border hover:border-delux-action/50 text-delux-text shadow-sm"
                         }`}
                       >
                         <div className="flex items-start gap-2">
@@ -396,7 +398,7 @@ export const CalendarTab: React.FC = () => {
                             onClick={() => toggleTask(task.id)}
                             className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center transition-colors shrink-0 ${
                               task.completed
-                                ? "bg-delux-green text-delux-ink font-bold"
+                                ? "bg-delux-success text-delux-ink font-semibold"
                                 : "border border-delux-border-hover bg-delux-surface"
                             }`}
                           >
@@ -408,7 +410,7 @@ export const CalendarTab: React.FC = () => {
                             onClick={() => openEditTask(task)}
                           >
                             {goal && (
-                              <span className="text-[10px] font-semibold text-delux-purple block truncate">
+                              <span className="text-[10px] font-semibold text-delux-action block truncate">
                                 {goal.title}
                               </span>
                             )}
@@ -421,7 +423,7 @@ export const CalendarTab: React.FC = () => {
                             </p>
                             <div className="flex items-center gap-1.5 mt-1 text-[10px] text-delux-secondary">
                               {task.time && (
-                                <span className="px-1 py-0.2 rounded bg-delux-purple/20 text-delux-purple-light font-bold text-[9px]">
+                                <span className="px-1 py-0.2 rounded bg-delux-action/20 text-delux-accent font-semibold text-[9px]">
                                   {task.time}
                                 </span>
                               )}

@@ -1,4 +1,8 @@
-# Delux Liquid Glass
+# Delux — identidade visual
+
+## Redesign preto, branco frio e azul-gelo
+- [ ] Aplicar a paleta oficial a todas as telas, gráficos, navegação, controles e assistente sem alterar regras ou dados.
+- [ ] Verificar testes disponíveis, lint, compilação automática e navegação em celular, tablet e desktop.
 
 ## Som de interação
 - [x] Adicionar som discreto dos botões e controle persistente nas configurações.

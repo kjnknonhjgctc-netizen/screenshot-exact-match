@@ -68,7 +68,7 @@ export const OnboardingModal: React.FC = () => {
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 delux-glass-overlay animate-in fade-in duration-200"
     >
-      <div className="relative z-10 w-full sm:max-w-lg max-h-[92vh] sm:max-h-[85vh] rounded-t-[32px] sm:rounded-3xl delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="relative z-10 w-full sm:max-w-lg max-h-[92vh] sm:max-h-[85vh] rounded-t-2xl sm:rounded-lg delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
         {/* Mobile Drag Handle */}
         <div className="pt-3 pb-1 sm:hidden flex justify-center">
           <div className="w-12 h-1.5 bg-delux-border-hover rounded-full" />
@@ -78,10 +78,10 @@ export const OnboardingModal: React.FC = () => {
           {step === 1 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               <div className="text-center space-y-1.5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-delux-purple to-delux-purple-light text-delux-light flex items-center justify-center mx-auto shadow-lg shadow-delux-purple/30">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-tr from-delux-action to-delux-accent text-delux-light flex items-center justify-center mx-auto shadow-lg shadow-delux-action/30">
                   <Target className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-delux-text tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-semibold text-delux-text tracking-tight">
                   Bem-vindo ao Delux 2.0
                 </h2>
                 <p className="text-xs text-delux-secondary max-w-sm mx-auto leading-relaxed">
@@ -108,14 +108,14 @@ export const OnboardingModal: React.FC = () => {
                           setSelectedCategory(item.category);
                           setCustomGoal("");
                         }}
-                        className={`p-3 rounded-xl border text-left text-xs font-medium transition-all active:opacity-85 ${
+                        className={`p-3 rounded-lg border text-left text-xs font-medium transition-all active:opacity-85 ${
                           isSelected
-                            ? "bg-delux-purple/20 border-delux-purple text-delux-text ring-1 ring-delux-purple"
+                            ? "bg-delux-action/20 border-delux-action text-delux-text ring-1 ring-delux-action"
                             : "bg-delux-elevated border-delux-border text-delux-secondary hover:text-delux-text"
                         }`}
                       >
-                        <p className="font-bold text-sm text-delux-text">{item.title}</p>
-                        <span className="text-[10px] text-delux-purple-light font-semibold">
+                        <p className="font-semibold text-sm text-delux-text">{item.title}</p>
+                        <span className="text-[10px] text-delux-accent font-semibold">
                           {item.category}
                         </span>
                       </Button>
@@ -131,7 +131,7 @@ export const OnboardingModal: React.FC = () => {
                     setCustomGoal(e.target.value);
                     setSelectedGoalTitle("");
                   }}
-                  className="w-full px-3.5 py-3 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[48px]"
+                  className="w-full px-3.5 py-3 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[48px]"
                 />
               </div>
 
@@ -150,7 +150,7 @@ export const OnboardingModal: React.FC = () => {
                   size="delux"
                   type="button"
                   onClick={() => setStep(2)}
-                  className="flex items-center gap-2 px-5 py-3 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-lg transition-all min-h-[48px]"
+                  className="flex items-center gap-2 px-5 py-3 bg-delux-action hover:bg-delux-action-hover active:opacity-85 text-delux-light text-xs font-semibold rounded-lg shadow-lg transition-all min-h-[48px]"
                 >
                   <span>Minha Disponibilidade</span>
                   <ArrowRight className="w-4 h-4" />
@@ -162,7 +162,9 @@ export const OnboardingModal: React.FC = () => {
           {step === 2 && (
             <div className="space-y-5 animate-in fade-in duration-150">
               <div>
-                <h3 className="text-lg font-bold text-delux-text">Sua Disponibilidade Semanal</h3>
+                <h3 className="text-lg font-semibold text-delux-text">
+                  Sua Disponibilidade Semanal
+                </h3>
                 <p className="text-xs text-delux-secondary mt-0.5">
                   O planejador nunca agenda tarefas automáticas em dias que você desmarcar.
                 </p>
@@ -183,9 +185,9 @@ export const OnboardingModal: React.FC = () => {
                         key={idx}
                         type="button"
                         onClick={() => handleDayToggle(idx)}
-                        className={`py-3 text-xs font-extrabold rounded-xl border transition-all active:opacity-85 min-h-[48px] ${
+                        className={`py-3 text-xs font-semibold rounded-lg border transition-all active:opacity-85 min-h-[48px] ${
                           isSelected
-                            ? "bg-delux-purple border-delux-purple text-delux-light shadow-md shadow-delux-purple/30"
+                            ? "bg-delux-action border-delux-action text-delux-light shadow-md shadow-delux-action/30"
                             : "bg-delux-elevated border-delux-border text-delux-muted"
                         }`}
                       >
@@ -209,9 +211,9 @@ export const OnboardingModal: React.FC = () => {
                       key={mins}
                       type="button"
                       onClick={() => updatePreferences({ dailyMinutes: mins })}
-                      className={`py-3 text-xs font-bold rounded-xl border transition-all active:opacity-85 min-h-[48px] ${
+                      className={`py-3 text-xs font-semibold rounded-lg border transition-all active:opacity-85 min-h-[48px] ${
                         preferences.dailyMinutes === mins
-                          ? "bg-delux-purple border-delux-purple text-delux-light shadow-md"
+                          ? "bg-delux-action border-delux-action text-delux-light shadow-md"
                           : "bg-delux-elevated border-delux-border text-delux-secondary"
                       }`}
                     >
@@ -236,7 +238,7 @@ export const OnboardingModal: React.FC = () => {
                   size="delux"
                   type="button"
                   onClick={handleCompleteOnboarding}
-                  className="flex items-center gap-2 px-6 py-3 bg-delux-green hover:bg-delux-green-hover active:opacity-85 text-delux-ink text-xs font-extrabold rounded-xl shadow-lg transition-all min-h-[48px]"
+                  className="flex items-center gap-2 px-6 py-3 bg-delux-success hover:bg-delux-success-hover active:opacity-85 text-delux-ink text-xs font-semibold rounded-lg shadow-lg transition-all min-h-[48px]"
                 >
                   <span>Gerar Plano Agora</span>
                   <Check className="w-4 h-4 stroke-[3]" />

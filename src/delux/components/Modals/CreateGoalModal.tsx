@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { GoalCategory, PlanningMethod } from "../../types";
-import { DAY_NAMES, getLocalDateString, addDays, parseLocalDateString } from "../../utils/dateUtils";
+import {
+  DAY_NAMES,
+  getLocalDateString,
+  addDays,
+  parseLocalDateString,
+} from "../../utils/dateUtils";
 import { getStepsForGoal } from "../../utils/planGenerator";
 import { schedulePlanTasks } from "../../utils/schedulePlan";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
@@ -48,8 +53,15 @@ const getNextAvailableDate = (availableDays: number[]) => {
 };
 
 export const CreateGoalModal: React.FC = () => {
-  const { isCreateGoalOpen, setIsCreateGoalOpen, preferences, tasks, addGoal, openDrawer, showToast } =
-    useApp();
+  const {
+    isCreateGoalOpen,
+    setIsCreateGoalOpen,
+    preferences,
+    tasks,
+    addGoal,
+    openDrawer,
+    showToast,
+  } = useApp();
 
   const [title, setTitle] = useState("");
   const [reason, setReason] = useState("");
@@ -77,20 +89,24 @@ export const CreateGoalModal: React.FC = () => {
     method === "auto" && title.trim().length > 2
       ? getStepsForGoal(title, category, preferences.dailyMinutes)
       : [];
-  const previewSource = method === "auto"
-    ? (aiGeneratedTasks?.length ? aiGeneratedTasks : previewSteps.map((step) => ({
-        ...step,
-        date: getLocalDateString(new Date()),
-      })))
-    : [];
-  const schedulePreview = previewSource.length > 0
-    ? schedulePlanTasks({
-        planTasks: previewSource,
-        existingTasks: tasks,
-        preferences,
-        deadline: deadline || undefined,
-      })
-    : null;
+  const previewSource =
+    method === "auto"
+      ? aiGeneratedTasks?.length
+        ? aiGeneratedTasks
+        : previewSteps.map((step) => ({
+            ...step,
+            date: getLocalDateString(new Date()),
+          }))
+      : [];
+  const schedulePreview =
+    previewSource.length > 0
+      ? schedulePlanTasks({
+          planTasks: previewSource,
+          existingTasks: tasks,
+          preferences,
+          deadline: deadline || undefined,
+        })
+      : null;
 
   const handleAddManualTask = () => {
     setManualTasks((prev) => [
@@ -121,7 +137,7 @@ export const CreateGoalModal: React.FC = () => {
     }
 
     if (!Array.isArray(preferences.availableDays) || preferences.availableDays.length === 0) {
-      showToast('Configure ao menos um dia disponível antes de gerar o plano.', 'error');
+      showToast("Configure ao menos um dia disponível antes de gerar o plano.", "error");
       return;
     }
 
@@ -152,7 +168,9 @@ export const CreateGoalModal: React.FC = () => {
 
       const data = await res.json();
       const validSteps = Array.isArray(data.steps)
-        ? data.steps.filter((step: any) => step && typeof step.title === 'string' && step.title.trim()).slice(0, 14)
+        ? data.steps
+            .filter((step: any) => step && typeof step.title === "string" && step.title.trim())
+            .slice(0, 14)
         : [];
       if (validSteps.length > 0) {
         let currentDate = new Date();
@@ -172,7 +190,10 @@ export const CreateGoalModal: React.FC = () => {
             instruction: typeof st.instruction === "string" ? st.instruction : "",
             date: taskDate,
             durationMinutes: Number.isFinite(Number(st.durationMinutes))
-              ? Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(st.durationMinutes))))
+              ? Math.min(
+                  preferences.dailyMinutes,
+                  Math.max(5, Math.round(Number(st.durationMinutes))),
+                )
               : preferences.dailyMinutes,
           };
         });
@@ -189,9 +210,12 @@ export const CreateGoalModal: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error in handleGenerateWithGemini:", err);
-      showToast(err.name === 'AbortError'
-        ? 'A geração demorou mais que o esperado. Tente novamente.'
-        : (err.message || "Erro ao gerar etapas com IA."), "error");
+      showToast(
+        err.name === "AbortError"
+          ? "A geração demorou mais que o esperado. Tente novamente."
+          : err.message || "Erro ao gerar etapas com IA.",
+        "error",
+      );
     } finally {
       window.clearTimeout(timeoutId);
       setIsGeneratingWithAi(false);
@@ -232,19 +256,30 @@ export const CreateGoalModal: React.FC = () => {
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || "Não foi possível gerar seu plano agora.");
-          const steps = Array.isArray(data.steps) ? data.steps.filter((step: any) => step?.title?.trim()).slice(0, 14) : [];
-          if (!steps.length) throw new Error("A IA não retornou etapas suficientes para montar seu plano.");
+          const steps = Array.isArray(data.steps)
+            ? data.steps.filter((step: any) => step?.title?.trim()).slice(0, 14)
+            : [];
+          if (!steps.length)
+            throw new Error("A IA não retornou etapas suficientes para montar seu plano.");
           let currentDate = new Date();
           const availableDaysSet = new Set(preferences.availableDays);
           planTasks = steps.map((step: any) => {
-            for (let offset = 0; offset < 7 && !availableDaysSet.has(currentDate.getDay()); offset += 1) currentDate = addDays(currentDate, 1);
+            for (
+              let offset = 0;
+              offset < 7 && !availableDaysSet.has(currentDate.getDay());
+              offset += 1
+            )
+              currentDate = addDays(currentDate, 1);
             const date = getLocalDateString(currentDate);
             currentDate = addDays(currentDate, 1);
             return {
               title: step.title,
               instruction: step.instruction || "",
               date,
-              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, Math.round(Number(step.durationMinutes) || preferences.dailyMinutes))),
+              durationMinutes: Math.min(
+                preferences.dailyMinutes,
+                Math.max(5, Math.round(Number(step.durationMinutes) || preferences.dailyMinutes)),
+              ),
             };
           });
           setAiGeneratedTasks(planTasks);
@@ -256,27 +291,41 @@ export const CreateGoalModal: React.FC = () => {
           let fallbackDate = new Date();
           fallbackDate.setHours(0, 0, 0, 0);
           const availableDays = new Set(preferences.availableDays);
-          for (let offset = 0; offset < 7 && !availableDays.has(fallbackDate.getDay()); offset += 1) {
+          for (
+            let offset = 0;
+            offset < 7 && !availableDays.has(fallbackDate.getDay());
+            offset += 1
+          ) {
             fallbackDate = addDays(fallbackDate, 1);
           }
           if (!availableDays.has(fallbackDate.getDay())) {
-            showToast("Não encontrei um próximo dia disponível. Confira suas preferências.", "error");
+            showToast(
+              "Não encontrei um próximo dia disponível. Confira suas preferências.",
+              "error",
+            );
             return;
           }
           planTasks = fallbackSteps.map((step) => {
-            while (!availableDays.has(fallbackDate.getDay())) fallbackDate = addDays(fallbackDate, 1);
+            while (!availableDays.has(fallbackDate.getDay()))
+              fallbackDate = addDays(fallbackDate, 1);
             const taskDate = getLocalDateString(fallbackDate);
             fallbackDate = addDays(fallbackDate, 1);
             return {
               title: step.title,
               instruction: step.instruction,
               date: taskDate,
-              durationMinutes: Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes)),
+              durationMinutes: Math.min(
+                preferences.dailyMinutes,
+                Math.max(5, step.durationMinutes),
+              ),
             };
           });
           setAiGeneratedTasks(planTasks);
           setAiAdvice(null);
-          showToast("A IA está indisponível no momento. Criamos um plano de apoio para você não ficar parado.", "info");
+          showToast(
+            "A IA está indisponível no momento. Criamos um plano de apoio para você não ficar parado.",
+            "info",
+          );
         } finally {
           window.clearTimeout(timeoutId);
           setIsGeneratingWithAi(false);
@@ -284,17 +333,24 @@ export const CreateGoalModal: React.FC = () => {
         generatedInThisSubmit = true;
       }
       if (generatedInThisSubmit) {
-        showToast("Seu plano foi gerado. Revise as etapas e a prévia do calendário antes de confirmar novamente.", "success");
+        showToast(
+          "Seu plano foi gerado. Revise as etapas e a prévia do calendário antes de confirmar novamente.",
+          "success",
+        );
         return;
       }
-      const created = addGoal({
-        title: title.trim(),
-        reason: reason.trim() || undefined,
-        category,
-        method: "auto",
-        deadline: deadline || undefined,
-        dailyMinutes: preferences.dailyMinutes,
-      }, undefined, planTasks);
+      const created = addGoal(
+        {
+          title: title.trim(),
+          reason: reason.trim() || undefined,
+          category,
+          method: "auto",
+          deadline: deadline || undefined,
+          dailyMinutes: preferences.dailyMinutes,
+        },
+        undefined,
+        planTasks,
+      );
       if (!created) return;
     } else {
       const validTasks = manualTasks.filter((t) => t.title.trim().length > 0);
@@ -302,13 +358,17 @@ export const CreateGoalModal: React.FC = () => {
         showToast("Adicione ao menos uma etapa para o plano manual.", "error");
         return;
       }
-      const invalidTask = validTasks.find((task) =>
-        !task.date ||
-        getLocalDateString(parseLocalDateString(task.date)) !== task.date ||
-        !preferences.availableDays.includes(parseLocalDateString(task.date).getDay()),
+      const invalidTask = validTasks.find(
+        (task) =>
+          !task.date ||
+          getLocalDateString(parseLocalDateString(task.date)) !== task.date ||
+          !preferences.availableDays.includes(parseLocalDateString(task.date).getDay()),
       );
       if (invalidTask) {
-        showToast('Uma ou mais etapas estão em dias indisponíveis. Ajuste as datas antes de criar o plano.', 'error');
+        showToast(
+          "Uma ou mais etapas estão em dias indisponíveis. Ajuste as datas antes de criar o plano.",
+          "error",
+        );
         return;
       }
       const created = addGoal(
@@ -332,12 +392,14 @@ export const CreateGoalModal: React.FC = () => {
     setDeadline("");
     setCategory("Estudos");
     setMethod("auto");
-    setManualTasks([{
-      title: "",
-      instruction: "",
-      date: getNextAvailableDate(preferences.availableDays),
-      durationMinutes: preferences.dailyMinutes,
-    }]);
+    setManualTasks([
+      {
+        title: "",
+        instruction: "",
+        date: getNextAvailableDate(preferences.availableDays),
+        durationMinutes: preferences.dailyMinutes,
+      },
+    ]);
     setAiAdvice(null);
     setAiGeneratedTasks(null);
   };
@@ -362,7 +424,7 @@ export const CreateGoalModal: React.FC = () => {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] rounded-t-[32px] sm:rounded-2xl delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="relative z-10 w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] rounded-t-2xl sm:rounded-lg delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
         {/* Mobile Drag Handle */}
         <div className="pt-3 pb-1 sm:hidden flex justify-center">
           <div className="w-12 h-1.5 bg-delux-border-hover rounded-full" />
@@ -371,7 +433,7 @@ export const CreateGoalModal: React.FC = () => {
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 sm:px-8 py-3 sm:py-4 border-b border-delux-border/80 shrink-0">
           <div>
-            <h3 id="modal-title" className="text-base sm:text-lg font-bold text-delux-text">
+            <h3 id="modal-title" className="text-base sm:text-lg font-semibold text-delux-text">
               Criar Nova Meta
             </h3>
             <p className="text-xs text-delux-secondary mt-0.5">
@@ -382,7 +444,7 @@ export const CreateGoalModal: React.FC = () => {
             variant="delux"
             size="delux"
             onClick={() => setIsCreateGoalOpen(false)}
-            className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
+            className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
             aria-label="Fechar"
           >
             <X className="w-5 h-5" />
@@ -408,8 +470,12 @@ export const CreateGoalModal: React.FC = () => {
               required
               placeholder="Ex: Aprender violão, Correr 5 km, Dominar React..."
               value={title}
-              onChange={(e) => { setTitle(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
-              className="w-full px-3.5 py-3 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-sm text-delux-text placeholder-delux-muted transition-colors min-h-[48px]"
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setAiGeneratedTasks(null);
+                setAiAdvice(null);
+              }}
+              className="w-full px-3.5 py-3 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-sm text-delux-text placeholder-delux-muted transition-colors min-h-[48px]"
             />
           </div>
 
@@ -427,8 +493,12 @@ export const CreateGoalModal: React.FC = () => {
               type="text"
               placeholder="Ex: Para tocar com amigos, crescer na carreira..."
               value={reason}
-              onChange={(e) => { setReason(e.target.value); setAiGeneratedTasks(null); setAiAdvice(null); }}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-xs text-delux-text placeholder-delux-muted transition-colors min-h-[44px]"
+              onChange={(e) => {
+                setReason(e.target.value);
+                setAiGeneratedTasks(null);
+                setAiAdvice(null);
+              }}
+              className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-xs text-delux-text placeholder-delux-muted transition-colors min-h-[44px]"
             />
           </div>
 
@@ -444,8 +514,12 @@ export const CreateGoalModal: React.FC = () => {
               <select
                 id="goal-category"
                 value={category}
-                onChange={(e) => { setCategory(e.target.value as GoalCategory); setAiGeneratedTasks(null); setAiAdvice(null); }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
+                onChange={(e) => {
+                  setCategory(e.target.value as GoalCategory);
+                  setAiGeneratedTasks(null);
+                  setAiAdvice(null);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -467,22 +541,22 @@ export const CreateGoalModal: React.FC = () => {
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border focus:border-delux-purple focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border focus:border-delux-action focus:outline-none text-xs text-delux-text transition-colors min-h-[44px]"
               />
             </div>
           </div>
 
           {/* Gemini AI Custom Generator Card */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-delux-ai-tint/50 via-delux-ai-surface to-delux-surface border border-delux-purple/30 shadow-lg shadow-delux-ai-tint/20 space-y-3">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-delux-ai-tint/50 via-delux-ai-surface to-delux-surface border border-delux-action/30 shadow-lg shadow-delux-ai-tint/20 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-delux-purple/20 border border-delux-purple/40 flex items-center justify-center text-delux-purple-light shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-delux-action/20 border border-delux-action/40 flex items-center justify-center text-delux-accent shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-delux-text flex items-center gap-1.5">
+                  <h4 className="text-xs font-semibold text-delux-text flex items-center gap-1.5">
                     <span>Gerador Inteligente Delux IA</span>
-                    <span className="text-[10px] font-semibold text-delux-purple-light px-1.5 py-0.5 rounded-full bg-delux-purple/20 border border-delux-purple/30">
+                    <span className="text-[10px] font-semibold text-delux-accent px-1.5 py-0.5 rounded-full bg-delux-action/20 border border-delux-action/30">
                       IA
                     </span>
                   </h4>
@@ -499,17 +573,17 @@ export const CreateGoalModal: React.FC = () => {
               type="button"
               disabled={isGeneratingWithAi || !title.trim()}
               onClick={handleGenerateWithGemini}
-              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all min-h-[44px] ${
+              className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all min-h-[44px] ${
                 !title.trim()
                   ? "bg-delux-elevated border border-delux-border text-delux-muted cursor-not-allowed"
                   : isGeneratingWithAi
-                    ? "bg-delux-purple/20 text-delux-purple-light border border-delux-purple/40 cursor-wait"
-                    : "bg-gradient-to-r from-delux-purple to-delux-purple-hover hover:from-delux-purple-hover hover:to-delux-purple-deep text-delux-light shadow-md shadow-delux-purple/25 active:opacity-85"
+                    ? "bg-delux-action/20 text-delux-accent border border-delux-action/40 cursor-wait"
+                    : "bg-gradient-to-r from-delux-action to-delux-action-hover hover:from-delux-action-hover hover:to-delux-action-hover text-delux-light shadow-md shadow-delux-action/25 active:opacity-85"
               }`}
             >
               {isGeneratingWithAi ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-delux-purple-light" />
+                  <Loader2 className="w-4 h-4 animate-spin text-delux-accent" />
                   <span>Delux IA analisando e estruturando etapas...</span>
                 </>
               ) : (
@@ -521,8 +595,8 @@ export const CreateGoalModal: React.FC = () => {
             </Button>
 
             {aiAdvice && (
-              <div className="p-3 rounded-xl bg-delux-purple/10 border border-delux-purple/30 text-xs text-delux-ai-text space-y-1 animate-in fade-in">
-                <p className="font-semibold text-[11px] text-delux-purple-light flex items-center gap-1.5">
+              <div className="p-3 rounded-lg bg-delux-action/10 border border-delux-action/30 text-xs text-delux-ai-text space-y-1 animate-in fade-in">
+                <p className="font-semibold text-[11px] text-delux-accent flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   Conselho do Delux IA:
                 </p>
@@ -542,15 +616,15 @@ export const CreateGoalModal: React.FC = () => {
                 size="delux"
                 type="button"
                 onClick={() => setMethod("auto")}
-                className={`p-3.5 rounded-xl border text-left transition-all ${
+                className={`p-3.5 rounded-lg border text-left transition-all ${
                   method === "auto"
-                    ? "bg-delux-purple/15 border-delux-purple text-delux-text ring-1 ring-delux-purple/40"
+                    ? "bg-delux-action/15 border-delux-action text-delux-text ring-1 ring-delux-action/40"
                     : "bg-delux-elevated border-delux-border text-delux-secondary hover:border-delux-border-hover"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-4 h-4 text-delux-purple-light" />
-                  <span className="text-xs font-bold text-delux-text">Plano Automático</span>
+                  <Sparkles className="w-4 h-4 text-delux-accent" />
+                  <span className="text-xs font-semibold text-delux-text">Plano Automático</span>
                 </div>
                 <p className="text-[11px] text-delux-secondary leading-normal">
                   O Delux organiza etapas práticas e agenda apenas nos seus dias disponíveis.
@@ -562,15 +636,15 @@ export const CreateGoalModal: React.FC = () => {
                 size="delux"
                 type="button"
                 onClick={() => setMethod("manual")}
-                className={`p-3.5 rounded-xl border text-left transition-all ${
+                className={`p-3.5 rounded-lg border text-left transition-all ${
                   method === "manual"
-                    ? "bg-delux-purple/15 border-delux-purple text-delux-text ring-1 ring-delux-purple/40"
+                    ? "bg-delux-action/15 border-delux-action text-delux-text ring-1 ring-delux-action/40"
                     : "bg-delux-elevated border-delux-border text-delux-secondary hover:border-delux-border-hover"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <CalendarIcon className="w-4 h-4 text-delux-purple-light" />
-                  <span className="text-xs font-bold text-delux-text">Plano Manual</span>
+                  <CalendarIcon className="w-4 h-4 text-delux-accent" />
+                  <span className="text-xs font-semibold text-delux-text">Plano Manual</span>
                 </div>
                 <p className="text-[11px] text-delux-secondary leading-normal">
                   Você define suas próprias etapas, datas e durações passo a passo.
@@ -581,7 +655,7 @@ export const CreateGoalModal: React.FC = () => {
 
           {/* Availability Context Pill */}
           {method === "auto" && (
-            <div className="p-3.5 rounded-xl bg-delux-elevated border border-delux-border text-xs space-y-2">
+            <div className="p-3.5 rounded-lg bg-delux-elevated border border-delux-border text-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-delux-secondary text-[11px] font-medium">
                   Sua disponibilidade atual:
@@ -591,7 +665,7 @@ export const CreateGoalModal: React.FC = () => {
                   size="delux"
                   type="button"
                   onClick={() => openDrawer("preferences")}
-                  className="text-[11px] text-delux-purple-light hover:underline font-semibold"
+                  className="text-[11px] text-delux-accent hover:underline font-semibold"
                 >
                   Alterar dias
                 </Button>
@@ -600,7 +674,7 @@ export const CreateGoalModal: React.FC = () => {
                 {availableDayNames || "Nenhum dia selecionado"} · {preferences.dailyMinutes} min/dia
               </p>
               {preferences.availableDays.length === 0 && (
-                <div className="flex items-center gap-1.5 text-delux-red text-[11px] pt-1">
+                <div className="flex items-center gap-1.5 text-delux-warning text-[11px] pt-1">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>Selecione ao menos 1 dia para poder gerar o plano.</span>
                 </div>
@@ -612,22 +686,26 @@ export const CreateGoalModal: React.FC = () => {
           {method === "auto" && (aiGeneratedTasks?.length || previewSteps.length) > 0 && (
             <div>
               <span className="block text-xs font-semibold text-delux-secondary mb-2">
-                {aiGeneratedTasks ? `Plano detalhado gerado pela IA (${aiGeneratedTasks.length} sessões):` : `Prévia de estrutura (${previewSteps.length} etapas; gere com IA para personalizar):`}
+                {aiGeneratedTasks
+                  ? `Plano detalhado gerado pela IA (${aiGeneratedTasks.length} sessões):`
+                  : `Prévia de estrutura (${previewSteps.length} etapas; gere com IA para personalizar):`}
               </span>
               <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
                 {(aiGeneratedTasks || previewSteps).map((s, idx) => (
                   <div
                     key={idx}
-                    className="p-2.5 rounded-xl bg-delux-card border border-delux-border/60 text-xs flex items-start gap-2.5"
+                    className="p-2.5 rounded-lg bg-delux-card border border-delux-border/60 text-xs flex items-start gap-2.5"
                   >
-                    <span className="w-5 h-5 rounded-md bg-delux-purple/20 text-delux-purple-light text-[10px] font-bold flex items-center justify-center shrink-0">
+                    <span className="w-5 h-5 rounded-md bg-delux-action/20 text-delux-accent text-[10px] font-semibold flex items-center justify-center shrink-0">
                       {idx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-delux-text truncate">{s.title}</p>
-                      <p className="text-[10px] text-delux-muted whitespace-normal leading-relaxed">{s.instruction}</p>
+                      <p className="text-[10px] text-delux-muted whitespace-normal leading-relaxed">
+                        {s.instruction}
+                      </p>
                       {schedulePreview?.ok && (
-                        <p className="text-[10px] text-delux-purple-light font-semibold mt-1 tabular-nums">
+                        <p className="text-[10px] text-delux-accent font-semibold mt-1 tabular-nums">
                           {schedulePreview.tasks[idx]?.date} · {schedulePreview.tasks[idx]?.time}
                         </p>
                       )}
@@ -651,7 +729,7 @@ export const CreateGoalModal: React.FC = () => {
                   size="delux"
                   type="button"
                   onClick={handleAddManualTask}
-                  className="flex items-center gap-1 text-xs text-delux-purple-light hover:text-delux-light font-semibold py-1 px-2 rounded-lg bg-delux-elevated"
+                  className="flex items-center gap-1 text-xs text-delux-accent hover:text-delux-light font-semibold py-1 px-2 rounded-lg bg-delux-elevated"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Adicionar etapa</span>
@@ -662,10 +740,10 @@ export const CreateGoalModal: React.FC = () => {
                 {manualTasks.map((task, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-xl bg-delux-card border border-delux-border space-y-2"
+                    className="p-3 rounded-lg bg-delux-card border border-delux-border space-y-2"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-bold text-delux-purple-light">
+                      <span className="text-[10px] font-semibold text-delux-accent">
                         Etapa {idx + 1}
                       </span>
                       {manualTasks.length > 1 && (
@@ -674,7 +752,7 @@ export const CreateGoalModal: React.FC = () => {
                           size="delux"
                           type="button"
                           onClick={() => handleRemoveManualTask(idx)}
-                          className="text-delux-red p-1 rounded hover:bg-delux-danger/10"
+                          className="text-delux-warning p-1 rounded hover:bg-delux-danger/10"
                           aria-label="Remover etapa"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -686,7 +764,7 @@ export const CreateGoalModal: React.FC = () => {
                       placeholder="Título da etapa..."
                       value={task.title}
                       onChange={(e) => handleManualTaskChange(idx, "title", e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:outline-none focus:border-delux-purple min-h-[40px]"
+                      className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:outline-none focus:border-delux-action min-h-[40px]"
                     />
                     <div className="grid grid-cols-2 gap-2">
                       <input
@@ -720,11 +798,19 @@ export const CreateGoalModal: React.FC = () => {
           )}
 
           {method === "auto" && schedulePreview && (
-            <div className={`p-3 rounded-xl border text-[11px] space-y-1 ${schedulePreview.ok ? "bg-delux-green/10 border-delux-green/30 text-delux-green" : "bg-delux-danger/10 border-delux-danger/30 text-delux-red"}`}>
+            <div
+              className={`p-3 rounded-lg border text-[11px] space-y-1 ${schedulePreview.ok ? "bg-delux-success/10 border-delux-success/30 text-delux-success" : "bg-delux-danger/10 border-delux-danger/30 text-delux-warning"}`}
+            >
               {schedulePreview.ok ? (
                 <>
-                  <p className="font-bold">Prévia do calendário pronta</p>
-                  <p>{schedulePreview.tasks.length} tarefas distribuídas conforme seus dias, limite diário e horário preferido. Primeira atividade: {schedulePreview.tasks[0]?.date} às {schedulePreview.tasks[0]?.time}. Última: {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.date} às {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.time}.</p>
+                  <p className="font-semibold">Prévia do calendário pronta</p>
+                  <p>
+                    {schedulePreview.tasks.length} tarefas distribuídas conforme seus dias, limite
+                    diário e horário preferido. Primeira atividade: {schedulePreview.tasks[0]?.date}{" "}
+                    às {schedulePreview.tasks[0]?.time}. Última:{" "}
+                    {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.date} às{" "}
+                    {schedulePreview.tasks[schedulePreview.tasks.length - 1]?.time}.
+                  </p>
                 </>
               ) : (
                 <p>{schedulePreview.error}</p>
@@ -739,7 +825,7 @@ export const CreateGoalModal: React.FC = () => {
               size="delux"
               type="button"
               onClick={() => setIsCreateGoalOpen(false)}
-              className="px-4 py-3 text-xs font-semibold text-delux-secondary hover:text-delux-text rounded-xl transition-colors min-h-[48px]"
+              className="px-4 py-3 text-xs font-semibold text-delux-secondary hover:text-delux-text rounded-lg transition-colors min-h-[48px]"
             >
               Cancelar
             </Button>
@@ -747,8 +833,11 @@ export const CreateGoalModal: React.FC = () => {
               variant="delux"
               size="delux"
               type="submit"
-              disabled={isGeneratingWithAi || (method === "auto" && schedulePreview !== null && !schedulePreview.ok)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-lg shadow-delux-purple/30 transition-all min-h-[48px]"
+              disabled={
+                isGeneratingWithAi ||
+                (method === "auto" && schedulePreview !== null && !schedulePreview.ok)
+              }
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-delux-action hover:bg-delux-action-hover active:opacity-85 text-delux-light text-xs font-semibold rounded-lg shadow-lg shadow-delux-action/30 transition-all min-h-[48px]"
             >
               <span>Gerar e Salvar Plano</span>
               <ArrowRight className="w-4 h-4" />

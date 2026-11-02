@@ -65,29 +65,26 @@
   --color-delux-card: var(--surface-card);
   --color-delux-border: var(--border-subtle);
   --color-delux-border-hover: var(--border-hover);
-  --color-delux-purple: var(--accent-purple);
-  --color-delux-purple-light: var(--accent-purple-light);
-  --color-delux-purple-hover: oklch(0.541 0.281 293.009);
-  --color-delux-purple-deep: oklch(0.491 0.27 292.581);
-  --color-delux-blue: oklch(0.546 0.245 262.881);
-  --color-delux-brand-mid: oklch(0.55 0.25 278);
-  --color-delux-brand-start: oklch(0.54 0.29 292);
-  --color-delux-ai-tint: oklch(0.257 0.09 281.288);
-  --color-delux-ai-surface: oklch(0.219 0.025 285);
-  --color-delux-ai-text: oklch(0.946 0.033 307.174);
-  --color-delux-ai-soft: oklch(0.902 0.063 306.703);
-  --color-delux-green: var(--accent-green);
-  --color-delux-green-hover: oklch(0.696 0.17 162.48);
-  --color-delux-amber: var(--accent-amber);
-  --color-delux-red: var(--accent-red);
-  --color-delux-danger: oklch(0.637 0.237 25.331);
-  --color-delux-danger-text: oklch(0.885 0.062 18.334);
+  --color-delux-action: var(--action-base);
+  --color-delux-action-hover: var(--surface-elevated);
+  --color-delux-accent: var(--accent-ice);
+  --color-delux-success: var(--text-primary);
+  --color-delux-success-hover: var(--text-secondary);
+  --color-delux-attention: var(--text-secondary);
+  --color-delux-warning: var(--text-primary);
+  --color-delux-danger: var(--text-secondary);
+  --color-delux-danger-text: var(--text-primary);
   --color-delux-text: var(--text-primary);
   --color-delux-secondary: var(--text-secondary);
   --color-delux-muted: var(--text-muted);
-  --color-delux-light: oklch(1 0 0);
-  --color-delux-ink: oklch(0 0 0);
-  --color-delux-nav: oklch(0.182 0.02 285);
+  --color-delux-light: var(--text-primary);
+  --color-delux-ink: var(--bg-canvas);
+  --color-delux-nav: var(--surface-main);
+  --color-delux-ai-tint: var(--surface-elevated);
+  --color-delux-ai-surface: var(--surface-main);
+  --color-delux-ai-text: var(--text-primary);
+  --color-delux-ai-soft: var(--text-secondary);
+  --shadow-delux-panel: var(--glass-panel-shadow);
 }
 
 :root {
@@ -174,40 +171,29 @@
 
 @layer base {
   :root {
-    --bg-canvas: oklch(0.145 0.009 285);
-    --surface-main: oklch(0.185 0.014 285);
-    --surface-elevated: oklch(0.225 0.02 285);
-    --surface-card: oklch(0.195 0.02 285);
-    --border-subtle: oklch(0.29 0.024 285);
-    --border-hover: oklch(0.38 0.034 285);
-    --accent-purple: oklch(0.606 0.25 292.717);
-    --accent-purple-light: oklch(0.702 0.183 293.541);
-    --accent-purple-muted: oklch(0.606 0.25 292.717 / 15%);
-    --accent-green: oklch(0.8 0.182 151.711);
-    --accent-green-muted: oklch(0.8 0.182 151.711 / 15%);
-    --accent-amber: oklch(0.828 0.189 84.429);
-    --accent-amber-muted: oklch(0.828 0.189 84.429 / 15%);
-    --accent-red: oklch(0.704 0.191 22.216);
-    --accent-red-muted: oklch(0.704 0.191 22.216 / 15%);
-    --text-primary: oklch(0.971 0.007 285);
-    --text-secondary: oklch(0.719 0.027 285);
-    --text-muted: oklch(0.59 0.029 285);
-    --glass-base: oklch(0.21 0.023 285 / 69%);
-    --glass-panel-base: oklch(0.185 0.018 285 / 87%);
-    --glass-edge: oklch(0.93 0.015 285 / 15%);
-    --glass-reflection: oklch(1 0 0 / 12%);
-    --glass-tint: oklch(0.58 0.19 285 / 10%);
-    --glass-blue-tint: oklch(0.55 0.18 263 / 7%);
-    --glass-selected: oklch(0.63 0.17 285 / 19%);
-    --glass-shadow: 0 12px 36px oklch(0 0 0 / 32%), inset 0 1px 0 var(--glass-reflection);
-    --glass-panel-shadow: 0 24px 64px oklch(0 0 0 / 45%), inset 0 1px 0 var(--glass-reflection);
-    --glass-overlay: oklch(0.08 0.012 285 / 50%);
-    --glass-action-shadow: 0 4px 16px oklch(0 0 0 / 20%), inset 0 1px 0 oklch(1 0 0 / 18%);
-    --glass-action-gradient: linear-gradient(
-      125deg,
-      oklch(0.58 0.22 293 / 90%),
-      oklch(0.47 0.2 269 / 88%)
-    );
+    --bg-canvas: oklch(0.121012571 0.003857693 245.473013429);
+    --surface-main: oklch(0.158206859 0.00718917 258.372294948);
+    --surface-elevated: oklch(0.216361497 0.009107672 255.61150279);
+    --surface-card: oklch(0.158206859 0.00718917 258.372294948);
+    --border-subtle: oklch(0.326543672 0.012684193 252.988881837);
+    --border-hover: oklch(0.778828658 0.021608337 254.940891298);
+    --accent-ice: oklch(0.875971421 0.061835436 254.471393229);
+    --action-base: oklch(0.216361497 0.009107672 255.61150279);
+    --text-primary: oklch(0.962224766 0.013675081 258.344899029);
+    --text-secondary: oklch(0.778828658 0.021608337 254.940891298);
+    --text-muted: oklch(0.778828658 0.021608337 254.940891298);
+    --glass-base: oklch(0.158 0.008 260 / 92%);
+    --glass-panel-base: var(--surface-main);
+    --glass-edge: color-mix(in oklab, var(--border-subtle) 85%, transparent);
+    --glass-reflection: color-mix(in oklab, var(--text-primary) 9%, transparent);
+    --glass-tint: color-mix(in oklab, var(--text-primary) 2%, transparent);
+    --glass-blue-tint: color-mix(in oklab, var(--accent-ice) 1%, transparent);
+    --glass-selected: var(--surface-elevated);
+    --glass-shadow: 0 8px 24px oklch(0 0 0 / 28%), inset 0 1px 0 var(--glass-reflection);
+    --glass-panel-shadow: 0 24px 64px oklch(0 0 0 / 55%), inset 0 1px 0 var(--glass-reflection);
+    --glass-overlay: oklch(0 0 0 / 72%);
+    --glass-action-shadow: 0 3px 12px oklch(0 0 0 / 24%), inset 0 1px 0 var(--glass-reflection);
+    --glass-action-gradient: linear-gradient(135deg, var(--surface-elevated), var(--surface-main));
   }
 
   * {
@@ -317,11 +303,10 @@
 @supports (backdrop-filter: blur(1px)) {
   .delux-glass {
     background-color: var(--glass-base);
-    backdrop-filter: blur(22px) saturate(145%);
+    backdrop-filter: blur(22px) saturate(105%);
   }
   .delux-glass-panel {
     background-color: var(--glass-panel-base);
-    backdrop-filter: blur(20px) saturate(135%);
   }
 }
 .delux-selected {
@@ -350,7 +335,7 @@
 .delux-app input:focus-visible,
 .delux-app select:focus-visible,
 .delux-app textarea:focus-visible {
-  outline: 2px solid var(--accent-purple-light);
+  outline: 2px solid var(--accent-ice);
   outline-offset: 3px;
 }
 .delux-app button:not(:disabled):active {
@@ -360,7 +345,7 @@
 .delux-app button:disabled {
   cursor: not-allowed;
 }
-.delux-app button[class~="bg-delux-purple"],
+.delux-app button[class~="bg-delux-action"],
 .delux-primary-action {
   background-image: var(--glass-action-gradient);
   box-shadow: var(--glass-action-shadow);
@@ -369,7 +354,7 @@
 @media (hover: hover) {
   .delux-glass-action:hover,
   .delux-selected:hover {
-    border-color: var(--accent-purple-light);
+    border-color: var(--accent-ice);
     box-shadow: var(--glass-action-shadow);
   }
 }
@@ -383,7 +368,7 @@
   bottom: max(10px, env(safe-area-inset-bottom, 0px));
   padding: 6px;
   border: 1px solid var(--glass-edge);
-  border-radius: 24px;
+  border-radius: 16px;
 }
 .delux-mobile-nav button {
   min-height: 54px;
@@ -443,18 +428,30 @@
   animation: delux-drawer-out 200ms ease-out both;
 }
 @keyframes delux-overlay-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 @keyframes delux-panel-out {
-  to { opacity: 0; transform: translateY(16px); }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 @keyframes delux-drawer-out {
-  to { opacity: 0; transform: translateX(32px); }
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .delux-app button:not(:disabled):active { scale: 1; }
+  .delux-app button:not(:disabled):active {
+    scale: 1;
+  }
 }
-.delux-app.reduce-motion button:not(:disabled):active { scale: 1; }
+.delux-app.reduce-motion button:not(:disabled):active {
+  scale: 1;
+}
 .delux-toast {
   bottom: calc(140px + env(safe-area-inset-bottom, 0px));
   white-space: normal;
@@ -491,5 +488,78 @@
   }
   .delux-toast {
     bottom: 32px;
+  }
+}
+
+/* Premium monochrome roles shared by navigation, forms, and all content tabs. */
+.delux-app {
+  --background: var(--bg-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface-main);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-main);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--surface-elevated);
+  --primary-foreground: var(--text-primary);
+  --secondary: var(--surface-elevated);
+  --secondary-foreground: var(--text-secondary);
+  --muted: var(--surface-main);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-elevated);
+  --accent-foreground: var(--text-primary);
+  --border: var(--border-subtle);
+  --input: var(--border-subtle);
+  --ring: var(--accent-ice);
+}
+.delux-layout {
+  font-family: inherit;
+}
+.delux-app h1 {
+  font-weight: 600;
+}
+.delux-app button {
+  letter-spacing: 0;
+}
+.delux-app input,
+.delux-app select,
+.delux-app textarea {
+  accent-color: var(--text-primary);
+}
+.delux-app button[class~="bg-delux-success"] {
+  color: var(--bg-canvas);
+}
+.delux-app button[class~="bg-delux-action"],
+.delux-primary-action {
+  border: 1px solid var(--border-subtle);
+  background-image: var(--glass-action-gradient);
+  box-shadow: var(--glass-action-shadow);
+}
+.delux-selected {
+  background: var(--surface-elevated);
+  box-shadow:
+    inset 0 1px 0 var(--glass-reflection),
+    inset 0 0 0 1px var(--border-subtle);
+  color: var(--text-primary);
+}
+.delux-calendar-selected {
+  outline: 1px solid var(--text-primary);
+  outline-offset: -1px;
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent-ice) 8%, transparent);
+}
+.delux-assistant-panel {
+  background: var(--bg-canvas);
+}
+.delux-auth section {
+  backdrop-filter: none;
+}
+@media (hover: hover) {
+  .delux-app button:not(:disabled):hover {
+    border-color: color-mix(in oklab, var(--accent-ice) 35%, var(--border-subtle));
+  }
+  .delux-app button[class~="bg-delux-action"]:hover,
+  .delux-glass-action:hover {
+    box-shadow:
+      inset 0 1px 0 var(--glass-reflection),
+      0 0 12px color-mix(in oklab, var(--accent-ice) 6%, transparent);
   }
 }
