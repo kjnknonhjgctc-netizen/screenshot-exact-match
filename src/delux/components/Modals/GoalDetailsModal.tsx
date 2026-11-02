@@ -128,7 +128,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
       {/* Background dismiss */}
       <div className="fixed inset-0 z-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 w-full sm:max-w-xl max-h-[92vh] sm:max-h-[85vh] rounded-t-[32px] sm:rounded-2xl delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="relative z-10 w-full sm:max-w-xl max-h-[92vh] sm:max-h-[85vh] rounded-t-2xl sm:rounded-lg delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
         {/* Mobile Drag Handle */}
         <div className="pt-3 pb-1 sm:hidden flex justify-center">
           <div className="w-12 h-1.5 bg-delux-border-hover rounded-full" />
@@ -138,7 +138,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
         <div className="flex items-start justify-between gap-3 px-5 sm:px-8 py-3.5 sm:py-4 border-b border-delux-border shrink-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[11px] font-bold text-delux-purple uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-delux-action uppercase tracking-normal">
                 {goal.category}
               </span>
               <span className="text-xs text-delux-muted">·</span>
@@ -153,21 +153,21 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-sm text-delux-text font-bold"
+                  className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-sm text-delux-text font-semibold"
                 />
                 <input
                   type="text"
                   placeholder="Motivo pessoal..."
                   value={editReason}
                   onChange={(e) => setEditReason(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-secondary"
+                  className="w-full px-3 py-1.5 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-secondary"
                 />
                 <div className="flex gap-2">
                   <Button
                     variant="delux"
                     size="delux"
                     onClick={handleSaveEdit}
-                    className="px-3.5 py-1.5 bg-delux-purple text-delux-light text-xs font-semibold rounded-xl"
+                    className="px-3.5 py-1.5 bg-delux-action text-delux-light text-xs font-semibold rounded-lg"
                   >
                     Salvar
                   </Button>
@@ -175,7 +175,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                     variant="delux"
                     size="delux"
                     onClick={() => setIsEditingGoal(false)}
-                    className="px-3.5 py-1.5 bg-delux-elevated text-delux-secondary text-xs rounded-xl"
+                    className="px-3.5 py-1.5 bg-delux-elevated text-delux-secondary text-xs rounded-lg"
                   >
                     Cancelar
                   </Button>
@@ -185,7 +185,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
               <div>
                 <h3
                   id="goal-details-title"
-                  className="text-lg sm:text-xl font-bold text-delux-text tracking-tight"
+                  className="text-lg sm:text-xl font-semibold text-delux-text tracking-tight"
                 >
                   {goal.title}
                 </h3>
@@ -205,7 +205,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                 size="delux"
                 onClick={handleStartEdit}
                 title="Editar meta"
-                className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
+                className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
               >
                 <Edit2 className="w-4 h-4" />
               </Button>
@@ -215,7 +215,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
               size="delux"
               onClick={() => setIsDeleteConfirmOpen(true)}
               title="Excluir meta"
-              className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-red hover:bg-delux-danger/10 transition-colors flex items-center justify-center"
+              className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-warning hover:bg-delux-danger/10 transition-colors flex items-center justify-center"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -223,7 +223,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
               variant="delux"
               size="delux"
               onClick={onClose}
-              className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
+              className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
               aria-label="Fechar"
             >
               <X className="w-5 h-5" />
@@ -234,20 +234,20 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
         {/* Modal Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 space-y-5">
           {/* Progress Overview Card */}
-          <div className="p-4 rounded-2xl bg-delux-elevated border border-delux-border space-y-3">
+          <div className="p-4 rounded-lg bg-delux-elevated border border-delux-border space-y-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-delux-secondary">Progresso do objetivo</span>
-              <span className="font-bold tabular-nums text-delux-text">
+              <span className="font-semibold tabular-nums text-delux-text">
                 {progressPercent}% ({completedCount}/{goalTasks.length} etapas)
               </span>
             </div>
             <ProgressBar
               progress={progressPercent}
-              colorClass={progressPercent === 100 ? "bg-delux-green" : "bg-delux-purple"}
+              colorClass={progressPercent === 100 ? "bg-delux-success" : "bg-delux-action"}
             />
             {goal.deadline && (
               <div className="flex items-center gap-1.5 text-[11px] text-delux-secondary pt-1">
-                <Calendar className="w-3.5 h-3.5 text-delux-purple-light" />
+                <Calendar className="w-3.5 h-3.5 text-delux-accent" />
                 <span>Prazo planejado: {formatFriendlyDate(goal.deadline)}</span>
               </div>
             )}
@@ -256,7 +256,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
           {/* Tasks List */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-delux-secondary">
+              <h4 className="text-xs font-semibold uppercase tracking-normal text-delux-secondary">
                 Etapas do Plano ({goalTasks.length})
               </h4>
               <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                     setReplanProposal(result.proposal || null);
                   }}
                   title="Visualizar uma proposta antes de alterar o calendário"
-                  className="flex items-center gap-1 text-[11px] text-delux-purple-light hover:text-delux-light px-2 py-1.5 rounded-lg hover:bg-delux-elevated transition-colors"
+                  className="flex items-center gap-1 text-[11px] text-delux-accent hover:text-delux-light px-2 py-1.5 rounded-lg hover:bg-delux-elevated transition-colors"
                 >
                   <RotateCw className="w-3 h-3" />
                   <span>Replanejar</span>
@@ -280,7 +280,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                   size="delux"
                   type="button"
                   onClick={() => setIsAddingTask(true)}
-                  className="flex items-center gap-1 text-[11px] text-delux-purple hover:text-delux-purple-light font-bold px-2.5 py-1.5 rounded-lg bg-delux-purple/15 hover:bg-delux-purple/25 transition-colors"
+                  className="flex items-center gap-1 text-[11px] text-delux-action hover:text-delux-accent font-semibold px-2.5 py-1.5 rounded-lg bg-delux-action/15 hover:bg-delux-action/25 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Nova etapa</span>
@@ -289,21 +289,21 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
             </div>
 
             {replanError && (
-              <div className="p-3 rounded-xl bg-delux-amber/10 border border-delux-amber/30 text-xs text-delux-amber">
+              <div className="p-3 rounded-lg bg-delux-attention/10 border border-delux-attention/30 text-xs text-delux-attention">
                 {replanError}
               </div>
             )}
             {replanProposal && (
-              <div className="p-3.5 rounded-2xl bg-delux-purple/10 border border-delux-purple/30 space-y-3">
+              <div className="p-3.5 rounded-lg bg-delux-action/10 border border-delux-action/30 space-y-3">
                 <div>
-                  <p className="text-xs font-bold text-delux-text">Prévia do replanejamento</p>
+                  <p className="text-xs font-semibold text-delux-text">Prévia do replanejamento</p>
                   <p className="text-[11px] text-delux-secondary mt-0.5">Confira as novas datas e horários. Nada foi alterado ainda.</p>
                 </div>
                 <div className="max-h-44 overflow-y-auto space-y-1.5">
                   {replanProposal.map((task) => (
                     <div key={task.id} className="flex items-center justify-between gap-3 text-[11px]">
                       <span className="text-delux-text min-w-0 truncate">{task.title}</span>
-                      <span className="text-delux-purple-light font-semibold tabular-nums shrink-0">{task.date} · {task.time || "sem horário"}</span>
+                      <span className="text-delux-accent font-semibold tabular-nums shrink-0">{task.date} · {task.time || "sem horário"}</span>
                     </div>
                   ))}
                 </div>
@@ -317,7 +317,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                     } else {
                       setReplanError(result.error || "Não foi possível aplicar o replanejamento.");
                     }
-                  }} className="px-3 py-2 rounded-lg bg-delux-purple text-delux-light text-[11px] font-semibold">Confirmar alterações</Button>
+                  }} className="px-3 py-2 rounded-lg bg-delux-action text-delux-light text-[11px] font-semibold">Confirmar alterações</Button>
                 </div>
               </div>
             )}
@@ -326,7 +326,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
             {isAddingTask && (
               <form
                 onSubmit={handleAddNewTask}
-                className="p-3.5 rounded-2xl bg-delux-card border border-delux-purple/50 space-y-2.5"
+                className="p-3.5 rounded-lg bg-delux-card border border-delux-action/50 space-y-2.5"
               >
                 <span className="text-xs font-semibold text-delux-text">
                   Nova etapa para este objetivo:
@@ -337,14 +337,14 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                   placeholder="Título da etapa..."
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:outline-none focus:border-delux-purple min-h-[42px]"
+                  className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:outline-none focus:border-delux-action min-h-[42px]"
                 />
                 <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
                   <input
                     type="date"
                     value={newTaskDate}
                     onChange={(e) => setNewTaskDate(e.target.value)}
-                    className="flex-1 px-2.5 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text min-h-[40px]"
+                    className="flex-1 px-2.5 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text min-h-[40px]"
                   />
                   <div className="flex items-center gap-1">
                     <input
@@ -353,7 +353,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                       max="180"
                       value={newTaskDuration}
                       onChange={(e) => setNewTaskDuration(parseInt(e.target.value, 10) || 15)}
-                      className="w-16 px-2.5 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text min-h-[40px]"
+                      className="w-16 px-2.5 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text min-h-[40px]"
                     />
                     <span className="text-xs text-delux-secondary">min</span>
                   </div>
@@ -371,7 +371,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                       variant="delux"
                       size="delux"
                       type="submit"
-                      className="px-4 py-2 bg-delux-purple text-delux-light text-xs font-bold rounded-xl"
+                      className="px-4 py-2 bg-delux-action text-delux-light text-xs font-semibold rounded-lg"
                     >
                       Adicionar
                     </Button>
@@ -383,14 +383,14 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
             {/* Task rows */}
             <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
               {goalTasks.length === 0 ? (
-                <div className="p-6 text-center text-xs text-delux-secondary bg-delux-card rounded-2xl border border-delux-border">
+                <div className="p-6 text-center text-xs text-delux-secondary bg-delux-card rounded-lg border border-delux-border">
                   Nenhuma etapa cadastrada ainda.
                 </div>
               ) : (
                 goalTasks.map((task) => (
                   <div
                     key={task.id}
-                    className={`p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
+                    className={`p-3.5 rounded-lg border transition-all flex items-start gap-3 ${
                       task.completed
                         ? "bg-delux-card/70 border-delux-border/60 text-delux-muted"
                         : "bg-delux-elevated border-delux-border text-delux-text hover:border-delux-border-hover"
@@ -403,8 +403,8 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                       onClick={() => toggleTask(task.id)}
                       className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                         task.completed
-                          ? "bg-delux-green text-delux-ink font-bold"
-                          : "border border-delux-border-hover hover:border-delux-purple bg-delux-surface"
+                          ? "bg-delux-success text-delux-ink font-semibold"
+                          : "border border-delux-border-hover hover:border-delux-action bg-delux-surface"
                       }`}
                       aria-label={task.completed ? "Desmarcar etapa" : "Concluir etapa"}
                     >
@@ -426,7 +426,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                       )}
                       <div className="flex items-center gap-2 text-[10px] text-delux-secondary mt-1.5">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-delux-purple-light" />
+                          <Calendar className="w-3 h-3 text-delux-accent" />
                           {formatFriendlyDate(task.date)}
                         </span>
                         <span>·</span>
@@ -442,7 +442,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goalId, onCl
                       size="delux"
                       type="button"
                       onClick={() => deleteTask(task.id)}
-                      className="w-8 h-8 rounded-lg text-delux-muted hover:text-delux-red hover:bg-delux-danger/10 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-lg text-delux-muted hover:text-delux-warning hover:bg-delux-danger/10 flex items-center justify-center transition-colors"
                       title="Excluir etapa"
                     >
                       <Trash2 className="w-4 h-4" />

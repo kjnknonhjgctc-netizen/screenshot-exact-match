@@ -99,13 +99,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="delux-layout min-h-screen bg-delux-canvas text-delux-text flex flex-col md:flex-row font-sans selection:bg-delux-purple/30">
+    <div className="delux-layout min-h-screen bg-delux-canvas text-delux-text flex flex-col md:flex-row font-sans selection:bg-delux-action/30">
       {/* DESKTOP SIDEBAR */}
       <aside className="hidden md:flex flex-col w-64 lg:w-72 delux-glass border-r shrink-0 sticky top-0 h-screen select-none z-20">
         {/* Brand Area */}
         <div className="p-6 pb-4 flex items-center justify-between border-b border-delux-light/[0.08]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-delux-brand-start/95 via-delux-brand-mid/95 to-delux-blue/95 p-0.5 shadow-md shadow-delux-brand-mid/30 flex items-center justify-center relative overflow-hidden">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-delux-elevated/95 via-delux-elevated/95 to-delux-accent/95 p-0.5 shadow-md shadow-delux-elevated/30 flex items-center justify-center relative overflow-hidden">
               <svg
                 viewBox="0 0 32 32"
                 fill="none"
@@ -133,8 +133,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-base font-bold text-delux-text tracking-tight">DELUX</span>
-                <span className="text-[10px] font-bold text-delux-purple bg-delux-purple/10 px-1.5 py-0.5 rounded">
+                <span className="text-base font-semibold text-delux-text tracking-tight">DELUX</span>
+                <span className="text-[10px] font-semibold text-delux-action bg-delux-action/10 px-1.5 py-0.5 rounded">
                   2.0
                 </span>
               </div>
@@ -150,9 +150,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             size="delux"
             onClick={() => openDrawer("achievements")}
             title={`${streakDays} dias consecutivos de atividade · Clique para ver conquistas`}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-delux-amber/10 hover:bg-delux-amber/20 border border-delux-amber/30 text-delux-amber text-xs font-semibold tabular-nums transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-delux-attention/10 hover:bg-delux-attention/20 border border-delux-attention/30 text-delux-attention text-xs font-semibold tabular-nums transition-colors cursor-pointer"
           >
-            <Flame className="w-3.5 h-3.5 fill-delux-amber" />
+            <Flame className="w-3.5 h-3.5 fill-delux-attention" />
             <span>{streakDays}</span>
           </Button>
         </div>
@@ -163,7 +163,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             variant="delux"
             size="delux"
             onClick={() => setIsCreateGoalOpen(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-delux-purple hover:bg-delux-purple-hover text-delux-light text-xs font-semibold shadow-md shadow-delux-purple/20 transition-all active:opacity-85"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-delux-action hover:bg-delux-action-hover text-delux-light text-xs font-semibold shadow-md shadow-delux-action/20 transition-all active:opacity-85"
           >
             <Plus className="w-4 h-4" />
             <span>Nova Meta</span>
@@ -173,13 +173,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             variant="delux"
             size="delux"
             onClick={() => setIsAssistantOpen(true)}
-            className="w-full flex items-center justify-between py-2 px-3.5 rounded-xl delux-glass-action text-xs font-semibold text-delux-text transition-all group active:opacity-85"
+            className="w-full flex items-center justify-between py-2 px-3.5 rounded-lg delux-glass-action text-xs font-semibold text-delux-text transition-all group active:opacity-85"
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-delux-purple-light group-hover:rotate-12 transition-transform" />
+              <Sparkles className="w-4 h-4 text-delux-accent group-hover:rotate-12 transition-transform" />
               <span>Assistente Delux IA</span>
             </div>
-            <span className="text-[10px] font-bold text-delux-purple bg-delux-purple/15 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-semibold text-delux-action bg-delux-action/15 px-1.5 py-0.5 rounded">
               IA
             </span>
           </Button>
@@ -199,17 +199,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 aria-current={isActive ? "page" : undefined}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   isActive
                     ? "delux-selected text-delux-text border border-transparent"
                     : "text-delux-secondary hover:text-delux-text hover:bg-delux-elevated/50"
                 }`}
               >
-                <span className={isActive ? "text-delux-purple" : "text-delux-muted"}>
+                <span className={isActive ? "text-delux-action" : "text-delux-muted"}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
-                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-delux-purple" />}
+                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-delux-action" />}
               </Button>
             );
           })}
@@ -221,10 +221,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             variant="delux"
             size="delux"
             onClick={() => openDrawer("preferences")}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl delux-glass-action text-xs font-medium text-delux-secondary hover:text-delux-text transition-colors"
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg delux-glass-action text-xs font-medium text-delux-secondary hover:text-delux-text transition-colors"
           >
             <div className="flex items-center gap-2.5">
-              <Menu className="w-4 h-4 text-delux-purple-light" />
+              <Menu className="w-4 h-4 text-delux-accent" />
               <span>Menu & Preferências</span>
             </div>
             <span className="text-[10px] text-delux-muted">Opções</span>
@@ -235,7 +235,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
       <header className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header delux-scroll-bar border-b border-delux-border/70 ${mobileBarsHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`} inert={mobileBarsHidden}>
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-delux-brand-start via-delux-brand-mid to-delux-blue p-0.5 shadow-md shadow-delux-brand-mid/30 flex items-center justify-center relative overflow-hidden">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-delux-elevated via-delux-elevated to-delux-accent p-0.5 shadow-md shadow-delux-elevated/30 flex items-center justify-center relative overflow-hidden">
             <svg
               viewBox="0 0 32 32"
               fill="none"
@@ -262,8 +262,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </svg>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-extrabold tracking-tight text-delux-text">DELUX</span>
-            <span className="text-[9px] font-bold text-delux-purple bg-delux-purple/15 px-1 py-0.2 rounded">
+            <span className="text-sm font-semibold tracking-tight text-delux-text">DELUX</span>
+            <span className="text-[9px] font-semibold text-delux-action bg-delux-action/15 px-1 py-0.2 rounded">
               2.0
             </span>
           </div>
@@ -275,10 +275,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             variant="delux"
             size="delux"
             onClick={() => openDrawer("achievements")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-delux-amber/10 active:bg-delux-amber/20 border border-delux-amber/30 text-delux-amber text-xs font-bold tabular-nums min-h-[36px]"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-delux-attention/10 active:bg-delux-attention/20 border border-delux-attention/30 text-delux-attention text-xs font-semibold tabular-nums min-h-[36px]"
             title="Ver conquistas da sequência"
           >
-            <Flame className="w-3.5 h-3.5 fill-delux-amber" />
+            <Flame className="w-3.5 h-3.5 fill-delux-attention" />
             <span>{streakDays}</span>
           </Button>
 
@@ -288,7 +288,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             size="delux"
             onClick={() => openDrawer("preferences")}
             aria-label="Abrir menu de opções e preferências"
-            className="w-11 h-11 rounded-xl text-delux-secondary active:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center shrink-0"
+            className="w-11 h-11 rounded-lg text-delux-secondary active:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center shrink-0"
           >
             <Menu className="w-5 h-5" />
           </Button>
@@ -310,7 +310,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4" />
-          <span className="text-xs font-bold">Assistente IA</span>
+          <span className="text-xs font-semibold">Assistente IA</span>
         </Button>
       </main>
 
@@ -332,8 +332,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 className={`flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px] ${isActive ? "delux-selected" : ""}`}
               >
                 <div
-                  className={`p-1 rounded-xl transition-all ${
-                    isActive ? "text-delux-purple-light" : "text-delux-muted"
+                  className={`p-1 rounded-lg transition-all ${
+                    isActive ? "text-delux-accent" : "text-delux-muted"
                   }`}
                 >
                   {item.icon}

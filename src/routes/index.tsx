@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <ClientOnly fallback={<div className="min-h-screen" />}>
-      <Suspense fallback={<div className="min-h-screen bg-[#090B12]" />}>
+      <Suspense fallback={<div className="min-h-screen bg-delux-canvas" />}>
         <LocalAuthGate>
           <DeluxApp />
         </LocalAuthGate>

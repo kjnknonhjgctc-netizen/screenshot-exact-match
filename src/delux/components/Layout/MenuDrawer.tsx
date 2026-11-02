@@ -121,8 +121,8 @@ export const MenuDrawer: React.FC = () => {
         {/* Drawer Header with touch friendly close button */}
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-delux-border shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-base font-extrabold text-delux-text tracking-tight">DELUX</span>
-            <span className="text-xs text-delux-purple font-bold bg-delux-purple/15 px-2 py-0.5 rounded-md">
+            <span className="text-base font-semibold text-delux-text tracking-tight">DELUX</span>
+            <span className="text-xs text-delux-action font-semibold bg-delux-action/15 px-2 py-0.5 rounded-md">
               2.0
             </span>
           </div>
@@ -130,7 +130,7 @@ export const MenuDrawer: React.FC = () => {
             variant="delux"
             size="delux"
             onClick={closeDrawer}
-            className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center"
+            className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center"
             aria-label="Fechar menu"
           >
             <X className="w-5 h-5" />
@@ -145,9 +145,9 @@ export const MenuDrawer: React.FC = () => {
               size="delux"
               key={sec.id}
               onClick={() => openDrawer(sec.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl whitespace-nowrap shrink-0 transition-colors min-h-[38px] ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-colors min-h-[38px] ${
                 activeDrawerSection === sec.id
-                  ? "delux-selected text-delux-purple-light"
+                  ? "delux-selected text-delux-accent"
                   : "text-delux-secondary hover:text-delux-text"
               }`}
             >
@@ -163,7 +163,7 @@ export const MenuDrawer: React.FC = () => {
           {activeDrawerSection === "preferences" && (
             <div className="space-y-6">
               <div>
-                <h4 className="text-sm font-bold text-delux-text mb-1">
+                <h4 className="text-sm font-semibold text-delux-text mb-1">
                   Dias disponíveis na semana
                 </h4>
                 <p className="text-xs text-delux-secondary mb-3">
@@ -179,9 +179,9 @@ export const MenuDrawer: React.FC = () => {
                         key={idx}
                         type="button"
                         onClick={() => handleDayToggle(idx)}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl border text-xs font-semibold transition-all min-h-[48px] active:opacity-85 ${
+                        className={`flex items-center justify-between px-4 py-3 rounded-lg border text-xs font-semibold transition-all min-h-[48px] active:opacity-85 ${
                           isSelected
-                            ? "bg-delux-purple/15 border-delux-purple/60 text-delux-text"
+                            ? "bg-delux-action/15 border-delux-action/60 text-delux-text"
                             : "bg-delux-elevated border-delux-border text-delux-secondary"
                         }`}
                       >
@@ -189,7 +189,7 @@ export const MenuDrawer: React.FC = () => {
                         <div
                           className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
                             isSelected
-                              ? "bg-delux-purple text-delux-light"
+                              ? "bg-delux-action text-delux-light"
                               : "bg-delux-surface border border-delux-border"
                           }`}
                         >
@@ -203,7 +203,7 @@ export const MenuDrawer: React.FC = () => {
 
               {/* Tempo Diário */}
               <div>
-                <h4 className="text-sm font-bold text-delux-text mb-1">Tempo diário disponível</h4>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">Tempo diário disponível</h4>
                 <p className="text-xs text-delux-secondary mb-3">
                   Duração estimada para as tarefas práticas.
                 </p>
@@ -215,9 +215,9 @@ export const MenuDrawer: React.FC = () => {
                       key={mins}
                       type="button"
                       onClick={() => updatePreferences({ dailyMinutes: mins })}
-                      className={`py-3 text-xs font-extrabold rounded-xl border transition-all min-h-[48px] active:opacity-85 ${
+                      className={`py-3 text-xs font-semibold rounded-lg border transition-all min-h-[48px] active:opacity-85 ${
                         preferences.dailyMinutes === mins
-                          ? "bg-delux-purple border-delux-purple text-delux-light shadow-md"
+                          ? "bg-delux-action border-delux-action text-delux-light shadow-md"
                           : "bg-delux-elevated border-delux-border text-delux-secondary"
                       }`}
                     >
@@ -229,7 +229,7 @@ export const MenuDrawer: React.FC = () => {
 
               {/* Horário preferido */}
               <div>
-                <h4 className="text-sm font-bold text-delux-text mb-1">Horário preferencial</h4>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">Horário preferencial</h4>
                 <div className="grid grid-cols-3 gap-2">
                   {(
                     [
@@ -244,9 +244,9 @@ export const MenuDrawer: React.FC = () => {
                       key={time.id}
                       type="button"
                       onClick={() => updatePreferences({ preferredTime: time.id })}
-                      className={`py-3 text-xs font-bold rounded-xl border transition-all min-h-[44px] ${
+                      className={`py-3 text-xs font-semibold rounded-lg border transition-all min-h-[44px] ${
                         preferences.preferredTime === time.id
-                          ? "bg-delux-purple/20 border-delux-purple text-delux-purple-light"
+                          ? "bg-delux-action/20 border-delux-action text-delux-accent"
                           : "bg-delux-elevated border-delux-border text-delux-secondary"
                       }`}
                     >
@@ -258,7 +258,7 @@ export const MenuDrawer: React.FC = () => {
 
               {/* Ritmo */}
               <div>
-                <h4 className="text-sm font-bold text-delux-text mb-1">Ritmo de execução</h4>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">Ritmo de execução</h4>
                 <div className="grid grid-cols-3 gap-2">
                   {(
                     [
@@ -273,9 +273,9 @@ export const MenuDrawer: React.FC = () => {
                       key={r.id}
                       type="button"
                       onClick={() => updatePreferences({ rhythm: r.id })}
-                      className={`py-3 text-xs font-bold rounded-xl border transition-all min-h-[44px] ${
+                      className={`py-3 text-xs font-semibold rounded-lg border transition-all min-h-[44px] ${
                         preferences.rhythm === r.id
-                          ? "bg-delux-purple/20 border-delux-purple text-delux-purple-light"
+                          ? "bg-delux-action/20 border-delux-action text-delux-accent"
                           : "bg-delux-elevated border-delux-border text-delux-secondary"
                       }`}
                     >
@@ -289,7 +289,7 @@ export const MenuDrawer: React.FC = () => {
               <div className="pt-2 border-t border-delux-border">
                 <label className="flex items-center justify-between cursor-pointer py-1">
                   <div>
-                    <span className="text-xs font-bold text-delux-text">Reduzir animações</span>
+                    <span className="text-xs font-semibold text-delux-text">Reduzir animações</span>
                     <p className="text-[11px] text-delux-secondary">
                       Transições instantâneas para acessibilidade.
                     </p>
@@ -298,7 +298,7 @@ export const MenuDrawer: React.FC = () => {
                     type="checkbox"
                     checked={preferences.reducedMotion}
                     onChange={(e) => updatePreferences({ reducedMotion: e.target.checked })}
-                    className="w-5 h-5 rounded text-delux-purple focus:ring-0 bg-delux-elevated border-delux-border"
+                    className="w-5 h-5 rounded text-delux-action focus:ring-0 bg-delux-elevated border-delux-border"
                   />
                 </label>
               </div>
@@ -308,16 +308,16 @@ export const MenuDrawer: React.FC = () => {
           {/* CONQUISTAS */}
           {activeDrawerSection === "achievements" && (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-delux-elevated border border-delux-border flex items-center justify-between">
+              <div className="p-4 rounded-lg bg-delux-elevated border border-delux-border flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs text-delux-secondary uppercase tracking-wider font-bold">
+                  <h4 className="text-xs text-delux-secondary uppercase tracking-normal font-semibold">
                     Desbloqueadas
                   </h4>
-                  <p className="text-xl font-extrabold text-delux-text tabular-nums">
+                  <p className="text-xl font-semibold text-delux-text tabular-nums">
                     {achievements.filter((a) => a.unlockedAt).length} de {achievements.length}
                   </p>
                 </div>
-                <div className="w-11 h-11 rounded-xl bg-delux-amber/15 text-delux-amber flex items-center justify-center">
+                <div className="w-11 h-11 rounded-lg bg-delux-attention/15 text-delux-attention flex items-center justify-center">
                   <Trophy className="w-5 h-5" />
                 </div>
               </div>
@@ -328,16 +328,16 @@ export const MenuDrawer: React.FC = () => {
                   return (
                     <div
                       key={ach.id}
-                      className={`p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
+                      className={`p-3.5 rounded-lg border transition-all flex items-start gap-3 ${
                         isUnlocked
-                          ? "bg-delux-elevated border-delux-purple/40 text-delux-text"
+                          ? "bg-delux-elevated border-delux-action/40 text-delux-text"
                           : "bg-delux-surface border-delux-border opacity-60 text-delux-secondary"
                       }`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                           isUnlocked
-                            ? "bg-delux-amber/20 text-delux-amber"
+                            ? "bg-delux-attention/20 text-delux-attention"
                             : "bg-delux-elevated text-delux-muted"
                         }`}
                       >
@@ -345,11 +345,11 @@ export const MenuDrawer: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <h5 className="text-xs font-bold text-delux-text truncate">
+                          <h5 className="text-xs font-semibold text-delux-text truncate">
                             {ach.title}
                           </h5>
                           {isUnlocked && (
-                            <span className="text-[10px] text-delux-green font-bold shrink-0">
+                            <span className="text-[10px] text-delux-success font-semibold shrink-0">
                               {ach.unlockedAt
                                 ? formatFriendlyDate(ach.unlockedAt.split("T")[0])
                                 : "Conquistada"}
@@ -357,7 +357,7 @@ export const MenuDrawer: React.FC = () => {
                           )}
                         </div>
                         <p className="text-[11px] text-delux-secondary mt-0.5">{ach.description}</p>
-                        <span className="inline-block mt-1 text-[10px] text-delux-purple font-semibold">
+                        <span className="inline-block mt-1 text-[10px] text-delux-action font-semibold">
                           Requisito: {ach.requirement}
                         </span>
                       </div>
@@ -384,7 +384,7 @@ export const MenuDrawer: React.FC = () => {
                   {history.map((item, idx) => (
                     <div
                       key={`${item.id || "hist"}_${idx}`}
-                      className="p-3.5 rounded-xl bg-delux-elevated border border-delux-border text-xs space-y-1"
+                      className="p-3.5 rounded-lg bg-delux-elevated border border-delux-border text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between text-delux-secondary text-[10px]">
                         <span>
@@ -401,7 +401,7 @@ export const MenuDrawer: React.FC = () => {
                             : ""}
                         </span>
                       </div>
-                      <p className="font-bold text-delux-text">{item.title}</p>
+                      <p className="font-semibold text-delux-text">{item.title}</p>
                       {item.description && (
                         <p className="text-delux-secondary text-[11px]">{item.description}</p>
                       )}
@@ -416,7 +416,7 @@ export const MenuDrawer: React.FC = () => {
           {activeDrawerSection === "settings" && (
             <div className="space-y-6">
               <div>
-                <h4 className="text-sm font-bold text-delux-text mb-1">Dados & Backup</h4>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">Dados & Backup</h4>
                 <p className="text-xs text-delux-secondary mb-3">
                   Exporte seu histórico para guardar uma cópia ou transferir de aparelho.
                 </p>
@@ -425,9 +425,9 @@ export const MenuDrawer: React.FC = () => {
                     variant="delux"
                     size="delux"
                     onClick={handleExport}
-                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-bold text-delux-text transition-colors min-h-[48px]"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-semibold text-delux-text transition-colors min-h-[48px]"
                   >
-                    <Download className="w-4 h-4 text-delux-purple-light" />
+                    <Download className="w-4 h-4 text-delux-accent" />
                     <span>Exportar dados (JSON)</span>
                   </Button>
 
@@ -442,7 +442,7 @@ export const MenuDrawer: React.FC = () => {
                     variant="delux"
                     size="delux"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-bold text-delux-secondary active:text-delux-text transition-colors min-h-[48px]"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-delux-elevated active:bg-delux-border border border-delux-border text-xs font-semibold text-delux-secondary active:text-delux-text transition-colors min-h-[48px]"
                   >
                     <Upload className="w-4 h-4" />
                     <span>Importar backup JSON</span>
@@ -451,7 +451,7 @@ export const MenuDrawer: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t border-delux-border">
-                <h4 className="text-sm font-bold text-delux-red mb-1">Zona de perigo</h4>
+                <h4 className="text-sm font-semibold text-delux-warning mb-1">Zona de perigo</h4>
                 <p className="text-xs text-delux-secondary mb-3">
                   Apaga todas as metas, tarefas concluídas e histórico gravados localmente.
                 </p>
@@ -459,7 +459,7 @@ export const MenuDrawer: React.FC = () => {
                   variant="delux"
                   size="delux"
                   onClick={() => setIsResetConfirmOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-delux-danger/10 active:bg-delux-danger/20 border border-delux-danger/30 text-xs font-bold text-delux-red transition-colors min-h-[48px]"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-delux-danger/10 active:bg-delux-danger/20 border border-delux-danger/30 text-xs font-semibold text-delux-warning transition-colors min-h-[48px]"
                 >
                   <RotateCcw className="w-4 h-4" />
                   <span>Limpar todos os dados locais</span>
@@ -467,7 +467,7 @@ export const MenuDrawer: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t border-delux-border text-center text-xs text-delux-muted">
-                <p className="font-bold text-delux-secondary">Delux 2.0</p>
+                <p className="font-semibold text-delux-secondary">Delux 2.0</p>
                 <p className="text-[11px] mt-0.5">Versão 2.0.0 · Local-First Mobile Engine</p>
               </div>
             </div>
@@ -476,9 +476,9 @@ export const MenuDrawer: React.FC = () => {
           {/* AJUDA & FILOSOFIA */}
           {activeDrawerSection === "help" && (
             <div className="space-y-4 text-xs text-delux-secondary leading-relaxed">
-              <div className="p-4 rounded-2xl bg-delux-elevated border border-delux-border">
-                <h4 className="text-sm font-bold text-delux-text mb-2">A promessa do Delux</h4>
-                <p className="italic text-delux-purple-light mb-2">
+              <div className="p-4 rounded-lg bg-delux-elevated border border-delux-border">
+                <h4 className="text-sm font-semibold text-delux-text mb-2">A promessa do Delux</h4>
+                <p className="italic text-delux-accent mb-2">
                   «O Delux transforma objetivos em planos que cabem na rotina real do usuário,
                   ajudando-o a sair da intenção e avançar com pequenas ações concretas, consistentes
                   e mensuráveis.»
@@ -490,7 +490,7 @@ export const MenuDrawer: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <h5 className="font-bold text-delux-text">Privacidade 100% no seu aparelho</h5>
+                <h5 className="font-semibold text-delux-text">Privacidade 100% no seu aparelho</h5>
                 <p>
                   Nenhum dado é enviado para servidores externos. Tudo fica armazenado no navegador
                   do seu smartphone.

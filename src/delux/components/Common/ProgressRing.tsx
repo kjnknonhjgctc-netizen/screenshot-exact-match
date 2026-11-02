@@ -14,8 +14,8 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   progress,
   size = 72,
   strokeWidth = 7,
-  color = '#8B5CF6',
-  backgroundColor = '#292936',
+  color = 'var(--color-delux-action)',
+  backgroundColor = 'var(--color-delux-border)',
   showText = true,
 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -48,7 +48,7 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
         />
       </svg>
       {showText && (
-        <span className="absolute text-xs font-bold tabular-nums text-[#F5F5FA]">
+        <span className="absolute text-xs font-semibold tabular-nums text-delux-text">
           {clampedProgress}%
         </span>
       )}
@@ -59,11 +59,11 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
 export const ProgressBar: React.FC<{ progress: number; className?: string; colorClass?: string }> = ({
   progress,
   className = 'h-2',
-  colorClass = 'bg-[#8B5CF6]',
+  colorClass = 'bg-delux-action',
 }) => {
   const clamped = Math.min(Math.max(progress, 0), 100);
   return (
-    <div className={`w-full bg-[#1A1A24] border border-[#292936]/60 rounded-full overflow-hidden ${className}`}>
+    <div className={`w-full bg-delux-elevated border border-delux-border/60 rounded-full overflow-hidden ${className}`}>
       <div
         className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-out`}
         style={{ width: `${clamped}%` }}

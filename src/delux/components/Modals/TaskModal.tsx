@@ -116,21 +116,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     >
       <div className="fixed inset-0 z-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 w-full sm:max-w-md max-h-[90vh] rounded-t-[32px] sm:rounded-2xl delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div className="relative z-10 w-full sm:max-w-md max-h-[90vh] rounded-t-2xl sm:rounded-lg delux-glass-panel border-t sm:border text-delux-text flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
         {/* Mobile Drag Handle */}
         <div className="pt-3 pb-1 sm:hidden flex justify-center">
           <div className="w-12 h-1.5 bg-delux-border-hover rounded-full" />
         </div>
 
         <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-delux-border shrink-0">
-          <h3 id="task-modal-title" className="text-base font-bold">
+          <h3 id="task-modal-title" className="text-base font-semibold">
             {taskToEdit ? "Editar Tarefa" : "Adicionar Tarefa"}
           </h3>
           <Button
             variant="delux"
             size="delux"
             onClick={onClose}
-            className="w-10 h-10 rounded-xl text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
+            className="w-10 h-10 rounded-lg text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors flex items-center justify-center"
             aria-label="Fechar"
           >
             <X className="w-4 h-4" />
@@ -152,7 +152,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               placeholder="Ex: Praticar exercícios de violão..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[44px]"
             />
           </div>
 
@@ -165,7 +165,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               placeholder="Ex: Focar na troca de acordes sem olhar para as mãos..."
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none resize-none"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none resize-none"
             />
           </div>
 
@@ -177,7 +177,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
+                className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[44px]"
               />
             </div>
 
@@ -189,7 +189,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
+                className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[44px]"
               />
             </div>
 
@@ -203,14 +203,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 max="1440"
                 value={durationMinutes}
                 onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10) || 15)}
-                className="w-full px-3 py-2 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
+                className="w-full px-3 py-2 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[44px]"
               />
             </div>
           </div>
 
           {/* Warning if day is unavailable */}
           {isDateUnavailable && (
-            <div className="p-3 rounded-xl bg-delux-amber/10 border border-delux-amber/30 text-delux-amber text-xs flex items-start gap-2">
+            <div className="p-3 rounded-lg bg-delux-attention/10 border border-delux-attention/30 text-delux-attention text-xs flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 Aviso: este dia não está marcado como disponível nas suas preferências semanais.
@@ -226,7 +226,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <select
                 value={goalId}
                 onChange={(e) => setGoalId(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-purple focus:outline-none min-h-[44px]"
+                className="w-full px-3 py-2.5 rounded-lg bg-delux-elevated border border-delux-border text-xs text-delux-text focus:border-delux-action focus:outline-none min-h-[44px]"
               >
                 {goals.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -252,7 +252,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               size="delux"
               type="submit"
               disabled={isDateUnavailable}
-              className="flex-1 sm:flex-none px-6 py-2.5 bg-delux-purple hover:bg-delux-purple-hover active:opacity-85 text-delux-light text-xs font-bold rounded-xl shadow-md min-h-[44px]"
+              className="flex-1 sm:flex-none px-6 py-2.5 bg-delux-action hover:bg-delux-action-hover active:opacity-85 text-delux-light text-xs font-semibold rounded-lg shadow-md min-h-[44px]"
             >
               Salvar Tarefa
             </Button>
