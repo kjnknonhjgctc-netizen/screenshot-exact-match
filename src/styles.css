@@ -313,11 +313,10 @@
 /* Glass stays on navigation and floating surfaces; reading surfaces remain solid. */
 .delux-app {
   color-scheme: dark;
+  letter-spacing: 0;
 }
 :root[data-theme="light"] .delux-app {
   color-scheme: light;
-  letter-spacing: 0;
-  letter-spacing: 0;
 }
 .delux-app [class*="tracking-tight"] {
   letter-spacing: 0;
