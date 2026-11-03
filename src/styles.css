@@ -603,3 +603,21 @@
       0 0 12px color-mix(in oklab, var(--accent-ice) 6%, transparent);
   }
 }
+
+/* Contrast pass: semantic text utilities must never reuse dark surface colors.
+   Keep action backgrounds unchanged; brighten only text rendered with that role. */
+.delux-app .text-delux-action {
+  color: var(--accent-ice) !important;
+}
+.delux-app .text-delux-muted {
+  color: var(--text-secondary) !important;
+}
+.delux-app .text-delux-secondary {
+  color: var(--text-secondary) !important;
+}
+.delux-app :where(p, span, small, label, li, h1, h2, h3, h4, h5, h6) {
+  text-decoration-color: color-mix(in oklab, currentColor 55%, transparent);
+}
+:root[data-theme="light"] .delux-app .text-delux-action {
+  color: oklch(0.48 0.09 252) !important;
+}
