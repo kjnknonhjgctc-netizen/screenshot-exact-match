@@ -112,7 +112,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           // Apply the saved theme before paint to avoid a flash.
           dangerouslySetInnerHTML={{
-            __html: `try{var a=localStorage.getItem("delux_appearance")||"dark";var t=a==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):a==="light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}`,
+            __html: `try{var a=localStorage.getItem("delux_appearance")||"dark";var t=a==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):a==="light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t}catch(e){}`,
           }}
         />
         <HeadContent />
