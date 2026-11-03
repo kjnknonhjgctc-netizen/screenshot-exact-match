@@ -36,6 +36,8 @@ export function applyTheme(appearance: Appearance, animate = false) {
     window.setTimeout(() => root.classList.remove("delux-theme-transition"), 320);
   }
   root.dataset["theme"] = theme;
+  // Keep Tailwind/shadcn dark: variants in sync with the semantic theme tokens.
+  root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
   document
     .querySelector('meta[name="theme-color"]')
