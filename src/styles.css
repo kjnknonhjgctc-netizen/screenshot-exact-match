@@ -317,6 +317,7 @@
 :root[data-theme="light"] .delux-app {
   color-scheme: light;
   letter-spacing: 0;
+  letter-spacing: 0;
 }
 .delux-app [class*="tracking-tight"] {
   letter-spacing: 0;
