@@ -35,7 +35,7 @@ export function applyTheme(appearance: Appearance, animate = false) {
     root.classList.add("delux-theme-transition");
     window.setTimeout(() => root.classList.remove("delux-theme-transition"), 320);
   }
-  root.dataset.theme = theme;
+  root.dataset["theme"] = theme;
   root.style.colorScheme = theme;
   document
     .querySelector('meta[name="theme-color"]')

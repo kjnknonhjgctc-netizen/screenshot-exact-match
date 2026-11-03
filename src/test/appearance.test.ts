@@ -12,8 +12,8 @@ describe("appearance", () => {
     setAppearance("light");
     expect(localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("light");
     expect(readAppearance()).toBe("light");
-    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(document.documentElement.dataset["theme"]).toBe("light");
     applyTheme("dark");
-    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(document.documentElement.dataset["theme"]).toBe("dark");
   });
 });
