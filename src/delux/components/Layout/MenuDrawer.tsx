@@ -17,12 +17,16 @@ import {
   Zap,
   Award,
   CheckCircle2,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { DrawerSection, ExecutionRhythm, PreferredTime } from "../../types";
 import { DAY_NAMES, formatFriendlyDate } from "../../utils/dateUtils";
 import { ConfirmModal } from "../Common/ConfirmModal";
 import { useAnimatedPresence } from "../Common/useAnimatedPresence";
+import { useAppearance } from "../../theme/appearance";
 
 const iconMap: Record<string, React.ReactNode> = {
   Target: <Target className="w-5 h-5" />,
@@ -417,6 +421,44 @@ export const MenuDrawer: React.FC = () => {
           {/* CONFIGURAÇÕES */}
           {activeDrawerSection === "settings" && (
             <div className="space-y-6">
+              <div>
+                <h4 className="text-sm font-semibold text-delux-text mb-1">Aparência</h4>
+                <p className="text-xs text-delux-secondary mb-3">
+                  Escolha o tema claro, escuro ou siga o sistema do aparelho.
+                </p>
+                <div
+                  role="radiogroup"
+                  aria-label="Aparência"
+                  className="grid grid-cols-3 gap-1 p-1 rounded-lg bg-delux-elevated border border-delux-border"
+                >
+                  {[
+                    { id: "light", label: "Claro", icon: <Sun className="w-4 h-4" /> },
+                    { id: "dark", label: "Escuro", icon: <Moon className="w-4 h-4" /> },
+                    { id: "system", label: "Automático", icon: <Monitor className="w-4 h-4" /> },
+                  ].map((opt) => {
+                    const selected = appearance === opt.id;
+                    return (
+                      <Button
+                        key={opt.id}
+                        variant="delux"
+                        size="delux"
+                        role="radio"
+                        aria-checked={selected}
+                        onClick={() => setAppearance(opt.id)}
+                        className={`flex flex-col items-center justify-center gap-1 min-h-[56px] rounded-md text-[11px] font-semibold transition-colors ${
+                          selected
+                            ? "delux-selected text-delux-text"
+                            : "text-delux-secondary hover:text-delux-text"
+                        }`}
+                      >
+                        <span className={selected ? "text-delux-accent" : ""}>{opt.icon}</span>
+                        {opt.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div>
                 <h4 className="text-sm font-semibold text-delux-text mb-1">Dados & Backup</h4>
                 <p className="text-xs text-delux-secondary mb-3">
