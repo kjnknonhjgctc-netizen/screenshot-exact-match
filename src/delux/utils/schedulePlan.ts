@@ -38,7 +38,7 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const computedDeadline = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : dateString(addDate(cursor, targetDays - 1));
   const limitDate = dateAtNoon(computedDeadline);
   const start0 = new Date(cursor);
-  let lastPlaced: Date | null = null;
+  let lastPlaced = null as Date | null;
   const scheduled: PlanTask[] = [];
   const used = new Map<string, number>();
   const occupied = new Map<string, Array<[number, number]>>();
@@ -85,7 +85,7 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
     let placed = false;
     if (spread && sorted.length > 1) {
       const target = addDate(start0, Math.round((index * (targetDays - 1)) / (sorted.length - 1)));
-      placed = place(task, lastPlaced && lastPlaced > target ? addDate(lastPlaced, 1) : target);
+      placed = place(task, lastPlaced && (lastPlaced as Date).getTime() > target.getTime() ? addDate(lastPlaced, 1) : target);
       if (!placed && lastPlaced) placed = place(task, addDate(lastPlaced, 1));
       if (!placed) placed = place(task, lastPlaced ?? start0);
     } else {
