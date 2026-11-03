@@ -1,6 +1,7 @@
 import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { LocalAuthGate } from "@/delux/components/Auth/LocalAuthGate";
+import { useAppearance } from "@/delux/theme/appearance";
 
 const DeluxApp = lazy(() => import("@/delux/App"));
 
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  useAppearance();
   return (
     <ClientOnly fallback={<div className="min-h-screen" />}>
       <Suspense fallback={<div className="min-h-screen bg-delux-canvas" />}>

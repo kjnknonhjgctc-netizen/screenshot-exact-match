@@ -196,6 +196,43 @@
     --glass-action-gradient: linear-gradient(135deg, var(--surface-elevated), var(--surface-main));
   }
 
+  /* Frosted Pearl — light appearance. Dark Obsidian stays the :root default. */
+  :root[data-theme="light"] {
+    --bg-canvas: oklch(0.979 0.002 247.8); /* #F7F8FA */
+    --surface-main: oklch(1 0 0); /* #FFFFFF */
+    --surface-elevated: oklch(0.956 0.005 247.9); /* #EEF1F4 */
+    --surface-card: oklch(1 0 0);
+    --border-subtle: oklch(0.903 0.011 252); /* #DCE1E7 */
+    --border-hover: oklch(0.659 0.025 252); /* #8995A3 */
+    --accent-ice: oklch(0.6 0.075 252); /* steel blue, deepened for contrast */
+    --action-base: oklch(0.956 0.005 247.9);
+    --text-primary: oklch(0.281 0.017 256); /* #252B33 */
+    --text-secondary: oklch(0.5 0.025 254); /* slate, deepened for AA contrast */
+    --text-muted: oklch(0.56 0.025 252);
+    --glass-base: oklch(1 0 0 / 88%);
+    --glass-panel-base: var(--surface-main);
+    --glass-edge: var(--border-subtle);
+    --glass-reflection: oklch(1 0 0 / 90%);
+    --glass-tint: oklch(1 0 0 / 60%);
+    --glass-blue-tint: color-mix(in oklab, oklch(0.825 0.058 249) 8%, transparent);
+    --glass-selected: color-mix(in oklab, oklch(0.825 0.058 249) 22%, var(--surface-main));
+    --glass-shadow: 0 6px 20px oklch(0.4 0.03 255 / 8%), inset 0 1px 0 var(--glass-reflection);
+    --glass-panel-shadow: 0 20px 50px oklch(0.4 0.03 255 / 12%), inset 0 1px 0 var(--glass-reflection);
+    --glass-overlay: oklch(0.3 0.02 255 / 28%);
+    --glass-action-shadow: 0 2px 8px oklch(0.4 0.03 255 / 8%), inset 0 1px 0 var(--glass-reflection);
+    --glass-action-gradient: linear-gradient(135deg, var(--surface-main), var(--surface-elevated));
+  }
+
+  :root.delux-theme-transition,
+  :root.delux-theme-transition * {
+    transition:
+      background-color 280ms ease,
+      border-color 280ms ease,
+      color 280ms ease,
+      fill 280ms ease,
+      box-shadow 280ms ease !important;
+  }
+
   * {
     -webkit-tap-highlight-color: transparent;
   }
@@ -276,6 +313,9 @@
 /* Glass stays on navigation and floating surfaces; reading surfaces remain solid. */
 .delux-app {
   color-scheme: dark;
+}
+:root[data-theme="light"] .delux-app {
+  color-scheme: light;
   letter-spacing: 0;
 }
 .delux-app [class*="tracking-tight"] {

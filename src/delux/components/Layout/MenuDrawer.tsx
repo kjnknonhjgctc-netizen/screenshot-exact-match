@@ -57,6 +57,7 @@ export const MenuDrawer: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const present = useAnimatedPresence(isDrawerOpen, preferences.reducedMotion);
+  const { appearance, setAppearance } = useAppearance();
   if (!present) return null;
 
   const sections: { id: DrawerSection; label: string; icon: React.ReactNode }[] = [

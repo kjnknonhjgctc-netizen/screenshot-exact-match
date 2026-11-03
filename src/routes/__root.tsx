@@ -107,8 +107,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <script
+          // Apply the saved theme before paint to avoid a flash.
+          dangerouslySetInnerHTML={{
+            __html: `try{var a=localStorage.getItem("delux_appearance")||"dark";var t=a==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):a==="light"?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}`,
+          }}
+        />
         <HeadContent />
       </head>
       <body>
