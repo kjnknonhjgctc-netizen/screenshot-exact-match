@@ -31,11 +31,14 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const sorted = [...planTasks].sort((a, b) => (a.stepOrder ?? 0) - (b.stepOrder ?? 0));
   const startCandidate = sorted.map((task) => task.date).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '')).sort()[0] || dateString(new Date());
   let cursor = dateAtNoon(startCandidate);
-  const deadlineDays = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? Math.round((dateAtNoon(deadline).getTime() - cursor.getTime()) / 86400000) + 1 : 1;
+  const hasDeadline = !!deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline);
+  const spread = hasDeadline || Number.isInteger(durationDays);
+  const deadlineDays = hasDeadline ? Math.round((dateAtNoon(deadline!).getTime() - cursor.getTime()) / 86400000) + 1 : 365;
   const targetDays = Math.max(1, Math.min(365, Number.isInteger(durationDays) ? Number(durationDays) : deadlineDays));
   const computedDeadline = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : dateString(addDate(cursor, targetDays - 1));
   const limitDate = dateAtNoon(computedDeadline);
-  const spacingDays = Math.max(1, Math.floor((targetDays - 1) / Math.max(1, sorted.length - 1)));
+  const start0 = new Date(cursor);
+  let lastPlaced: Date | null = null;
   const scheduled: PlanTask[] = [];
   const used = new Map<string, number>();
   const occupied = new Map<string, Array<[number, number]>>();
@@ -50,29 +53,45 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
     }
   }
 
-  for (const task of sorted) {
+  const place = (task: PlanTask, from: Date): boolean => {
     const duration = Math.max(5, Math.min(dailyLimit, Number(task.durationMinutes) || dailyLimit));
-    let placed = false;
-    while (cursor <= limitDate && !placed) {
-      const date = dateString(cursor);
-      if (!days.includes(cursor.getDay())) { cursor = addDate(cursor, 1); continue; }
+    let day = new Date(from);
+    while (day <= limitDate) {
+      const date = dateString(day);
       const dailyUsed = used.get(date) || 0;
-      if (dailyUsed + duration > dailyLimit) { cursor = addDate(cursor, 1); continue; }
       const ranges = occupied.get(date) || [];
-      let start = period[0];
-      while (start + duration <= period[1] && ranges.some(([from, to]) => start < to && from < start + duration)) {
-        const overlap = ranges.find(([from, to]) => start < to && from < start + duration);
-        start = overlap ? overlap[1] + 10 : start + 10;
+      if (days.includes(day.getDay()) && dailyUsed + duration <= dailyLimit) {
+        let start = period[0];
+        let overlap = ranges.find(([a, b]) => start < b && a < start + duration);
+        while (overlap && start + duration <= period[1]) {
+          start = overlap[1] + 10;
+          overlap = ranges.find(([a, b]) => start < b && a < start + duration);
+        }
+        if (start + duration <= period[1]) {
+          scheduled.push({ ...task, date, time: toTime(start), durationMinutes: duration, stepOrder: scheduled.length + 1 });
+          used.set(date, dailyUsed + duration);
+          ranges.push([start, start + duration]);
+          occupied.set(date, ranges);
+          lastPlaced = day;
+          return true;
+        }
       }
-      if (start + duration > period[1]) { cursor = addDate(cursor, 1); continue; }
-      scheduled.push({ ...task, date, time: toTime(start), durationMinutes: duration, stepOrder: scheduled.length + 1 });
-      used.set(date, dailyUsed + duration);
-      ranges.push([start, start + duration]);
-      occupied.set(date, ranges);
-      placed = true;
+      day = addDate(day, 1);
+    }
+    return false;
+  };
+
+  for (const [index, task] of sorted.entries()) {
+    let placed = false;
+    if (spread && sorted.length > 1) {
+      const target = addDate(start0, Math.round((index * (targetDays - 1)) / (sorted.length - 1)));
+      placed = place(task, lastPlaced && lastPlaced > target ? addDate(lastPlaced, 1) : target);
+      if (!placed && lastPlaced) placed = place(task, addDate(lastPlaced, 1));
+      if (!placed) placed = place(task, lastPlaced ?? start0);
+    } else {
+      placed = place(task, lastPlaced ?? cursor);
     }
     if (!placed) return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${computedDeadline}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
-    if (scheduled.length < sorted.length) cursor = addDate(cursor, spacingDays);
   }
   return { ok: true, tasks: scheduled };
 }
