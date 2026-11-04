@@ -179,9 +179,9 @@
     --border-hover: oklch(0.778828658 0.021608337 254.940891298);
     --accent-ice: oklch(0.875971421 0.061835436 254.471393229);
     --action-base: oklch(0.216361497 0.009107672 255.61150279);
-    --text-primary: oklch(0.962224766 0.013675081 258.344899029);
-    --text-secondary: oklch(0.778828658 0.021608337 254.940891298);
-    --text-muted: oklch(0.778828658 0.021608337 254.940891298);
+    --text-primary: oklch(0.962224766 0.003 258.344899029);
+    --text-secondary: oklch(0.778828658 0.005 254.940891298);
+    --text-muted: oklch(0.778828658 0.005 254.940891298);
     --glass-base: oklch(0.158 0.008 260 / 92%);
     --glass-panel-base: var(--surface-main);
     --glass-edge: color-mix(in oklab, var(--border-subtle) 85%, transparent);
