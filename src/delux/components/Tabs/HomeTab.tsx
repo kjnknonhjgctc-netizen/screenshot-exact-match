@@ -129,8 +129,9 @@ export const HomeTab: React.FC = () => {
               progress={overallProgress}
               size={96}
               strokeWidth={8}
+              gradient
               color={
-                overallProgress === 100 ? "var(--color-delux-success)" : "var(--color-delux-action)"
+                overallProgress === 100 ? "var(--color-delux-success)" : "var(--accent-ice)"
               }
             />
             <span className="text-[11px] text-delux-secondary font-medium mt-1.5 tabular-nums">

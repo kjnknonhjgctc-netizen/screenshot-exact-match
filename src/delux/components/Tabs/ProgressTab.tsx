@@ -120,7 +120,7 @@ export const ProgressTab: React.FC = () => {
                 </span>
                 <div className="w-full max-w-[32px] sm:max-w-[40px] bg-delux-elevated rounded-lg overflow-hidden flex flex-col justify-end h-24">
                   <div
-                    className={`w-full rounded-lg transition-all duration-500 ${
+                    className={`w-full delux-bar-fill rounded-lg transition-all duration-500 ${
                       d.count > 0
                         ? d.isToday
                           ? "bg-delux-action shadow-md shadow-delux-action/40"

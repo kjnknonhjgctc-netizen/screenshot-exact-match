@@ -1,5 +1,5 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React from "react";
+import React, { useId } from "react";
 
 interface ProgressRingProps {
   progress: number; // 0 to 100
@@ -8,6 +8,8 @@ interface ProgressRingProps {
   color?: string;
   backgroundColor?: string;
   showText?: boolean;
+  /** Paint the arc with an ice-blue gradient instead of a flat stroke. */
+  gradient?: boolean;
 }
 
 export const ProgressRing: React.FC<ProgressRingProps> = ({
@@ -17,11 +19,13 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   color = "var(--color-delux-action)",
   backgroundColor = "var(--color-delux-border)",
   showText = true,
+  gradient = false,
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const clampedProgress = Math.min(Math.max(progress, 0), 100);
   const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
+  const gradientId = `delux-ring${useId().replace(/:/g, "")}`;
 
   return (
     <div
@@ -29,6 +33,14 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className="rotate-[-90deg]">
+        {gradient && (
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: color }} />
+              <stop offset="100%" style={{ stopColor: "var(--accent-deep)" }} />
+            </linearGradient>
+          </defs>
+        )}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -41,7 +53,7 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={gradient ? `url(#${gradientId})` : color}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

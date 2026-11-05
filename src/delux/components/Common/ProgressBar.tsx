@@ -12,7 +12,7 @@ export const ProgressBar: React.FC<{
       className={`w-full bg-delux-elevated border border-delux-border/60 rounded-full overflow-hidden ${className}`}
     >
       <div
-        className={`h-full ${colorClass} rounded-full transition-all duration-500 ease-out`}
+        className={`h-full delux-bar-fill ${colorClass} rounded-full transition-all duration-500 ease-out`}
         style={{ width: `${clamped}%` }}
       />
     </div>
