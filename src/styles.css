@@ -606,6 +606,30 @@
     -webkit-text-fill-color: transparent;
   }
 }
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .delux-app h2,
+  .delux-app h3 {
+    background-image: var(--text-gradient-soft);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+.delux-app .delux-selected {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--accent-deep) 28%, var(--surface-elevated)),
+    var(--surface-elevated)
+  ) !important;
+  box-shadow:
+    inset 0 1px 0 var(--glass-reflection),
+    inset 0 0 0 1px color-mix(in oklab, var(--accent-ice) 30%, var(--border-subtle)),
+    0 0 16px color-mix(in oklab, var(--accent-deep) 22%, transparent) !important;
+}
+.delux-app .delux-selected svg {
+  color: var(--accent-ice);
+}
 .delux-app .delux-bar-fill.bg-delux-action {
   background-image: var(--accent-gradient);
   background-color: transparent;
