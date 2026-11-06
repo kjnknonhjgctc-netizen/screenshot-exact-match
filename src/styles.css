@@ -699,59 +699,116 @@
   color: oklch(0.48 0.09 252) !important;
 }
 
-/* Full-screen assistant — immersive, quiet iOS-inspired conversation surface. */
+/* Full-screen chat has its own semantic reading roles, leaving other screens unchanged. */
 .delux-chat-screen {
+  --text-primary: oklch(0.966 0.0137 255.6);
+  --text-secondary: oklch(0.779 0.0216 254.94);
+  --chat-user: var(--surface-elevated);
+  --chat-assistant: color-mix(in oklab, var(--surface-elevated) 72%, var(--surface-main));
+  --chat-field: color-mix(in oklab, var(--surface-elevated) 82%, transparent);
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
   background: var(--bg-canvas);
   color: var(--text-primary);
+  animation: delux-chat-in 200ms ease-out both;
+}
+:root[data-theme="light"] .delux-chat-screen {
+  --text-primary: oklch(0.281 0.017 256);
+  --text-secondary: oklch(0.5 0.025 254);
+  --chat-user: var(--surface-elevated);
+  --chat-assistant: var(--surface-main);
+}
+.delux-chat-screen[data-motion-state="closed"] {
+  pointer-events: none;
+  animation: delux-overlay-out 200ms ease-out both;
 }
 .delux-chat-top {
-  min-height: calc(58px + env(safe-area-inset-top, 0px));
-  padding-top: max(10px, env(safe-area-inset-top, 0px));
-  background: linear-gradient(180deg, color-mix(in oklab, var(--bg-canvas) 96%, var(--surface-elevated)), transparent);
+  min-height: calc(54px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  background: var(--bg-canvas);
+  border-bottom: 1px solid color-mix(in oklab, var(--border-subtle) 35%, transparent);
+}
+.delux-chat-control {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  background: transparent;
 }
 .delux-chat-feed {
   overscroll-behavior: contain;
+  overflow-anchor: none;
   scrollbar-width: thin;
   scrollbar-color: var(--border-subtle) transparent;
 }
+.delux-chat-thread {
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px));
+}
+.delux-chat-message { margin-top: 16px; animation: delux-chat-in 180ms ease-out both; }
+.delux-chat-message:first-child { margin-top: 0; }
+.delux-chat-grouped { margin-top: 5px; }
 .delux-chat-bubble {
+  max-width: 86%;
+  min-width: 0;
+  padding: 11px 15px;
+  border-radius: 20px;
   overflow-wrap: anywhere;
-  box-shadow: 0 8px 26px oklch(0 0 0 / 12%), inset 0 1px 0 var(--glass-reflection);
+  font-size: 15px;
+  line-height: 1.65;
 }
-.delux-chat-user {
-  background: color-mix(in oklab, var(--surface-elevated) 92%, var(--accent-ice) 8%);
-}
-.delux-chat-assistant {
-  background: color-mix(in oklab, var(--surface-main) 90%, var(--surface-elevated));
-}
-.delux-chat-action {
-  box-shadow: inset 0 1px 0 var(--glass-reflection);
-}
+.delux-chat-user { background: var(--chat-user); border-bottom-right-radius: 6px; }
+.delux-chat-assistant { background: var(--chat-assistant); border-bottom-left-radius: 6px; }
+.delux-chat-actions { border-top: 1px solid var(--border-subtle); }
+.delux-chat-action + .delux-chat-action { border-top: 1px solid var(--border-subtle); padding-top: 12px; }
+.delux-chat-approve { background: var(--accent-ice); color: var(--bg-canvas); }
+.delux-chat-discard { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); }
 .delux-chat-composer {
-  padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--bg-canvas) 96%, var(--surface-elevated)) 24%);
-}
-.delux-chat-composer-inner {
-  border: 1px solid var(--glass-edge);
-  background: color-mix(in oklab, var(--surface-main) 84%, transparent);
-  box-shadow: 0 12px 32px oklch(0 0 0 / 22%), inset 0 1px 0 var(--glass-reflection);
-  backdrop-filter: blur(22px) saturate(115%);
-}
-.delux-chat-composer input {
-  box-shadow: none;
-}
-.delux-chat-send:not(:disabled) {
-  box-shadow: 0 0 18px color-mix(in oklab, var(--accent-ice) 18%, transparent), var(--glass-action-shadow);
-}
-:root[data-theme="light"] .delux-chat-screen {
+  padding: 10px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
   background: var(--bg-canvas);
 }
+.delux-chat-field {
+  border: 1px solid var(--glass-edge);
+  background: var(--chat-field);
+  border-radius: 24px;
+  backdrop-filter: blur(16px) saturate(105%);
+  box-shadow: inset 0 1px 0 var(--glass-reflection);
+  padding: 10px 16px;
+}
+.delux-chat-field:focus-within { border-color: var(--border-hover); }
+.delux-chat-field textarea {
+  min-height: 24px;
+  max-height: 120px;
+  line-height: 24px;
+  color: var(--text-primary);
+  outline: none;
+  border: 0;
+}
+.delux-chat-field textarea::placeholder { color: var(--text-secondary); }
+.delux-app .delux-chat-field textarea:focus-visible { outline: none; }
+.delux-chat-send {
+  width: 44px;
+  height: 44px;
+  background: var(--accent-ice);
+  color: var(--bg-canvas);
+}
+.delux-chat-send:disabled { background: var(--surface-elevated); color: var(--text-secondary); opacity: 0.55; }
+.delux-chat-typing { height: 42px; padding: 12px 16px; }
+.delux-chat-typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--text-secondary); animation: delux-chat-dot 1200ms ease-in-out infinite; }
+.delux-chat-typing span:nth-child(2) { animation-delay: 150ms; }
+.delux-chat-typing span:nth-child(3) { animation-delay: 300ms; }
+@keyframes delux-chat-dot { 0%, 70%, 100% { opacity: 0.35; } 35% { opacity: 1; } }
+@keyframes delux-chat-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (min-width: 768px) {
-  .delux-chat-feed {
-    padding-top: 36px;
-    padding-bottom: 36px;
-  }
+  .delux-chat-bubble { max-width: 78%; }
+  .delux-chat-thread { padding-top: 28px; }
+  .delux-chat-composer { padding-bottom: 24px; }
+}
+.delux-app.reduce-motion .delux-chat-screen,
+.delux-app.reduce-motion .delux-chat-message,
+.delux-app.reduce-motion .delux-chat-typing span { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .delux-chat-screen, .delux-chat-message, .delux-chat-typing span { animation: none; }
 }

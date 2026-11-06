@@ -20,3 +20,7 @@
 
 - Corrigido o espaçamento superior do conteúdo mobile para respeitar a altura do cabeçalho Liquid Glass e a safe area de dispositivos com recorte/notch.
 - A validação de build/lint e os testes visuais ainda precisam ser executados no ambiente do projeto Lovable; não marcar como concluídos até confirmar.
+
+## Assistente imersivo
+- [ ] Refazer cabeçalho, balões e barra Mensagem sem alterar Gemini, histórico ou aprovação.
+- [ ] Validar conversa, ações, temas, mensagens longas e adaptação à área do teclado em celular e desktop.

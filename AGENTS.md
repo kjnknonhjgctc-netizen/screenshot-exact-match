@@ -14,3 +14,5 @@
 - Delux visual styling uses shared semantic role tokens and explicit surface classes in src/styles.css, scoped by .delux-app; legacy accent roles map to the current palette and reading panels remain opaque and unfiltered for contrast and performance.
 - Delux navigation observes only the bounded main scroll region; floating surfaces use the shared useAnimatedPresence hook for visual-only exit retention so animation never delays business actions.
 - Delux button audio uses one app-scoped click capture handler and lazy native Web Audio; its toggle persists through the existing preferences store, avoiding dependencies and per-button duplication.
+
+- AssistantModal remains the single chat implementation; its bounded feed follows new messages only near the bottom, and its full-screen viewport tracks visualViewport for keyboard accessibility without changing API or approval logic.
