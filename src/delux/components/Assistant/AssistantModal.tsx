@@ -507,4 +507,3 @@ export const AssistantModal: React.FC = () => {
     </div>
   );
 };
-};
