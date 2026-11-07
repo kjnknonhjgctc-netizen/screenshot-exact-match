@@ -338,7 +338,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px] ${isActive ? "delux-selected" : ""}`}
+                className="flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px]"
               >
                 <div
                   className={`p-1 rounded-lg transition-all ${
