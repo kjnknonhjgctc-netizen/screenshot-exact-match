@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "DELUX — Planejamento de Objetivos",
+  "short_name": "DELUX",
+  "description": "Transforme seus objetivos em planos que cabem na sua rotina.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050607",
+  "theme_color": "#050607",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/delux-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
