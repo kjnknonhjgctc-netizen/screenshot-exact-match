@@ -17,9 +17,7 @@ export function WelcomeChoice({ onContinue }: WelcomeChoiceProps) {
     };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-      }, { once: true });
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
     return () => window.removeEventListener("beforeinstallprompt", onBeforeInstall);
   }, []);
