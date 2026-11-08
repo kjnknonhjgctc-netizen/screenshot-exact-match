@@ -814,3 +814,8 @@
 @media (prefers-reduced-motion: reduce) {
   .delux-chat-screen, .delux-chat-message, .delux-chat-typing span { animation: none; }
 }
+
+/* Esconde o selo "Edit with Lovable" na versão publicada */
+#lovable-badge {
+  display: none !important;
+}
