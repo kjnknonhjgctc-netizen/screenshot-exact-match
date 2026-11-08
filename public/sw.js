@@ -1,4 +1,4 @@
-const CACHE_NAME = "delux-shell-v1";
+const CACHE_NAME = "delux-shell-v2";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/delux-icon.svg"];
 
 self.addEventListener("install", (event) => {
