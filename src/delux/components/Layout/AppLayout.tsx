@@ -135,9 +135,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <span className="text-base font-semibold text-delux-text tracking-tight">
                   DELUX
                 </span>
-                <span className="text-[10px] font-semibold text-delux-action bg-delux-action/10 px-1.5 py-0.5 rounded">
-                  2.0
-                </span>
               </div>
               <p className="text-[11px] text-delux-secondary leading-none mt-0.5">
                 Planos reais para sua rotina
@@ -267,9 +264,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-semibold tracking-tight text-delux-text">DELUX</span>
-            <span className="text-[9px] font-semibold text-delux-action bg-delux-action/15 px-1 py-0.2 rounded">
-              2.0
-            </span>
           </div>
         </div>
 

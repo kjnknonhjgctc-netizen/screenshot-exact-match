@@ -8,13 +8,13 @@ const DeluxApp = lazy(() => import("@/delux/App"));
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Delux 2.0 — Planos Reais para a sua Rotina" },
+      { title: "Delux — Planos Reais para a sua Rotina" },
       {
         name: "description",
         content:
           "Transforme seus objetivos em planos que cabem na rotina real, com um coach de IA.",
       },
-      { property: "og:title", content: "Delux 2.0 — Planos Reais para a sua Rotina" },
+      { property: "og:title", content: "Delux — Planos Reais para a sua Rotina" },
       {
         property: "og:description",
         content:

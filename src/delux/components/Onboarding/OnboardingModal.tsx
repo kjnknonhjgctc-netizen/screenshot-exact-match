@@ -82,7 +82,7 @@ export const OnboardingModal: React.FC = () => {
                   <Target className="w-6 h-6" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-delux-text tracking-tight">
-                  Bem-vindo ao Delux 2.0
+                  Bem-vindo ao Delux
                 </h2>
                 <p className="text-xs text-delux-secondary max-w-sm mx-auto leading-relaxed">
                   Transforme objetivos em planos que cabem na sua rotina real com pequenas ações

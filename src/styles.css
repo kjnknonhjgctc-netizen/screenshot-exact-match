@@ -262,16 +262,6 @@
     --glass-action-gradient: linear-gradient(135deg, var(--surface-main), var(--surface-elevated));
   }
 
-  :root.delux-theme-transition,
-  :root.delux-theme-transition * {
-    transition:
-      background-color 280ms ease,
-      border-color 280ms ease,
-      color 280ms ease,
-      fill 280ms ease,
-      box-shadow 280ms ease !important;
-  }
-
   * {
     -webkit-tap-highlight-color: transparent;
   }

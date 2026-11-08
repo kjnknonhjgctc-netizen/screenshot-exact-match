@@ -127,9 +127,6 @@ export const MenuDrawer: React.FC = () => {
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-delux-border shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-delux-text tracking-tight">DELUX</span>
-            <span className="text-xs text-delux-action font-semibold bg-delux-action/15 px-2 py-0.5 rounded-md">
-              2.0
-            </span>
           </div>
           <Button
             variant="delux"
@@ -512,8 +509,8 @@ export const MenuDrawer: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t border-delux-border text-center text-xs text-delux-muted">
-                <p className="font-semibold text-delux-secondary">Delux 2.0</p>
-                <p className="text-[11px] mt-0.5">Versão 2.0.0 · Local-First Mobile Engine</p>
+                <p className="font-semibold text-delux-secondary">Delux</p>
+                <p className="text-[11px] mt-0.5">Local-First Mobile Engine</p>
               </div>
             </div>
           )}

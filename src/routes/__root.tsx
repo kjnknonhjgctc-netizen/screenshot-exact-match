@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Delux 2.0" },
+      { title: "Delux" },
       { name: "description", content: "Planos reais para a sua rotina." },
       { name: "theme-color", content: "#09090D" },
       { property: "og:type", content: "website" },

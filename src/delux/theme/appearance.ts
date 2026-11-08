@@ -27,14 +27,10 @@ function systemDark() {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
 }
 
-export function applyTheme(appearance: Appearance, animate = false) {
+export function applyTheme(appearance: Appearance) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   const theme = resolveTheme(appearance, systemDark());
-  if (animate) {
-    root.classList.add("delux-theme-transition");
-    window.setTimeout(() => root.classList.remove("delux-theme-transition"), 320);
-  }
   root.dataset["theme"] = theme;
   // Keep Tailwind/shadcn dark: variants in sync with the semantic theme tokens.
   root.classList.toggle("dark", theme === "dark");
@@ -50,7 +46,7 @@ export function setAppearance(next: Appearance) {
   } catch {
     /* storage unavailable: still apply for this session */
   }
-  applyTheme(next, true);
+  applyTheme(next);
   window.dispatchEvent(new CustomEvent(EVENT, { detail: next }));
 }
 
@@ -65,14 +61,14 @@ export function useAppearance() {
 
     const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
     const onSystem = () => {
-      if (readAppearance() === "system") applyTheme("system", true);
+      if (readAppearance() === "system") applyTheme("system");
     };
     const onChange = (e: Event) => setState((e as CustomEvent<Appearance>).detail);
     const onStorage = (e: StorageEvent) => {
       if (e.key !== APPEARANCE_STORAGE_KEY) return;
       const v = readAppearance();
       setState(v);
-      applyTheme(v, true);
+      applyTheme(v);
     };
     mq?.addEventListener?.("change", onSystem);
     window.addEventListener(EVENT, onChange);
