@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "DELUX — Planejamento de Objetivos",
+  "name": "DELUX",
   "short_name": "DELUX",
   "description": "Transforme seus objetivos em planos que cabem na sua rotina.",
   "lang": "pt-BR",
@@ -11,6 +11,17 @@
   "theme_color": "#050607",
   "orientation": "portrait",
   "icons": [
-    { "src": "/delux-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "/delux-icon.svg?v=2",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/delux-icon.svg?v=2",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
   ]
 }
