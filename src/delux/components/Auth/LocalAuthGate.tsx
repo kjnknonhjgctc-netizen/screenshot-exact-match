@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import React, { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, Eye, EyeOff, ShieldCheck, Sun } from "lucide-react";
+import { WelcomeChoice } from "./WelcomeChoice";
 
 type LocalAccount = { email: string; salt: string; passwordHash: string; createdAt: string };
 const ACCOUNT_KEY = "delux_local_account_v1";
@@ -27,6 +28,7 @@ function readAccount(): LocalAccount | null {
 
 export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [ready, setReady] = useState(false);
+  const [hasChosenEntry, setHasChosenEntry] = useState(false);
   const [hasSession, setHasSession] = useState(false);
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [email, setEmail] = useState("");
@@ -39,6 +41,7 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     try {
       setHasSession(localStorage.getItem(SESSION_KEY) === "active");
+      setHasChosenEntry(localStorage.getItem("delux_entry_choice_v1") !== null);
       const account = readAccount();
       if (account) setMode("login");
     } finally {
@@ -107,6 +110,7 @@ export const LocalAuthGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
   if (!ready) return <div className="min-h-screen bg-delux-canvas" />;
   if (hasSession) return <>{children}</>;
+  if (!hasChosenEntry) return <WelcomeChoice onContinue={() => setHasChosenEntry(true)} />;
 
   return (
     <main className="delux-app delux-auth min-h-[100dvh] bg-delux-canvas text-delux-light flex items-center justify-center px-4 py-8 sm:px-6">
