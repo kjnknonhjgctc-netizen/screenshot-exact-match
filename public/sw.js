@@ -1,5 +1,5 @@
-const CACHE_NAME = "delux-shell-v3";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/delux-icon.svg?v=3"];
+const CACHE_NAME = "delux-shell-v4";
+const APP_SHELL = ["/", "/manifest.webmanifest", "/delux-icon.svg?v=4"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
