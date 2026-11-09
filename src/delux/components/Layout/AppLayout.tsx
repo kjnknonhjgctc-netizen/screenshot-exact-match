@@ -223,7 +223,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <div className="flex items-center gap-2.5">
               <Menu className="w-4 h-4 text-delux-accent" />
-              <span>Menu & Preferências</span>
+              <span>Menu</span>
             </div>
             <span className="text-[10px] text-delux-muted">Opções</span>
           </Button>
