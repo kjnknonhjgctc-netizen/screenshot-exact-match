@@ -130,6 +130,23 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    // Small Android haptic response for deliberate interactive controls.
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (!target.closest('button, a, [role="button"], input[type="checkbox"], input[type="radio"], [data-haptic]')) return;
+      try {
+        if ("vibrate" in navigator) navigator.vibrate(8);
+      } catch {
+        // Haptics are optional and unsupported in some browsers.
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
