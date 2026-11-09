@@ -18,6 +18,7 @@ export const AssistantModal: React.FC = () => {
     nextPendingTask,
     overallProgress,
     executeAssistantAction,
+    updatePreferences,
     showToast,
   } = useApp();
 
@@ -112,7 +113,7 @@ export const AssistantModal: React.FC = () => {
   const present = useAnimatedPresence(isAssistantOpen, preferences.reducedMotion);
   if (!present) return null;
 
-  const handleSendMessage = async (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string, contextOverrides: Record<string, unknown> = {}) => {
     const text = (textToSend || input).trim();
     if (!text || isLoading) return;
 
@@ -165,6 +166,7 @@ export const AssistantModal: React.FC = () => {
           goalTitle: g?.title || "Geral",
         };
       }),
+      ...contextOverrides,
     };
 
     const controller = new AbortController();
@@ -238,19 +240,36 @@ export const AssistantModal: React.FC = () => {
       showToast("Escolha os dias, a data de início e o horário.", "error");
       return;
     }
+    const today = getLocalDateString(new Date());
+    if (routineStartDate < today) {
+      showToast("A data de início não pode estar no passado.", "error");
+      return;
+    }
     const dayNames = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
     const selectedDays = routineDays.map((day) => dayNames[day]).join(", ");
     const timeNames = { morning: "manhã", afternoon: "tarde", evening: "noite" };
+    const dailyMinutes = Number(routineMinutes);
+    const preferencesSaved = updatePreferences({
+      availableDays: routineDays,
+      dailyMinutes,
+      preferredTime: routineTime,
+    });
+    if (!preferencesSaved) return;
+
     const message = [
-      "Quero usar estas preferências para montar meu plano:",
-      `Dias disponíveis: ${selectedDays}.`,
+      "Quero criar um plano com estas preferências CONFIRMADAS:",
+      `Dias disponíveis: ${selectedDays} (valores: ${routineDays.join(", ")}; 0=domingo, 1=segunda, ..., 6=sábado).`,
       `Data de início: ${routineStartDate}.`,
-      `Duração: ${routineDuration} dias.`,
+      `Duração total: ${routineDuration} dias.`,
       `Horário preferido: ${timeNames[routineTime]}.`,
-      `Tempo disponível por dia: ${routineMinutes} minutos.`,
-      "Considere essas escolhas confirmadas e continue o planejamento."
+      `Tempo disponível por dia: ${dailyMinutes} minutos.`,
+      "Não pergunte novamente esses dados. Use exatamente essas escolhas para criar a proposta da meta, distribuir as etapas somente nos dias selecionados e respeitar a data de início e a duração. Mostre a proposta para minha aprovação antes de aplicar."
     ].join("\\n");
-    handleSendMessage(message);
+    handleSendMessage(message, {
+      availableDays: routineDays,
+      dailyMinutes,
+      preferredTime: routineTime,
+    });
   };
 
   const handleApproveAction = (messageId: string, actionId: string) => {
