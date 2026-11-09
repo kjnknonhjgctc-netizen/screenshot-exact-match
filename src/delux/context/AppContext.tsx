@@ -933,7 +933,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return false;
         }
         const today = getLocalDateString(new Date());
-        const validStartDate = typeof startDate === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(startDate) && !Number.isNaN(new Date(`${startDate}T12:00:00`).getTime()) && new Date(`${startDate}T12:00:00`) >= new Date(`${today}T00:00:00`);
+        const parsedStartDate = typeof startDate === 'string' ? new Date(`${startDate}T12:00:00`) : new Date('invalid');
+        const validStartDate = typeof startDate === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(startDate) && !Number.isNaN(parsedStartDate.getTime()) && getLocalDateString(parsedStartDate) === startDate && parsedStartDate >= new Date(`${today}T00:00:00`);
         const selectedDays = Array.isArray(availableDays) ? [...new Set(availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))].sort((a: number, b: number) => a - b) : [];
         if (!validStartDate || selectedDays.length === 0) {
           showToast('A proposta precisa ter uma data de início futura ou hoje e dias da semana confirmados.', 'error');
