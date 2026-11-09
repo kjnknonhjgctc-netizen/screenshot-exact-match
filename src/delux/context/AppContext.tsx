@@ -14,6 +14,7 @@ import { INITIAL_ACHIEVEMENTS } from '../utils/achievements';
 import { addDays, getLocalDateString } from '../utils/dateUtils';
 import { generateTasksForGoal } from '../utils/planGenerator';
 import { schedulePlanTasks } from '../utils/schedulePlan';
+import { playDeluxSound } from '../utils/soundFeedback';
 import { feedbackDelux } from '../utils/feedback';
 
 
@@ -646,6 +647,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTasks(updatedTasks);
     feedbackDelux('schedule', preferences.soundEnabled);
     showToast('Tarefa adicionada com sucesso.', 'success');
+    if (preferences.soundEnabled) playDeluxSound('schedule');
     return newTask;
   };
 
