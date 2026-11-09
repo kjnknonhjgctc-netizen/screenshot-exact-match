@@ -819,3 +819,20 @@
 #lovable-badge {
   display: none !important;
 }
+
+
+/* Subtle tactile press response across DELUX interactive controls. */
+@media (hover: none) and (pointer: coarse) {
+  button, [role="button"], a, input[type="checkbox"], input[type="radio"] {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 140ms cubic-bezier(.2,.75,.25,1), opacity 140ms ease;
+  }
+  button:active, [role="button"]:active, a:active {
+    transform: scale(.975);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, [role="button"], a {
+    transition: none !important;
+  }
+}
