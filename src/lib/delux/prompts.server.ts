@@ -5,8 +5,8 @@ MISSÃO
 Transforme qualquer objetivo do usuário em um plano específico, progressivo, detalhado e executável. Não entregue apenas conselhos ou listas genéricas: ensine exatamente como executar cada etapa, de acordo com a natureza do objetivo. Cada domínio exige sua própria metodologia; nunca force todos os objetivos a seguirem o mesmo modelo.
 
 COMO ENTENDER O OBJETIVO
-- Identifique o resultado concreto desejado, o nível atual, a experiência, os recursos, as restrições, o prazo e a disponibilidade.
-- Pergunte apenas o que for essencial e ainda não estiver no contexto. Faça até 3 perguntas curtas por vez.\n- Para todo plano novo, confirme a duração total desejada: 30 dias, 45 dias, 60 dias, 90 dias ou outro prazo de até 365 dias. Se a pessoa não escolher, pergunte antes de propor o plano.
+- Identifique o resultado concreto desejado, o nível atual, a experiência, os recursos, as restrições, o prazo, os dias da semana disponíveis e a data de início desejada.
+- Pergunte apenas o que for essencial e ainda não estiver no contexto. Faça até 3 perguntas curtas por vez.\n- Antes de montar qualquer novo plano para o calendário, confirme explicitamente: (1) em quais dias da semana a pessoa pode realizar as atividades (pergunte os dias, não presuma segunda a sexta nem use os padrões do app como resposta confirmada); (2) em que data deseja começar. Aceite linguagem natural como 'segunda que vem', 'amanhã' ou uma data específica e converta para YYYY-MM-DD usando a data atual do contexto. Se o usuário já informou um desses dados na conversa atual, não pergunte novamente.\n- Se a pessoa disser apenas 'segunda que vem', confirme a data calculada na proposta. Nunca comece automaticamente hoje quando não houver data de início confirmada.\n- Para todo plano novo, confirme a duração total desejada: 30 dias, 45 dias, 60 dias, 90 dias ou outro prazo de até 365 dias. Se a pessoa não escolher, pergunte antes de propor o plano.
 - Não invente recursos, habilidades, orçamento, ferramentas ou disponibilidade que o usuário não informou.
 - Se o pedido já estiver suficientemente claro, avance sem fazer perguntas repetidas.
 
@@ -221,7 +221,9 @@ export const assistantTools: ToolDecl[] = [
           description: 'Categoria da meta: Estudos, Carreira, Saúde e condicionamento, Criatividade, Finanças pessoais, Hábitos, Projetos pessoais ou Outros',
         },
         reason: { type: "STRING", description: 'Motivação e resultado esperado (opcional)' },
-        deadline: { type: "STRING", description: 'Data final do plano YYYY-MM-DD, calculada a partir de durationDays se o usuário não informar uma data exata' },
+        startDate: { type: "STRING", description: 'Data de início confirmada pelo usuário no formato YYYY-MM-DD. Não usar hoje como padrão sem confirmação.' },
+        availableDays: { type: "ARRAY", description: 'Dias da semana confirmados pelo usuário: 0=Domingo, 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado. Não presumir dias.', items: { type: "NUMBER" } },
+        deadline: { type: "STRING", description: 'Data final do plano YYYY-MM-DD, calculada a partir de startDate e durationDays se o usuário não informar uma data exata' },
         durationDays: { type: "NUMBER", description: 'Duração total escolhida pelo usuário: no mínimo 30 dias e no máximo 365. Pergunte quantos dias deseja se não estiver claro; nunca escolha prazo inferior a 30 dias.' },
         steps: {
           type: "ARRAY",
@@ -239,7 +241,7 @@ export const assistantTools: ToolDecl[] = [
         summary: { type: "STRING", description: 'Resumo do plano proposto' },
         replyMessage: { type: "STRING", description: 'Mensagem amigável apresentando a proposta, sem afirmar que foi criada' },
       },
-      required: ['title', 'category', 'durationDays', 'steps', 'summary', 'replyMessage'],
+      required: ['title', 'category', 'startDate', 'availableDays', 'durationDays', 'steps', 'summary', 'replyMessage'],
     },
   },
   {
