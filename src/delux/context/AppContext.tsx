@@ -927,14 +927,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       case 'create_goal': {
-        const { title, category, reason, deadline, durationDays, steps, summary } = action.payload || {};
+        const { title, category, reason, deadline, durationDays, startDate, availableDays, steps, summary } = action.payload || {};
         if (typeof title !== 'string' || !title.trim() || !Array.isArray(steps) || steps.length < 6) {
           showToast('A proposta precisa conter um título e etapas concretas antes de ser aprovada.', 'error');
           return false;
         }
         const today = getLocalDateString(new Date());
+        const validStartDate = typeof startDate === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(startDate) && !Number.isNaN(new Date(`${startDate}T12:00:00`).getTime()) && new Date(`${startDate}T12:00:00`) >= new Date(`${today}T00:00:00`);
+        const selectedDays = Array.isArray(availableDays) ? [...new Set(availableDays.filter((day: number) => Number.isInteger(day) && day >= 0 && day <= 6))].sort((a: number, b: number) => a - b) : [];
+        if (!validStartDate || selectedDays.length === 0) {
+          showToast('A proposta precisa ter uma data de início futura ou hoje e dias da semana confirmados.', 'error');
+          return false;
+        }
+        if (!updatePreferences({ availableDays: selectedDays })) return false;
+        const todayForDeadline = startDate;
         const selectedDurationDays = Number.isInteger(durationDays) ? Math.max(30, Math.min(365, durationDays)) : 30;
-        const calculatedDeadline = new Date(`${today}T12:00:00`);
+        const calculatedDeadline = new Date(`${todayForDeadline}T12:00:00`);
         calculatedDeadline.setDate(calculatedDeadline.getDate() + selectedDurationDays - 1);
         const effectiveDeadline = deadline && deadline.length === 10 && deadline[4] === '-' && deadline[7] === '-'
           ? deadline
@@ -942,7 +950,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const planTasks = steps.slice(0, 14).map((step: any) => ({
           title: typeof step?.title === 'string' ? step.title.trim() : '',
           instruction: typeof step?.instruction === 'string' ? step.instruction : '',
-          date: today,
+          date: startDate,
           durationMinutes: Number.isInteger(step?.durationMinutes)
             ? Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes))
             : preferences.dailyMinutes,
