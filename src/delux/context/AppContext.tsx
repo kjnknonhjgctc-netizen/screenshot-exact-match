@@ -946,13 +946,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return false;
         }
         if (!updatePreferences({ availableDays: selectedDays })) return false;
-        const todayForDeadline = startDate;
-        const selectedDurationDays = Number.isInteger(durationDays) ? Math.max(30, Math.min(365, durationDays)) : 30;
-        const calculatedDeadline = new Date(`${todayForDeadline}T12:00:00`);
+        // The duration explicitly selected by the user is authoritative.
+        // Do not trust an AI-supplied deadline that may be earlier than startDate
+        // or inconsistent with the selected duration.
+        const selectedDurationDays = Number.isInteger(durationDays)
+          ? Math.max(30, Math.min(365, durationDays))
+          : 30;
+        const calculatedDeadline = new Date(`${startDate}T12:00:00`);
         calculatedDeadline.setDate(calculatedDeadline.getDate() + selectedDurationDays - 1);
-        const effectiveDeadline = deadline && deadline.length === 10 && deadline[4] === '-' && deadline[7] === '-'
-          ? deadline
-          : `${calculatedDeadline.getFullYear()}-${String(calculatedDeadline.getMonth() + 1).padStart(2, '0')}-${String(calculatedDeadline.getDate()).padStart(2, '0')}`;
+        const effectiveDeadline = `${calculatedDeadline.getFullYear()}-${String(calculatedDeadline.getMonth() + 1).padStart(2, '0')}-${String(calculatedDeadline.getDate()).padStart(2, '0')}`;
         const planTasks = steps.slice(0, 14).map((step: any) => ({
           title: typeof step?.title === 'string' ? step.title.trim() : '',
           instruction: typeof step?.instruction === 'string' ? step.instruction : '',
