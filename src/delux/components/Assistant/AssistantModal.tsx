@@ -277,10 +277,19 @@ export const AssistantModal: React.FC = () => {
     const targetAction = targetMessage?.actions?.find((action) => action.id === actionId);
     if (!targetAction || targetAction.applied !== false) return;
     let applied = false;
+    let applyError = "";
     try {
-      applied = executeAssistantAction(targetAction);
+      if (targetAction.type === "create_goal" &&
+        (!targetAction.payload?.startDate || !Array.isArray(targetAction.payload?.availableDays) ||
+          targetAction.payload.availableDays.length === 0)) {
+        applyError = "Esta proposta foi criada sem data de início ou dias disponíveis. Peça ao Assistente para gerar a proposta novamente e confirme sua rotina.";
+      } else {
+        applied = executeAssistantAction(targetAction);
+        if (!applied) applyError = "O DELUX recusou esta alteração por inconsistência nos dados ou no calendário. Gere uma nova proposta para tentar novamente.";
+      }
     } catch (actionError) {
       console.error("Failed to apply approved assistant action:", actionError);
+      applyError = actionError instanceof Error ? actionError.message : "Ocorreu um erro inesperado ao aplicar a alteração.";
     }
     setMessages((prev) =>
       prev.map((message) =>
@@ -289,13 +298,13 @@ export const AssistantModal: React.FC = () => {
           : {
               ...message,
               actions: message.actions?.map((action) =>
-                action.id === actionId ? { ...action, applied } : action,
+                action.id === actionId ? { ...action, applied, applyError } : action,
               ),
             },
       ),
     );
     if (!applied)
-      showToast("A alteração não foi aplicada. Revise os dados e tente novamente.", "error");
+      showToast(applyError || "A alteração não foi aplicada. Revise os dados e tente novamente.", "error");
   };
 
   const handleDiscardAction = (messageId: string, actionId: string) => {
@@ -448,6 +457,11 @@ export const AssistantModal: React.FC = () => {
                               </div>
                             ))}
                           </div>
+                        )}
+                        {act.applyError && act.applied !== true && (
+                          <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-xs leading-relaxed text-red-200">
+                            {act.applyError}
+                          </p>
                         )}
                         {act.applied === false && (
                           <div className="flex flex-wrap gap-2">
