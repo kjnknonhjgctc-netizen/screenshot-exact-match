@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { unlockDeluxAudio } from "../delux/utils/feedback";
 
 function NotFoundComponent() {
   return (
@@ -134,6 +135,7 @@ function RootComponent() {
     // Small Android haptic response for deliberate interactive controls.
     const handlePointerDown = (event: PointerEvent) => {
       if (event.pointerType !== "touch") return;
+      unlockDeluxAudio();
       const target = event.target;
       if (!(target instanceof Element)) return;
       if (!target.closest('button, a, [role="button"], input[type="checkbox"], input[type="radio"], [data-haptic]')) return;
