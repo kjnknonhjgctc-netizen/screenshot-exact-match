@@ -218,7 +218,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <Button
             variant="delux"
             size="delux"
-            onClick={() => openDrawer("preferences")}
+            onClick={() => openDrawer("settings")}
             className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg delux-glass-action text-xs font-medium text-delux-secondary hover:text-delux-text transition-colors"
           >
             <div className="flex items-center gap-2.5">
@@ -284,8 +284,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <Button
             variant="delux"
             size="delux"
-            onClick={() => openDrawer("preferences")}
-            aria-label="Abrir menu de opções e preferências"
+            onClick={() => openDrawer("settings")}
+            aria-label="Abrir menu de opções"
             className="w-11 h-11 rounded-lg text-delux-secondary active:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center shrink-0"
           >
             <Menu className="w-5 h-5" />
