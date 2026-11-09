@@ -14,6 +14,8 @@ import { INITIAL_ACHIEVEMENTS } from '../utils/achievements';
 import { addDays, getLocalDateString } from '../utils/dateUtils';
 import { generateTasksForGoal } from '../utils/planGenerator';
 import { schedulePlanTasks } from '../utils/schedulePlan';
+import { feedbackDelux } from '../utils/feedback';
+
 
 interface ToastState {
   id: number;
@@ -536,6 +538,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setGoals(updatedGoals);
     setTasks(updatedTasks);
+    feedbackDelux('schedule', preferences.soundEnabled);
 
     setHistory((prev) => [
       {
@@ -641,6 +644,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
+    feedbackDelux('schedule', preferences.soundEnabled);
     showToast('Tarefa adicionada com sucesso.', 'success');
     return newTask;
   };
@@ -729,6 +733,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ]);
 
     if (willBeCompleted) {
+      feedbackDelux('success', preferences.soundEnabled);
       showToast('Etapa concluída! +1 no seu progresso.', 'success');
     } else {
       showToast('Etapa reaberta.', 'info');
