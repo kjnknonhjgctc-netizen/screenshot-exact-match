@@ -47,6 +47,11 @@ export const AssistantModal: React.FC = () => {
   });
 
   const [input, setInput] = useState("");
+  const [routineDays, setRoutineDays] = useState<number[]>([]);
+  const [routineStartDate, setRoutineStartDate] = useState("");
+  const [routineDuration, setRoutineDuration] = useState("30");
+  const [routineTime, setRoutineTime] = useState("");
+  const [routineMinutes, setRoutineMinutes] = useState("30");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFailedText, setLastFailedText] = useState<string | null>(null);
@@ -222,6 +227,32 @@ export const AssistantModal: React.FC = () => {
     }
   };
 
+  const toggleRoutineDay = (day: number) => {
+    setRoutineDays((current) => current.includes(day)
+      ? current.filter((item) => item !== day)
+      : [...current, day].sort((a, b) => a - b));
+  };
+
+  const handleConfirmRoutine = () => {
+    if (routineDays.length === 0 || !routineStartDate || !routineTime) {
+      showToast("Escolha os dias, a data de início e o horário.", "error");
+      return;
+    }
+    const dayNames = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+    const selectedDays = routineDays.map((day) => dayNames[day]).join(", ");
+    const timeNames = { morning: "manhã", afternoon: "tarde", evening: "noite" };
+    const message = [
+      "Quero usar estas preferências para montar meu plano:",
+      `Dias disponíveis: ${selectedDays}.`,
+      `Data de início: ${routineStartDate}.`,
+      `Duração: ${routineDuration} dias.`,
+      `Horário preferido: ${timeNames[routineTime]}.`,
+      `Tempo disponível por dia: ${routineMinutes} minutos.`,
+      "Considere essas escolhas confirmadas e continue o planejamento."
+    ].join("\\n");
+    handleSendMessage(message);
+  };
+
   const handleApproveAction = (messageId: string, actionId: string) => {
     const targetMessage = messages.find((message) => message.id === messageId);
     const targetAction = targetMessage?.actions?.find((action) => action.id === actionId);
@@ -308,6 +339,71 @@ export const AssistantModal: React.FC = () => {
               className={`delux-chat-message flex ${m.role === "user" ? "justify-end" : "justify-start"} ${messages[index - 1]?.role === m.role ? "delux-chat-grouped" : ""}`}>
               <div className={`delux-chat-bubble ${m.role === "user" ? "delux-chat-user" : "delux-chat-assistant"}`}>
                 <p className="whitespace-pre-wrap">{m.content}</p>
+                {m.role === "assistant" && index === messages.length - 1 &&
+                  /quais dias|dias da semana|data.*começar|duração ideal|disponibilidade para/i.test(m.content) && (
+                  <section className="mt-4 space-y-4 rounded-2xl border border-white/10 bg-white/[0.035] p-3.5" aria-label="Preferências do plano">
+                    <div>
+                      <p className="text-sm font-semibold">Vamos configurar sua rotina</p>
+                      <p className="mt-1 text-xs text-delux-secondary">Toque para escolher. Você não precisa digitar.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-delux-secondary">DIAS DISPONÍVEIS</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((label, day) => (
+                          <button key={day} type="button" aria-pressed={routineDays.includes(day)}
+                            onClick={() => toggleRoutineDay(day)}
+                            className={`min-h-10 rounded-xl border px-2 text-xs font-semibold transition-colors ${routineDays.includes(day) ? "border-delux-accent bg-delux-accent/15 text-delux-accent" : "border-white/10 bg-white/[0.03] text-delux-secondary"}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold text-delux-secondary" htmlFor="delux-plan-start">DATA DE INÍCIO</label>
+                      <input id="delux-plan-start" type="date" min={getLocalDateString(new Date())} value={routineStartDate}
+                        onChange={(event) => setRoutineStartDate(event.target.value)}
+                        className="min-h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-foreground [color-scheme:dark]" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-delux-secondary">DURAÇÃO DO PLANO</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {["30", "45", "60", "90"].map((days) => (
+                          <button key={days} type="button" aria-pressed={routineDuration === days} onClick={() => setRoutineDuration(days)}
+                            className={`min-h-10 rounded-xl border text-xs font-semibold ${routineDuration === days ? "border-delux-accent bg-delux-accent/15 text-delux-accent" : "border-white/10 bg-white/[0.03] text-delux-secondary"}`}>
+                            {days} dias
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-delux-secondary">HORÁRIO PREFERIDO</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[["morning", "Manhã"], ["afternoon", "Tarde"], ["evening", "Noite"]].map(([value, label]) => (
+                          <button key={value} type="button" aria-pressed={routineTime === value} onClick={() => setRoutineTime(value)}
+                            className={`min-h-10 rounded-xl border text-xs font-semibold ${routineTime === value ? "border-delux-accent bg-delux-accent/15 text-delux-accent" : "border-white/10 bg-white/[0.03] text-delux-secondary"}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-delux-secondary">TEMPO DISPONÍVEL POR DIA</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {["15", "30", "45", "60"].map((minutes) => (
+                          <button key={minutes} type="button" aria-pressed={routineMinutes === minutes} onClick={() => setRoutineMinutes(minutes)}
+                            className={`min-h-10 rounded-xl border text-xs font-semibold ${routineMinutes === minutes ? "border-delux-accent bg-delux-accent/15 text-delux-accent" : "border-white/10 bg-white/[0.03] text-delux-secondary"}`}>
+                            {minutes} min
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <Button variant="delux" size="delux" type="button" onClick={handleConfirmRoutine}
+                      disabled={isLoading || routineDays.length === 0 || !routineStartDate || !routineTime}
+                      className="w-full rounded-full py-3 text-sm font-semibold">
+                      Confirmar rotina
+                    </Button>
+                  </section>
+                )}
                 {m.actions && m.actions.length > 0 && (
                   <div className="delux-chat-actions mt-3 pt-3 space-y-3">
                     <span className="text-xs text-delux-secondary">
