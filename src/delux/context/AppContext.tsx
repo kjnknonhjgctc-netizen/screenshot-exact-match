@@ -279,7 +279,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [activeDrawerSection, setActiveDrawerSection] = useState<DrawerSection>('preferences');
+  const [activeDrawerSection, setActiveDrawerSection] = useState<DrawerSection>('settings');
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [isCreateGoalOpen, setIsCreateGoalOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
@@ -345,7 +345,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, 3500);
   };
 
-  const openDrawer = (section: DrawerSection = 'preferences') => {
+  const openDrawer = (section: DrawerSection = 'settings') => {
     setActiveDrawerSection(section);
     setIsDrawerOpen(true);
   };
