@@ -1,38 +1,46 @@
-// Discreet, original interface feedback. Audio is synthesized locally; no files or network required.
+// Lightweight DELUX feedback. Audio is unlocked on the first user gesture.
 let audioContext: AudioContext | null = null;
 
-export function playDeluxSound(kind: "tap" | "success" | "schedule" = "tap") {
+export function unlockDeluxAudio() {
+  if (typeof window === "undefined") return;
   try {
-    const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextCtor) return;
-    audioContext ||= new AudioContextCtor();
+    const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!Ctx) return;
+    audioContext ||= new Ctx();
     if (audioContext.state === "suspended") void audioContext.resume();
-    const now = audioContext.currentTime;
-    const notes = kind === "success" ? [660, 880] : kind === "schedule" ? [520, 660] : [440];
+  } catch { /* Audio is optional on unsupported browsers. */ }
+}
+
+export function playDeluxSound(kind: "tap" | "success" | "schedule" = "tap") {
+  if (typeof window === "undefined") return;
+  try {
+    unlockDeluxAudio();
+    if (!audioContext || audioContext.state !== "running") return;
+    const ctx = audioContext;
+    const now = ctx.currentTime;
+    const notes = kind === "success" ? [659, 880, 1047] : kind === "schedule" ? [523, 659] : [440];
     notes.forEach((frequency, index) => {
-      const oscillator = audioContext!.createOscillator();
-      const gain = audioContext!.createGain();
+      const start = now + index * 0.09;
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
       oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(frequency, now + index * 0.075);
-      gain.gain.setValueAtTime(0.0001, now + index * 0.075);
-      gain.gain.exponentialRampToValueAtTime(kind === "tap" ? 0.018 : 0.028, now + index * 0.075 + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.075 + 0.13);
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(kind === "tap" ? 0.022 : 0.045, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + (kind === "tap" ? 0.09 : 0.2));
       oscillator.connect(gain);
-      gain.connect(audioContext!.destination);
-      oscillator.start(now + index * 0.075);
-      oscillator.stop(now + index * 0.075 + 0.14);
+      gain.connect(ctx.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.22);
     });
-  } catch {
-    // Audio is optional; never interrupt an app action.
-  }
+  } catch { /* Sound must never block an app action. */ }
 }
 
 export function vibrateDelux(kind: "tap" | "success" = "tap") {
+  if (typeof navigator === "undefined") return;
   try {
-    if ("vibrate" in navigator) navigator.vibrate(kind === "success" ? [18, 28, 24] : 9);
-  } catch {
-    // Haptics are unavailable in some browsers and devices.
-  }
+    if (typeof navigator.vibrate === "function") navigator.vibrate(kind === "success" ? [35, 35, 55] : 18);
+  } catch { /* Haptics are optional. */ }
 }
 
 export function feedbackDelux(kind: "tap" | "success" | "schedule" = "tap", soundEnabled = true) {
