@@ -1002,3 +1002,46 @@
 .delux-chat-screen > .delux-chat-feed[aria-hidden="true"] {
   pointer-events: none;
 }
+
+
+/* Composer floats above the conversation; the footer no longer reserves a full-width band. */
+.delux-chat-screen {
+  position: relative;
+}
+.delux-chat-screen > .delux-chat-feed {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+.delux-chat-screen > footer.delux-chat-composer {
+  position: absolute !important;
+  z-index: 12;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  flex: none !important;
+  margin: 0;
+  padding: 8px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none;
+}
+.delux-chat-screen > footer.delux-chat-composer > * {
+  pointer-events: auto;
+}
+.delux-chat-screen > footer.delux-chat-composer form {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.delux-chat-screen > footer.delux-chat-composer::before,
+.delux-chat-screen > footer.delux-chat-composer::after {
+  content: none !important;
+  display: none !important;
+}
