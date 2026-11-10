@@ -1063,37 +1063,37 @@
 }
 
 
-/* Visible but restrained raised edge around the message input itself. */
+/* Dark raised shadow around the message field — no white glow. */
 .delux-chat-screen .delux-chat-composer-inner .delux-chat-field {
   position: relative !important;
   isolation: isolate;
-  border: 1px solid rgb(205 222 245 / 18%) !important;
-  background: rgb(25 28 34 / 88%) !important;
+  border: 1px solid rgb(0 0 0 / 72%) !important;
+  background: rgb(18 19 21 / 96%) !important;
   box-shadow:
-    0 -2px 5px rgb(225 238 255 / 10%),
-    0 -10px 24px rgb(180 210 255 / 7%),
-    0 8px 24px rgb(0 0 0 / 38%),
-    inset 0 1px 0 rgb(255 255 255 / 12%) !important;
+    0 -3px 8px rgb(0 0 0 / 72%),
+    0 -12px 28px rgb(0 0 0 / 48%),
+    0 10px 24px rgb(0 0 0 / 62%),
+    inset 0 1px 2px rgb(0 0 0 / 82%) !important;
 }
 .delux-chat-screen .delux-chat-composer-inner .delux-chat-field::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -7px -5px;
+  inset: -9px -7px;
   border-radius: inherit;
   background: linear-gradient(
     to bottom,
-    rgb(210 230 255 / 9%),
-    rgb(210 230 255 / 0%) 65%
+    rgb(0 0 0 / 68%),
+    rgb(0 0 0 / 0%) 72%
   );
-  filter: blur(9px);
+  filter: blur(12px);
   pointer-events: none;
 }
 .delux-chat-screen .delux-chat-composer-inner .delux-chat-field:focus-within {
-  border-color: rgb(205 225 255 / 30%) !important;
+  border-color: rgb(0 0 0 / 88%) !important;
   box-shadow:
-    0 -2px 7px rgb(225 238 255 / 14%),
-    0 -12px 28px rgb(180 210 255 / 10%),
-    0 9px 26px rgb(0 0 0 / 42%),
-    inset 0 1px 0 rgb(255 255 255 / 15%) !important;
+    0 -4px 10px rgb(0 0 0 / 82%),
+    0 -14px 32px rgb(0 0 0 / 58%),
+    0 12px 28px rgb(0 0 0 / 70%),
+    inset 0 1px 3px rgb(0 0 0 / 90%) !important;
 }
