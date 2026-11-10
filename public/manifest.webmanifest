@@ -12,13 +12,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/delux-icon.svg?v=4",
+      "src": "/delux-icon.svg?v=5",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/delux-icon.svg?v=4",
+      "src": "/delux-icon.svg?v=5",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "maskable"
