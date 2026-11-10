@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { unlockDeluxAudio } from "../delux/utils/feedback";
+import { playDeluxSound, unlockDeluxAudio } from "../delux/utils/feedback";
 
 function NotFoundComponent() {
   return (
@@ -134,19 +134,40 @@ function RootComponent() {
   useEffect(() => {
     // Small Android haptic response for deliberate interactive controls.
     const handlePointerDown = (event: PointerEvent) => {
-      if (event.pointerType !== "touch") return;
-      unlockDeluxAudio();
       const target = event.target;
       if (!(target instanceof Element)) return;
       if (!target.closest('button, a, [role="button"], input[type="checkbox"], input[type="radio"], [data-haptic]')) return;
-      try {
-        if ("vibrate" in navigator) navigator.vibrate(8);
-      } catch {
-        // Haptics are optional and unsupported in some browsers.
+      unlockDeluxAudio();
+      if (event.pointerType === "touch") {
+        try {
+          if ("vibrate" in navigator) navigator.vibrate(8);
+        } catch {
+          // Haptics are optional and unsupported in some browsers.
+        }
       }
     };
+    const handleControlClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const control = target.closest('button, a, [role="button"], input[type="checkbox"], input[type="radio"], [data-sound]');
+      if (!control) return;
+      // Respect the existing sound preference; default to enabled for users
+      // who have not customized it. Keep click feedback quiet and non-blocking.
+      try {
+        const saved = localStorage.getItem("delux_preferences_v2");
+        const preferences = saved ? JSON.parse(saved) : null;
+        if (preferences?.soundEnabled === false) return;
+      } catch {
+        // If preferences cannot be read, do not interrupt the interaction.
+      }
+      playDeluxSound("tap");
+    };
     document.addEventListener("pointerdown", handlePointerDown, { passive: true });
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("click", handleControlClick, { passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("click", handleControlClick);
+    };
   }, []);
 
   return (
