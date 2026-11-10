@@ -426,7 +426,7 @@ export const AssistantModal: React.FC = () => {
       aria-labelledby="assistant-title"
       className="delux-chat-screen fixed inset-0 z-50 flex flex-col"
     >
-      <header className="flex shrink-0 items-center justify-between px-4 py-3 bg-delux-bg/95">
+      <header className="delux-chat-top flex shrink-0 items-center justify-between px-4 py-2">
         <span id="assistant-title" className="text-sm font-semibold text-delux-text">DELUX</span>
         <div className="flex items-center gap-1">
           <button type="button" onClick={() => setHistoryOpen((value) => !value)} aria-label="Histórico de conversas"
