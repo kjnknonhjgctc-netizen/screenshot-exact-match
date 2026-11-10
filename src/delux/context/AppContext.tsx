@@ -955,14 +955,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const calculatedDeadline = new Date(`${startDate}T12:00:00`);
         calculatedDeadline.setDate(calculatedDeadline.getDate() + selectedDurationDays - 1);
         const effectiveDeadline = `${calculatedDeadline.getFullYear()}-${String(calculatedDeadline.getMonth() + 1).padStart(2, '0')}-${String(calculatedDeadline.getDate()).padStart(2, '0')}`;
-        const planTasks = steps.slice(0, 14).map((step: any) => ({
+        const sourceSteps = steps.slice(0, 14).map((step: any) => ({
           title: typeof step?.title === 'string' ? step.title.trim() : '',
           instruction: typeof step?.instruction === 'string' ? step.instruction : '',
-          date: startDate,
           durationMinutes: Number.isInteger(step?.durationMinutes)
             ? Math.min(preferences.dailyMinutes, Math.max(5, step.durationMinutes))
             : preferences.dailyMinutes,
         }));
+        // Expand the assistant's concise core steps into a complete routine
+        // locally. The assistant contract and prompts remain unchanged.
+        // One selected weekday is reserved for weekly recovery when possible.
+        const weeklyRestDay = selectedDays.length > 1 ? Math.max(...selectedDays) : null;
+        const planTasks: Array<{ title: string; instruction: string; date: string; durationMinutes: number }> = [];
+        let sessionIndex = 0;
+        for (let offset = 0; offset < selectedDurationDays; offset += 1) {
+          const sessionDate = addDays(parsedStartDate, offset);
+          const weekday = sessionDate.getDay();
+          if (!selectedDays.includes(weekday) || weekday === weeklyRestDay) continue;
+          const sourceStep = sourceSteps[sessionIndex % sourceSteps.length];
+          if (!sourceStep) continue;
+          const cycle = Math.floor(sessionIndex / sourceSteps.length);
+          planTasks.push({
+            title: cycle === 0 ? sourceStep.title : `Prática ${cycle + 1}: ${sourceStep.title}`,
+            instruction: cycle === 0
+              ? sourceStep.instruction
+              : `Sessão de consolidação da etapa: ${sourceStep.title}. ${sourceStep.instruction} Compare seu resultado com a tentativa anterior, corrija um ponto específico e avance gradualmente sem pular fundamentos.`,
+            date: getLocalDateString(sessionDate),
+            durationMinutes: sourceStep.durationMinutes,
+          });
+          sessionIndex += 1;
+        }
         if (planTasks.some((task) => !task.title)) {
           showToast('A proposta contém uma etapa sem título. Peça à IA para revisar o plano.', 'error');
           return false;
