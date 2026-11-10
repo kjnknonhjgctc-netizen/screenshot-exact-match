@@ -1004,10 +1004,7 @@
 }
 
 
-/* Composer floats above the conversation; the footer no longer reserves a full-width band. */
-.delux-chat-screen {
-  position: relative;
-}
+/* Composer floats within the existing fixed full-screen chat overlay. */
 .delux-chat-screen > .delux-chat-feed {
   padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
 }
