@@ -26,7 +26,7 @@ export function playDeluxSound(kind: "tap" | "success" | "schedule" = "tap") {
       oscillator.type = "sine";
       oscillator.frequency.setValueAtTime(frequency, start);
       gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(kind === "tap" ? 0.03 : 0.055, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(kind === "tap" ? 0.045 : 0.065, start + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + (kind === "tap" ? 0.09 : 0.2));
       oscillator.connect(gain);
       gain.connect(ctx.destination);
