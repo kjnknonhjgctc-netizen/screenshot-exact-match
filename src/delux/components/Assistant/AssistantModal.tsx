@@ -52,7 +52,24 @@ export const AssistantModal: React.FC = () => {
   const [chatArchive, setChatArchive] = useState<{ id: string; title: string; messages: ChatMessage[] }[]>(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("delux_assistant_archive") || "[]");
-      return Array.isArray(saved) ? saved : [];
+      if (!Array.isArray(saved)) return [];
+      const seen = new Set<string>();
+      return saved
+        .filter((chat) => chat && typeof chat.id === "string" && !seen.has(chat.id) &&
+          Array.isArray(chat.messages) && chat.messages.length > 0)
+        .map((chat) => {
+          seen.add(chat.id);
+          return {
+            id: chat.id,
+            title: typeof chat.title === "string" && chat.title.trim() ? chat.title.trim() : "Conversa",
+            messages: chat.messages.filter((message: any) => message &&
+              typeof message.id === "string" &&
+              ["user", "assistant"].includes(message.role) &&
+              typeof message.content === "string"),
+          };
+        })
+        .filter((chat) => chat.messages.length > 0)
+        .slice(0, 30);
     } catch { return []; }
   });
   const [photo, setPhoto] = useState<{ data: string; name: string } | null>(null);
@@ -469,7 +486,7 @@ export const AssistantModal: React.FC = () => {
         </section>
       )}
 
-      <div ref={feedRef} className="delux-chat-feed flex-1 min-h-0 w-full overflow-y-auto"
+      <div ref={feedRef} inert={historyOpen} aria-hidden={historyOpen} className="delux-chat-feed flex-1 min-h-0 w-full overflow-y-auto"
         onScroll={() => {
           const feed = feedRef.current;
           if (feed) followLatestRef.current = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 80;
@@ -615,7 +632,7 @@ export const AssistantModal: React.FC = () => {
         </div>
       </div>
 
-      <footer className="delux-chat-composer shrink-0 w-full">
+      <footer inert={historyOpen} aria-hidden={historyOpen} className="delux-chat-composer shrink-0 w-full">
         {photo && <div className="max-w-3xl mx-auto px-4 pb-2 flex items-center gap-2 text-xs text-delux-secondary">
           <ImagePlus className="w-4 h-4" /><span className="truncate">{photo.name}</span>
           <button type="button" onClick={() => setPhoto(null)} aria-label="Remover foto"><X className="w-4 h-4" /></button>
