@@ -239,14 +239,14 @@ ${ctx}`
       return json({
         error: "Não foi possível estruturar a proposta agora. A ferramenta de criação não foi executada; nenhuma meta foi criada. Tente novamente.",
         code: "CREATE_GOAL_NOT_CALLED",
-      }, 502);
+      }, 422);
     }
     const goalAction = actions.find((action) => action.type === "create_goal");
     if (goalAction) {
       const payload = goalAction.payload || {};
       const valid =
         typeof payload.title === "string" && payload.title.trim().length > 0 &&
-        typeof payload.startDate === "string" && /^\\d{4}-\\d{2}-\\d{2}$/.test(payload.startDate) &&
+        typeof payload.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(payload.startDate) &&
         Array.isArray(payload.availableDays) && payload.availableDays.length > 0 &&
         Number.isInteger(payload.durationDays) && payload.durationDays >= 30 && payload.durationDays <= 365 &&
         Array.isArray(payload.steps) && payload.steps.length >= 6 && payload.steps.length <= 14 &&
@@ -256,7 +256,7 @@ ${ctx}`
         return json({
           error: "A IA acionou a criação, mas retornou dados incompletos. Nenhuma proposta foi enviada para aprovação. Tente gerar novamente.",
           code: "CREATE_GOAL_INVALID_PAYLOAD",
-        }, 502);
+        }, 422);
       }
     }
     let finalReply = replyText;
