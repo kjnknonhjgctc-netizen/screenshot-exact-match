@@ -95,12 +95,21 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
     return { ok: false, error: 'Não há dias selecionados dentro do período deste plano. Ajuste a data de início ou os dias disponíveis.' };
   }
 
+  // Reserve one weekly recovery day when the user selected at least two
+  // weekdays. Use the last selected weekday consistently (e.g. Friday for
+  // a Monday-Friday routine); never turn a one-day routine into zero sessions.
+  const weeklyRestDay = days.length > 1 ? Math.max(...days) : null;
+  const trainingDates = eligibleDates.filter((day) => day.getDay() !== weeklyRestDay);
+  const datesToUse = trainingDates.length > 0 ? trainingDates : eligibleDates;
+
+  // Distribute the supplied plan steps across the entire selected period,
+  // rather than filling only the first few available days. This keeps the
+  // progression spaced throughout 30/45/60+ day plans while preserving order.
   for (const [index, task] of sorted.entries()) {
-    // Keep sessions on consecutive selected weekdays. Spreading a small set
-    // of steps across the entire deadline creates unexplained empty weekdays
-    // (e.g. Monday has a task while Tuesday is blank). If a day is full or
-    // blocked, place() safely advances to the next eligible day.
-    const target = eligibleDates[Math.min(index, eligibleDates.length - 1)] || start0;
+    const targetIndex = sorted.length <= 1
+      ? 0
+      : Math.round((index * (datesToUse.length - 1)) / (sorted.length - 1));
+    const target = datesToUse[Math.min(targetIndex, datesToUse.length - 1)] || start0;
     const from = lastPlaced && lastPlaced.getTime() >= target.getTime()
       ? addDate(lastPlaced, 1)
       : target;
