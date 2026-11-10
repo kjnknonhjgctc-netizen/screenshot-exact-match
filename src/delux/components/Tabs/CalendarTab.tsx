@@ -48,6 +48,11 @@ export const CalendarTab: React.FC = () => {
       });
 
   const weekDays = getWeekDays(currentWeekReference);
+  // Keep the mobile agenda anchored to a date inside the currently visible week.
+  // This prevents stale selected-day state from showing one date's heading
+  // while rendering another date's tasks after week navigation.
+  const selectedMobileDay = weekDays.find((day) => day.dateStr === selectedMobileDayStr) || weekDays[0];
+  const selectedMobileDateStr = selectedMobileDay.dateStr;
   const firstDay = weekDays[0].date;
   const lastDay = weekDays[6].date;
 
@@ -133,7 +138,7 @@ export const CalendarTab: React.FC = () => {
           <Button
             variant="delux"
             size="delux"
-            onClick={() => openCreateTaskOnDate(selectedMobileDayStr)}
+            onClick={() => openCreateTaskOnDate(selectedMobileDateStr)}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-delux-action hover:bg-delux-action-hover text-delux-light text-xs font-semibold rounded-lg transition-all shadow-md active:opacity-85 min-h-[38px]"
           >
             <Plus className="w-4 h-4" />
@@ -148,7 +153,7 @@ export const CalendarTab: React.FC = () => {
         {/* Horizontal Days Selector */}
         <div className="grid grid-cols-7 gap-1 p-1.5 delux-glass border rounded-lg">
           {weekDays.map((d) => {
-            const isSelected = selectedMobileDayStr === d.dateStr;
+            const isSelected = selectedMobileDateStr === d.dateStr;
             const isAvailable = preferences.availableDays.includes(d.dayOfWeek);
             const dayTasks = getTasksForDay(d.dateStr);
             const allDone = dayTasks.length > 0 && dayTasks.every((t) => t.completed);
@@ -199,10 +204,9 @@ export const CalendarTab: React.FC = () => {
 
         {/* Selected Day Agenda */}
         {(() => {
-          const selectedDayObj =
-            weekDays.find((d) => d.dateStr === selectedMobileDayStr) || weekDays[0];
+          const selectedDayObj = selectedMobileDay;
           const isAvailable = preferences.availableDays.includes(selectedDayObj.dayOfWeek);
-          const dayTasks = getTasksForDay(selectedMobileDayStr);
+          const dayTasks = getTasksForDay(selectedMobileDateStr);
 
           return (
             <div className="p-4 sm:p-5 rounded-lg bg-delux-surface border border-delux-border space-y-4">
@@ -228,7 +232,7 @@ export const CalendarTab: React.FC = () => {
                 <Button
                   variant="delux"
                   size="delux"
-                  onClick={() => openCreateTaskOnDate(selectedMobileDayStr)}
+                  onClick={() => openCreateTaskOnDate(selectedMobileDateStr)}
                   className="w-10 h-10 rounded-lg bg-delux-action/15 hover:bg-delux-action/25 text-delux-action transition-colors flex items-center justify-center"
                   title="Adicionar tarefa neste dia"
                 >
