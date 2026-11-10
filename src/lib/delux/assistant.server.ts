@@ -169,7 +169,7 @@ export async function handleChat(request: Request) {
   const apiKey = process.env['GEMINI_API_KEY'];
   if (!apiKey) return json({ error: "Chave do Gemini não configurada." }, 500);
   try {
-    const parsed = await readJsonBody(request, 250000);
+    const parsed = await readJsonBody(request, 6_500_000);
     if (parsed.error) return parsed.error;
     const body = parsed.body;
     if (!Array.isArray(body?.messages) || body.messages.length === 0 || body.messages.length > 8) {
@@ -190,10 +190,23 @@ export async function handleChat(request: Request) {
       return json({ error: "A última mensagem precisa ser uma mensagem do usuário." }, 400);
     }
 
-    const contents = messages.map((message: any) => ({
-      role: message.role === "assistant" ? "model" : "user",
-      parts: [{ text: message.content.slice(0, 6000) }],
-    }));
+    const imagePattern = /^data:(image\/(?:png|jpeg|webp|gif));base64,([A-Za-z0-9+/=]+)$/;
+    const imageMessages = messages.filter((message: any) => message.image !== undefined);
+    if (imageMessages.length > 1 || imageMessages.some((message: any) =>
+      message.role !== "user" || message !== messages[messages.length - 1] ||
+      typeof message.image !== "string" || !imagePattern.test(message.image) ||
+      message.image.length > 6_000_000
+    )) {
+      return json({ error: "Imagem inválida. Envie uma imagem PNG, JPEG, WebP ou GIF de até 4 MB." }, 400);
+    }
+    const contents = messages.map((message: any) => {
+      const parts: any[] = [{ text: message.content.slice(0, 6000) }];
+      if (message.image) {
+        const match = imagePattern.exec(message.image);
+        if (match) parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
+      }
+      return { role: message.role === "assistant" ? "model" : "user", parts };
+    });
     const ctx = buildContext(body.context);
     const systemText = ctx
       ? `${DELUX_SYSTEM_INSTRUCTION}
