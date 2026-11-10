@@ -32,7 +32,6 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const startCandidate = sorted.map((task) => task.date).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '')).sort()[0] || dateString(new Date());
   let cursor = dateAtNoon(startCandidate);
   const hasDeadline = !!deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline);
-  const spread = hasDeadline || Number.isInteger(durationDays);
   const deadlineDays = hasDeadline ? Math.round((dateAtNoon(deadline!).getTime() - cursor.getTime()) / 86400000) + 1 : 365;
   const targetDays = Math.max(1, Math.min(365, Number.isInteger(durationDays) ? Number(durationDays) : deadlineDays));
   const computedDeadline = deadline && /^\d{4}-\d{2}-\d{2}$/.test(deadline) ? deadline : dateString(addDate(cursor, targetDays - 1));
@@ -97,10 +96,11 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   }
 
   for (const [index, task] of sorted.entries()) {
-    const targetIndex = spread && sorted.length > 1
-      ? Math.round((index * (eligibleDates.length - 1)) / (sorted.length - 1))
-      : index;
-    const target = eligibleDates[Math.min(targetIndex, eligibleDates.length - 1)] || start0;
+    // Keep sessions on consecutive selected weekdays. Spreading a small set
+    // of steps across the entire deadline creates unexplained empty weekdays
+    // (e.g. Monday has a task while Tuesday is blank). If a day is full or
+    // blocked, place() safely advances to the next eligible day.
+    const target = eligibleDates[Math.min(index, eligibleDates.length - 1)] || start0;
     const from = lastPlaced && lastPlaced.getTime() >= target.getTime()
       ? addDate(lastPlaced, 1)
       : target;
