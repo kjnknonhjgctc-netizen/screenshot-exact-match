@@ -1,7 +1,7 @@
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState } from "react";
-import { X, Sparkles, ArrowUp, RotateCcw, Check, AlertCircle } from "lucide-react";
+import { X, Sparkles, ArrowUp, RotateCcw, Check, AlertCircle, Plus, History, ImagePlus, Mic, Square, ChevronLeft } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { ChatMessage } from "../../types";
 import { DAY_NAMES, getLocalDateString } from "../../utils/dateUtils";
@@ -48,6 +48,17 @@ export const AssistantModal: React.FC = () => {
   });
 
   const [input, setInput] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [chatArchive, setChatArchive] = useState<{ id: string; title: string; messages: ChatMessage[] }[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("delux_assistant_archive") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch { return []; }
+  });
+  const [photo, setPhoto] = useState<{ data: string; name: string } | null>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const [listening, setListening] = useState(false);
   const [routineDays, setRoutineDays] = useState<number[]>([]);
   const [routineStartDate, setRoutineStartDate] = useState("");
   const [routineDuration, setRoutineDuration] = useState("30");
@@ -61,6 +72,59 @@ export const AssistantModal: React.FC = () => {
   const screenRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const followLatestRef = useRef(true);
+
+  useEffect(() => {
+    try { localStorage.setItem("delux_assistant_archive", JSON.stringify(chatArchive)); } catch {}
+  }, [chatArchive]);
+
+  const startNewChat = () => {
+    if (messages.length) {
+      setChatArchive((prev) => [{
+        id: String(Date.now()),
+        title: messages.find((m) => m.role === "user")?.content.slice(0, 48) || "Conversa",
+        messages,
+      }, ...prev].slice(0, 30));
+    }
+    setMessages([]);
+    setPhoto(null);
+    setInput("");
+    setHistoryOpen(false);
+  };
+
+  const handlePhoto = async (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 4 * 1024 * 1024) {
+      showToast("Selecione uma imagem de até 4 MB.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPhoto({ data: String(reader.result), name: file.name });
+    reader.readAsDataURL(file);
+  };
+
+  const toggleVoice = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      showToast("O reconhecimento de voz não está disponível neste navegador.", "error");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "pt-BR";
+    recognition.interimResults = false;
+    recognition.onresult = (event: any) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || "";
+      setInput((current) => [current, transcript].filter(Boolean).join(" "));
+    };
+    recognition.onerror = () => { setListening(false); showToast("Não foi possível captar sua voz.", "error"); };
+    recognition.onend = () => setListening(false);
+    recognitionRef.current = recognition;
+    try { recognition.start(); setListening(true); } catch { setListening(false); }
+  };
 
   // Sync chat to local storage
   useEffect(() => {
@@ -115,7 +179,10 @@ export const AssistantModal: React.FC = () => {
 
   const handleSendMessage = async (textToSend?: string, contextOverrides: Record<string, unknown> = {}) => {
     const text = (textToSend || input).trim();
-    if (!text || isLoading) return;
+    if ((!text && !photo) || isLoading) return;
+    const imageToSend = photo;
+    const messageText = text || "Analise a imagem que enviei.";
+    setPhoto(null);
 
     followLatestRef.current = true;
     setError(null);
@@ -123,7 +190,7 @@ export const AssistantModal: React.FC = () => {
     const userMessage: ChatMessage = {
       id: `msg_user_${Date.now()}`,
       role: "user",
-      content: text,
+      content: imageToSend ? `${messageText}\n📷 Imagem anexada: ${imageToSend.name}` : messageText,
       timestamp: new Date().toISOString(),
     };
 
@@ -174,9 +241,10 @@ export const AssistantModal: React.FC = () => {
 
     try {
       // Send only recent messages (up to 8 turns) to maintain lightning-fast response times
-      const trimmedPayloadMessages = newMessages.slice(-8).map((m) => ({
+      const trimmedPayloadMessages = newMessages.slice(-8).map((m, i, arr) => ({
         role: m.role,
         content: m.content,
+        ...(i === arr.length - 1 && imageToSend ? { image: imageToSend.data } : {}),
       }));
 
       const res = await fetch("/api/assistant/chat", {
@@ -358,23 +426,35 @@ export const AssistantModal: React.FC = () => {
       aria-labelledby="assistant-title"
       className="delux-chat-screen fixed inset-0 z-50 flex flex-col"
     >
-      <header className="delux-chat-top flex items-center justify-between gap-3 shrink-0 px-4">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Sparkles aria-hidden="true" className="w-4 h-4 text-delux-accent shrink-0" />
-          <span id="assistant-title" className="text-sm font-semibold">Assistente</span>
-        </div>
+      <header className="flex shrink-0 items-center justify-between px-4 py-3 bg-delux-bg/95">
+        <span id="assistant-title" className="text-sm font-semibold text-delux-text">DELUX</span>
         <div className="flex items-center gap-1">
-          <Button variant="delux" size="delux" onClick={handleClearChat}
-            disabled={isLoading || messages.length === 0}
-            title="Limpar conversa" aria-label="Limpar conversa" className="delux-chat-control">
-            <RotateCcw className="w-[18px] h-[18px]" />
-          </Button>
-          <Button variant="delux" size="delux" onClick={() => setIsAssistantOpen(false)}
-            title="Fechar assistente" aria-label="Fechar assistente" className="delux-chat-control">
-            <X className="w-5 h-5" />
-          </Button>
+          <button type="button" onClick={() => setHistoryOpen((value) => !value)} aria-label="Histórico de conversas"
+            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><History className="w-5 h-5" /></button>
+          <button type="button" onClick={startNewChat} aria-label="Nova conversa"
+            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><Plus className="w-5 h-5" /></button>
+          <button type="button" onClick={() => setIsAssistantOpen(false)} aria-label="Fechar assistente"
+            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><X className="w-5 h-5" /></button>
         </div>
       </header>
+      {historyOpen && (
+        <div className="absolute inset-0 z-20 flex flex-col bg-delux-bg p-5 overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">Histórico</h2>
+            <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Voltar ao chat" className="p-2 rounded-full hover:bg-white/10"><ChevronLeft className="w-5 h-5" /></button>
+          </div>
+          <button type="button" onClick={startNewChat} className="text-left rounded-xl border border-delux-border px-4 py-3 mb-4">+ Nova conversa</button>
+          {chatArchive.length === 0 && <p className="text-sm text-delux-secondary">Suas conversas anteriores aparecerão aqui.</p>}
+          {chatArchive.map((chat) => (
+            <button key={chat.id} type="button" onClick={() => {
+              if (messages.length) setChatArchive((prev) => [{ id: String(Date.now()), title: messages.find((m) => m.role === "user")?.content.slice(0, 48) || "Conversa", messages }, ...prev.filter((item) => item.id !== chat.id)].slice(0, 30));
+              else setChatArchive((prev) => prev.filter((item) => item.id !== chat.id));
+              setMessages(chat.messages);
+              setHistoryOpen(false);
+            }} className="text-left truncate px-4 py-3 rounded-xl hover:bg-white/10 text-sm">{chat.title}</button>
+          ))}
+        </div>
+      )}
 
       <div ref={feedRef} className="delux-chat-feed flex-1 min-h-0 w-full overflow-y-auto"
         onScroll={() => {
@@ -523,8 +603,14 @@ export const AssistantModal: React.FC = () => {
       </div>
 
       <footer className="delux-chat-composer shrink-0 w-full">
+        {photo && <div className="max-w-3xl mx-auto px-4 pb-2 flex items-center gap-2 text-xs text-delux-secondary">
+          <ImagePlus className="w-4 h-4" /><span className="truncate">{photo.name}</span>
+          <button type="button" onClick={() => setPhoto(null)} aria-label="Remover foto"><X className="w-4 h-4" /></button>
+        </div>}
         <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
           className="delux-chat-composer-inner flex items-end gap-2 max-w-3xl mx-auto">
+          <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(event) => { handlePhoto(event.target.files?.[0]); event.target.value = ""; }} />
+          <button type="button" onClick={() => photoRef.current?.click()} aria-label="Enviar foto" title="Adicionar foto" className="shrink-0 p-2 rounded-full text-delux-secondary hover:bg-white/10"><ImagePlus className="w-5 h-5" /></button>
           <div className="delux-chat-field flex-1 min-w-0">
             <textarea ref={inputRef} rows={1} aria-label="Mensagem" placeholder="Mensagem" value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -536,7 +622,8 @@ export const AssistantModal: React.FC = () => {
               className="block w-full resize-none bg-transparent text-base focus:outline-none"
             />
           </div>
-          <Button variant="delux" size="delux" type="submit" disabled={isLoading || !input.trim()}
+          <button type="button" onClick={toggleVoice} aria-label={listening ? "Parar ditado" : "Ditar mensagem"} className={`shrink-0 p-2 rounded-full ${listening ? "text-red-400" : "text-delux-secondary"}`}>{listening ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}</button>
+          <Button variant="delux" size="delux" type="submit" disabled={isLoading || (!input.trim() && !photo)}
             className="delux-chat-send flex items-center justify-center shrink-0 rounded-full" aria-label="Enviar mensagem">
             <ArrowUp className="w-5 h-5" />
           </Button>
