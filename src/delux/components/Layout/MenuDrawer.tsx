@@ -310,6 +310,45 @@ export const MenuDrawer: React.FC = () => {
                 </div>
               </div>
 
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-delux-border bg-delux-elevated p-4">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="w-10 h-10 shrink-0 rounded-lg bg-delux-action/10 text-delux-accent flex items-center justify-center">
+                    {preferences.soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-delux-text">Efeitos sonoros</h4>
+                    <p className="text-xs text-delux-secondary mt-1">
+                      {preferences.soundEnabled
+                        ? "Sons de botões e ações estão ativados."
+                        : "Todos os efeitos sonoros estão desativados."}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="delux"
+                  size="delux"
+                  role="switch"
+                  aria-checked={preferences.soundEnabled}
+                  aria-label="Ativar ou desativar efeitos sonoros"
+                  onClick={() => {
+                    const enabled = !preferences.soundEnabled;
+                    updatePreferences({ soundEnabled: enabled });
+                    showToast(enabled ? "Efeitos sonoros ativados." : "Efeitos sonoros desativados.", "success");
+                  }}
+                  className={`relative h-8 w-14 shrink-0 rounded-full border transition-colors ${
+                    preferences.soundEnabled
+                      ? "bg-delux-action border-delux-action"
+                      : "bg-delux-border border-delux-border"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                      preferences.soundEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </Button>
+              </div>
+
               <div>
                 <h4 className="text-sm font-semibold text-delux-text mb-1">Dados & Backup</h4>
                 <p className="text-xs text-delux-secondary mb-3">
