@@ -1063,29 +1063,9 @@
 }
 
 
-/* Soft, consistent dark elevation across the assistant interface. */
-.delux-chat-screen .delux-chat-composer-inner .delux-chat-field {
-  position: relative !important;
-  isolation: isolate;
-  border: 1px solid rgb(0 0 0 / 38%) !important;
-  background: rgb(18 19 21 / 96%) !important;
-  box-shadow:
-    0 3px 10px rgb(0 0 0 / 22%),
-    0 1px 3px rgb(0 0 0 / 18%),
-    inset 0 1px 1px rgb(0 0 0 / 30%) !important;
-}
-.delux-chat-screen .delux-chat-composer-inner .delux-chat-field::before {
-  content: none !important;
-}
-.delux-chat-screen .delux-chat-composer-inner .delux-chat-field:focus-within {
-  border-color: rgb(0 0 0 / 52%) !important;
-  box-shadow:
-    0 3px 12px rgb(0 0 0 / 26%),
-    0 1px 3px rgb(0 0 0 / 20%),
-    inset 0 1px 1px rgb(0 0 0 / 34%) !important;
-}
-
-/* Gentle depth on the other chat surfaces and controls. */
+/* Assistant interface without decorative shadows. */
+.delux-chat-screen .delux-chat-field,
+.delux-chat-screen .delux-chat-field:focus-within,
 .delux-chat-screen .delux-chat-bubble,
 .delux-chat-screen .delux-chat-history-item,
 .delux-chat-screen .delux-chat-new-conversation,
@@ -1093,11 +1073,8 @@
 .delux-chat-screen .delux-chat-actions,
 .delux-chat-screen .delux-chat-composer-inner > button,
 .delux-chat-screen .delux-chat-send {
-  box-shadow: 0 2px 8px rgb(0 0 0 / 18%), 0 1px 2px rgb(0 0 0 / 12%);
+  box-shadow: none !important;
 }
-.delux-chat-screen .delux-chat-composer-inner > button:active,
-.delux-chat-screen .delux-chat-send:active,
-.delux-chat-screen .delux-chat-history-item:active,
-.delux-chat-screen .delux-chat-new-conversation:active {
-  box-shadow: 0 1px 3px rgb(0 0 0 / 16%);
+.delux-chat-screen .delux-chat-field::before {
+  content: none !important;
 }
