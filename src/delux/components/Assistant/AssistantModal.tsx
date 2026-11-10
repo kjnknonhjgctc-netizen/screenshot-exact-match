@@ -442,11 +442,19 @@ export const AssistantModal: React.FC = () => {
           {chatArchive.length === 0 && <p className="text-sm text-delux-secondary">Suas conversas anteriores aparecerão aqui.</p>}
           {chatArchive.map((chat) => (
             <button key={chat.id} type="button" onClick={() => {
-              if (messages.length) setChatArchive((prev) => [{ id: String(Date.now()), title: messages.find((m) => m.role === "user")?.content.slice(0, 48) || "Conversa", messages }, ...prev.filter((item) => item.id !== chat.id)].slice(0, 30));
-              else setChatArchive((prev) => prev.filter((item) => item.id !== chat.id));
-              setMessages(chat.messages);
+              const selectedChat = chat;
+              setChatArchive((prev) => {
+                const withoutSelected = prev.filter((item) => item.id !== selectedChat.id);
+                if (!messages.length) return prev;
+                const activeFirstUser = messages.find((message) => message.role === "user");
+                const activeTitle = activeFirstUser?.content.replace(/^📷 Imagem anexada:.*$/gm, "").trim().slice(0, 48) || "Conversa";
+                return [{ id: String(Date.now()), title: activeTitle, messages }, ...withoutSelected].slice(0, 30);
+              });
+              setMessages(selectedChat.messages);
+              setInput("");
+              setPhoto(null);
               setHistoryOpen(false);
-            }} className="text-left truncate px-4 py-3 rounded-xl hover:bg-white/10 text-sm">{chat.title}</button>
+            }} className="w-full text-left truncate px-4 py-3 rounded-xl border border-transparent hover:border-delux-border hover:bg-white/10 text-sm">{chat.title || "Conversa"}</button>
           ))}
         </div>
       )}
