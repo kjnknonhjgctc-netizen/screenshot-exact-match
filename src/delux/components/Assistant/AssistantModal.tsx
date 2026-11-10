@@ -189,10 +189,30 @@ export const AssistantModal: React.FC = () => {
         }),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      const contentType = res.headers.get("content-type") || "";
+      let data: any;
+      if (contentType.includes("application/json")) {
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          throw new Error("O servidor do assistente retornou JSON inválido. Nenhuma proposta foi criada. Verifique os logs da rota /api/assistant/chat.");
+        }
+      } else {
+        console.error("Assistant endpoint returned non-JSON response:", {
+          status: res.status,
+          contentType,
+          preview: responseText.slice(0, 300),
+        });
+        throw new Error(
+          res.status === 404
+            ? "A rota do assistente não foi encontrada no deploy. Sincronize/republique o projeto no Lovable."
+            : `O servidor do assistente retornou uma página HTML (HTTP ${res.status}) em vez de JSON. Verifique o deploy e os logs do servidor.`,
+        );
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro na comunicação com o assistente de IA.");
+        throw new Error(data?.error || "Erro na comunicação com o assistente de IA.");
       }
 
       // Assistant actions are proposals only. Nothing mutates the app until the user approves.
