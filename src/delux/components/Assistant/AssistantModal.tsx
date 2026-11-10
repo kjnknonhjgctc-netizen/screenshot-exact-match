@@ -426,17 +426,12 @@ export const AssistantModal: React.FC = () => {
       aria-labelledby="assistant-title"
       className="delux-chat-screen fixed inset-0 z-50 flex flex-col"
     >
-      <header className="delux-chat-top flex shrink-0 items-center justify-between px-4 py-2">
-        <span id="assistant-title" className="text-sm font-semibold text-delux-text">DELUX</span>
-        <div className="flex items-center gap-1">
-          <button type="button" onClick={() => setHistoryOpen((value) => !value)} aria-label="Histórico de conversas"
-            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><History className="w-5 h-5" /></button>
-          <button type="button" onClick={startNewChat} aria-label="Nova conversa"
-            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><Plus className="w-5 h-5" /></button>
-          <button type="button" onClick={() => setIsAssistantOpen(false)} aria-label="Fechar assistente"
-            className="p-2.5 rounded-full text-delux-secondary hover:bg-white/10"><X className="w-5 h-5" /></button>
-        </div>
-      </header>
+      <div className="delux-chat-floating-top">
+        <button type="button" onClick={() => setHistoryOpen((value) => !value)} aria-label="Histórico de conversas"
+          className="delux-chat-float-button"><History className="w-5 h-5" /></button>
+        <button type="button" onClick={() => setIsAssistantOpen(false)} aria-label="Fechar assistente"
+          className="delux-chat-float-button"><X className="w-5 h-5" /></button>
+      </div>
       {historyOpen && (
         <div className="absolute inset-0 z-20 flex flex-col bg-delux-bg p-5 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
