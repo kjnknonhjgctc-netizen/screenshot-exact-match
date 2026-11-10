@@ -324,9 +324,8 @@ export const MenuDrawer: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="delux"
-                  size="delux"
+                <button
+                  type="button"
                   role="switch"
                   aria-checked={preferences.soundEnabled}
                   aria-label="Ativar ou desativar efeitos sonoros"
@@ -335,18 +334,14 @@ export const MenuDrawer: React.FC = () => {
                     updatePreferences({ soundEnabled: enabled });
                     showToast(enabled ? "Efeitos sonoros ativados." : "Efeitos sonoros desativados.", "success");
                   }}
-                  className={`relative h-8 w-14 shrink-0 rounded-full border transition-colors ${
+                  className={`inline-flex h-8 w-14 shrink-0 items-center rounded-full border p-0.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-delux-accent focus-visible:ring-offset-2 focus-visible:ring-offset-delux-elevated ${
                     preferences.soundEnabled
-                      ? "bg-delux-action border-delux-action"
-                      : "bg-delux-border border-delux-border"
+                      ? "justify-end bg-delux-action border-delux-action"
+                      : "justify-start bg-delux-border border-delux-border"
                   }`}
                 >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                      preferences.soundEnabled ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </Button>
+                  <span className="block h-6 w-6 rounded-full bg-white shadow-sm" />
+                </button>
               </div>
 
               <div>
