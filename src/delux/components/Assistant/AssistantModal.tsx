@@ -433,30 +433,40 @@ export const AssistantModal: React.FC = () => {
           className="delux-chat-float-button"><X className="w-5 h-5" /></button>
       </div>
       {historyOpen && (
-        <div className="absolute inset-0 z-20 flex flex-col bg-delux-bg p-5 overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold">Histórico</h2>
-            <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Voltar ao chat" className="p-2 rounded-full hover:bg-white/10"><ChevronLeft className="w-5 h-5" /></button>
+        <section className="delux-chat-history" aria-label="Histórico de conversas">
+          <div className="delux-chat-history-header">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-delux-secondary mb-1">DELUX</p>
+              <h2 className="text-xl font-semibold">Histórico</h2>
+            </div>
+            <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Voltar ao chat" className="delux-chat-float-button"><ChevronLeft className="w-5 h-5" /></button>
           </div>
-          <button type="button" onClick={startNewChat} className="text-left rounded-xl border border-delux-border px-4 py-3 mb-4">+ Nova conversa</button>
-          {chatArchive.length === 0 && <p className="text-sm text-delux-secondary">Suas conversas anteriores aparecerão aqui.</p>}
-          {chatArchive.map((chat) => (
-            <button key={chat.id} type="button" onClick={() => {
-              const selectedChat = chat;
-              setChatArchive((prev) => {
-                const withoutSelected = prev.filter((item) => item.id !== selectedChat.id);
-                if (!messages.length) return prev;
-                const activeFirstUser = messages.find((message) => message.role === "user");
-                const activeTitle = activeFirstUser?.content.replace(/^📷 Imagem anexada:.*$/gm, "").trim().slice(0, 48) || "Conversa";
-                return [{ id: String(Date.now()), title: activeTitle, messages }, ...withoutSelected].slice(0, 30);
-              });
-              setMessages(selectedChat.messages);
-              setInput("");
-              setPhoto(null);
-              setHistoryOpen(false);
-            }} className="w-full text-left truncate px-4 py-3 rounded-xl border border-transparent hover:border-delux-border hover:bg-white/10 text-sm">{chat.title || "Conversa"}</button>
-          ))}
-        </div>
+          <button type="button" onClick={startNewChat} className="delux-chat-new-conversation"> <Plus className="w-4 h-4" /> Nova conversa</button>
+          <div className="delux-chat-history-list">
+            {chatArchive.length === 0 ? (
+              <p className="text-sm text-delux-secondary px-2 py-5">Suas conversas anteriores aparecerão aqui.</p>
+            ) : chatArchive.map((chat) => (
+              <button key={chat.id} type="button" onClick={() => {
+                const selectedChat = chat;
+                setChatArchive((prev) => {
+                  const withoutSelected = prev.filter((item) => item.id !== selectedChat.id);
+                  if (!messages.length) return prev;
+                  const activeFirstUser = messages.find((message) => message.role === "user");
+                  const activeTitle = activeFirstUser?.content.replace(/^📷 Imagem anexada:.*$/gm, "").trim().slice(0, 48) || "Conversa";
+                  return [{ id: String(Date.now()), title: activeTitle, messages }, ...withoutSelected].slice(0, 30);
+                });
+                setMessages(selectedChat.messages);
+                setInput("");
+                setPhoto(null);
+                setHistoryOpen(false);
+              }} className="delux-chat-history-item">
+                <span className="delux-chat-history-icon"><History className="w-4 h-4" /></span>
+                <span className="delux-chat-history-title">{chat.title || "Conversa"}</span>
+                <ChevronLeft className="w-4 h-4 rotate-180 opacity-40" />
+              </button>
+            ))}
+          </div>
+        </section>
       )}
 
       <div ref={feedRef} className="delux-chat-feed flex-1 min-h-0 w-full overflow-y-auto"
