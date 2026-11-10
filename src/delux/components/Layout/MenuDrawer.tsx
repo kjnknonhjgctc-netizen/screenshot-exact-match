@@ -20,6 +20,8 @@ import {
   Sun,
   Moon,
   Monitor,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { DrawerSection, ExecutionRhythm, PreferredTime } from "../../types";
