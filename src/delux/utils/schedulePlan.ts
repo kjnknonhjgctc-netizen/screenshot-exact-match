@@ -42,7 +42,11 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
   const scheduled: PlanTask[] = [];
   const used = new Map<string, number>();
   const occupied = new Map<string, Array<[number, number]>>();
+  // Only pending tasks consume today's available time or block a time slot.
+  // Completed work must remain visible in the calendar, but must not prevent
+  // future plan steps from being scheduled on that date.
   for (const task of existingTasks) {
+    if (task.completed) continue;
     const duration = Math.max(0, Number(task.durationMinutes) || 0);
     used.set(task.date, (used.get(task.date) || 0) + duration);
     const start = toMinutes(task.time);
@@ -81,17 +85,29 @@ export function schedulePlanTasks({ planTasks, existingTasks, preferences, deadl
     return false;
   };
 
+  // Build the real sequence of available weekdays first. Spreading tasks by
+  // raw calendar days can repeatedly land on weekends and push sessions into
+  // unexpected dates. Distribute across the selected weekdays instead.
+  const eligibleDates: Date[] = [];
+  for (let day = new Date(start0); day <= limitDate; day = addDate(day, 1)) {
+    if (days.includes(day.getDay())) eligibleDates.push(new Date(day));
+  }
+  if (eligibleDates.length === 0) {
+    return { ok: false, error: 'Não há dias selecionados dentro do período deste plano. Ajuste a data de início ou os dias disponíveis.' };
+  }
+
   for (const [index, task] of sorted.entries()) {
-    let placed = false;
-    if (spread && sorted.length > 1) {
-      const target = addDate(start0, Math.round((index * (targetDays - 1)) / (sorted.length - 1)));
-      placed = place(task, lastPlaced && (lastPlaced as Date).getTime() > target.getTime() ? addDate(lastPlaced, 1) : target);
-      if (!placed && lastPlaced) placed = place(task, addDate(lastPlaced, 1));
-      if (!placed) placed = place(task, lastPlaced ?? start0);
-    } else {
-      placed = place(task, lastPlaced ?? cursor);
+    const targetIndex = spread && sorted.length > 1
+      ? Math.round((index * (eligibleDates.length - 1)) / (sorted.length - 1))
+      : index;
+    const target = eligibleDates[Math.min(targetIndex, eligibleDates.length - 1)] || start0;
+    const from = lastPlaced && lastPlaced.getTime() >= target.getTime()
+      ? addDate(lastPlaced, 1)
+      : target;
+    const placed = place(task, from);
+    if (!placed) {
+      return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${computedDeadline}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
     }
-    if (!placed) return { ok: false, error: `Não há espaço na sua rotina para concluir todas as tarefas até ${computedDeadline}. Reduza o plano, aumente o tempo disponível ou ajuste o prazo antes de confirmar.` };
   }
   return { ok: true, tasks: scheduled };
 }
