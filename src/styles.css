@@ -971,3 +971,34 @@
   white-space: nowrap;
   font-size: 14px;
 }
+
+
+/* Keep the chat composer visually floating: no opaque footer strip behind controls. */
+.delux-chat-screen > .delux-chat-composer,
+.delux-chat-screen > footer.delux-chat-composer {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.delux-chat-screen > .delux-chat-composer::before,
+.delux-chat-screen > .delux-chat-composer::after {
+  content: none !important;
+  display: none !important;
+}
+.delux-chat-composer-inner {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.delux-chat-composer > form {
+  width: min(100%, 48rem);
+}
+.delux-chat-screen > .delux-chat-composer[aria-hidden="true"] {
+  visibility: hidden;
+}
+.delux-chat-screen > .delux-chat-feed[aria-hidden="true"] {
+  pointer-events: none;
+}
