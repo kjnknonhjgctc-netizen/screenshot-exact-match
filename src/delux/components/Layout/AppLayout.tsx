@@ -230,73 +230,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* MOBILE STICKY TOP APP BAR (iOS Style Glass Header) */}
-      <header
-        className={`md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 delux-glass delux-mobile-header delux-scroll-bar border-b border-delux-border/70 ${mobileBarsHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
-        inert={mobileBarsHidden}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-delux-elevated via-delux-elevated to-delux-accent p-0.5 shadow-md shadow-delux-elevated/30 flex items-center justify-center relative overflow-hidden">
-            <svg
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full p-1 text-delux-light"
-              aria-label="Logo Delux"
-            >
-              <path
-                d="M8 22L16 10L24 22"
-                stroke="currentColor"
-                strokeWidth="3.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M13 18L16 13L19 18"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.75"
-              />
-              <circle cx="16" cy="6" r="2.2" fill="currentColor" />
-            </svg>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold tracking-tight text-delux-text">DELUX</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Streak pill button */}
-          <Button
-            variant="delux"
-            size="delux"
-            onClick={() => openDrawer("achievements")}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-delux-attention/10 active:bg-delux-attention/20 border border-delux-attention/30 text-delux-attention text-xs font-semibold tabular-nums min-h-[36px]"
-            title="Ver conquistas da sequência"
-          >
-            <Flame className="w-3.5 h-3.5 fill-delux-attention" />
-            <span>{streakDays}</span>
-          </Button>
-
-          {/* Menu Hambúrguer trigger with 44px hit area */}
-          <Button
-            variant="delux"
-            size="delux"
-            onClick={() => openDrawer("settings")}
-            aria-label="Abrir menu de opções"
-            className="w-11 h-11 rounded-lg text-delux-secondary active:text-delux-text active:bg-delux-elevated transition-colors flex items-center justify-center shrink-0"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
-
       {/* MAIN CONTENT AREA */}
       <main
         ref={mainRef}
-        className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-14 md:pt-0 relative"
+        className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-0 relative"
       >
         <div className="flex-1 w-full max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           {children}
