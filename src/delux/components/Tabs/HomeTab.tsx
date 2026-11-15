@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React from "react";
+import React, { useState } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -10,12 +10,14 @@ import {
   Check,
   Sparkles,
   Plus,
+  ChevronDown,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { ProgressRing } from "../Common/ProgressRing";
 import { formatFriendlyDate, getGreeting, getLocalDateString } from "../../utils/dateUtils";
 
 export const HomeTab: React.FC = () => {
+  const [showNextStepDetails, setShowNextStepDetails] = useState(false);
   const {
     goals,
     tasks,
@@ -159,24 +161,25 @@ export const HomeTab: React.FC = () => {
 
         {nextPendingTask ? (
           <div className="p-4 sm:p-5 rounded-lg bg-delux-surface border border-delux-action/40 shadow-lg space-y-3.5">
-            <div className="space-y-1">
-              {nextPendingTask.goal && (
-                <Button
-                  variant="delux"
-                  size="delux"
-                  onClick={() => {
-                    if (nextPendingTask.goal) setSelectedGoalId(nextPendingTask.goal.id);
-                  }}
-                  className="text-[11px] font-semibold text-delux-accent hover:underline block"
-                >
-                  Meta: {nextPendingTask.goal.title}
-                </Button>
-              )}
-              <h4 className="text-base font-semibold text-delux-text leading-snug">
-                {nextPendingTask.title}
-              </h4>
-              {nextPendingTask.instruction && (
-                <p className="text-xs text-delux-secondary leading-relaxed">
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <h4 className="text-base font-semibold text-delux-text leading-snug">
+                  {nextPendingTask.title}
+                </h4>
+                {nextPendingTask.instruction && (
+                  <button
+                    type="button"
+                    onClick={() => setShowNextStepDetails((visible) => !visible)}
+                    aria-expanded={showNextStepDetails}
+                    aria-label={showNextStepDetails ? "Ocultar detalhes da tarefa" : "Ver detalhes da tarefa"}
+                    className="shrink-0 inline-flex items-center justify-center rounded-full p-1.5 text-delux-secondary hover:text-delux-text hover:bg-delux-elevated transition-colors"
+                  >
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showNextStepDetails ? "rotate-180" : ""}`} />
+                  </button>
+                )}
+              </div>
+              {nextPendingTask.instruction && showNextStepDetails && (
+                <p className="text-xs text-delux-secondary leading-relaxed whitespace-pre-line border-t border-delux-border/50 pt-2">
                   {nextPendingTask.instruction}
                 </p>
               )}
