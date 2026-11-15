@@ -249,7 +249,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           aria-label="Abrir Assistente Delux IA"
         >
           <Sparkles className="w-4 h-4" />
-          <span className="text-xs font-semibold">Assistente IA</span>
+          <span className="text-xs font-semibold">Delux AI</span>
         </Button>
       </main>
 
