@@ -8,6 +8,7 @@ import {
   Calendar,
   BarChart3,
   Menu,
+  Ellipsis,
   Plus,
   Flame,
   Sparkles,
@@ -229,6 +230,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </Button>
         </div>
       </aside>
+
+      {/* Minimal floating access to settings, replacing the removed mobile header menu. */}
+      <Button
+        variant="delux"
+        size="delux"
+        type="button"
+        onClick={() => openDrawer("settings")}
+        aria-label="Abrir configurações"
+        title="Configurações"
+        className="md:hidden fixed z-50 top-[calc(env(safe-area-inset-top,0px)+8px)] right-3 grid h-10 w-10 place-items-center rounded-full border border-delux-border/70 bg-delux-surface/75 text-delux-secondary shadow-sm backdrop-blur-xl transition-colors hover:bg-delux-elevated hover:text-delux-text active:scale-95"
+      >
+        <Ellipsis className="h-5 w-5" />
+      </Button>
 
       {/* MAIN CONTENT AREA */}
       <main
