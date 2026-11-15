@@ -465,8 +465,8 @@
 }
 .delux-content {
   min-width: 0;
-  /* Match the fixed glass header, including the device's top safe area. */
-  padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  /* The mobile app bar was removed; keep only a compact breathing space below the status bar. */
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
   padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px));
   overscroll-behavior-y: contain;
 }
