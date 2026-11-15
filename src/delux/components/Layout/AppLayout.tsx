@@ -8,7 +8,7 @@ import {
   Calendar,
   BarChart3,
   Menu,
-  Ellipsis,
+  Settings as SettingsIcon,
   Plus,
   Flame,
   Sparkles,
@@ -231,19 +231,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* Minimal floating access to settings, replacing the removed mobile header menu. */}
-      <Button
-        variant="delux"
-        size="delux"
-        type="button"
-        onClick={() => openDrawer("settings")}
-        aria-label="Abrir configurações"
-        title="Configurações"
-        className="md:hidden fixed z-50 top-[calc(env(safe-area-inset-top,0px)+8px)] right-3 grid h-10 w-10 place-items-center rounded-full border border-delux-border/70 bg-delux-surface/75 text-delux-secondary shadow-sm backdrop-blur-xl transition-colors hover:bg-delux-elevated hover:text-delux-text active:scale-95"
-      >
-        <Ellipsis className="h-5 w-5" />
-      </Button>
-
       {/* MAIN CONTENT AREA */}
       <main
         ref={mainRef}
@@ -273,7 +260,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav delux-scroll-bar ${mobileBarsHidden ? "translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
         inert={mobileBarsHidden}
       >
-        <div className="grid grid-cols-5 items-center">
+        <div className="grid grid-cols-6 items-center">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -302,6 +289,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </Button>
             );
           })}
+          <Button
+            variant="delux"
+            size="delux"
+            type="button"
+            onClick={() => openDrawer("settings")}
+            aria-label="Abrir configurações"
+            aria-haspopup="dialog"
+            className="flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px]"
+          >
+            <div className="p-1 rounded-lg text-delux-muted">
+              <SettingsIcon className="w-[22px] h-[22px]" />
+            </div>
+            <span className="text-[10px] mt-0.5 font-semibold tracking-tight whitespace-nowrap text-delux-muted">
+              Config.
+            </span>
+          </Button>
         </div>
       </nav>
 
