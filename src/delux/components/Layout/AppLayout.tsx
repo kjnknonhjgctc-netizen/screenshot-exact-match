@@ -270,10 +270,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 aria-current={isActive ? "page" : undefined}
-                className="flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px]"
+                className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[56px] text-center transition-all rounded-[18px]"
               >
                 <div
-                  className={`p-1 rounded-lg transition-all ${
+                  className={`p-1 rounded-lg transition-all [&_svg]:h-[26px] [&_svg]:w-[26px] ${
                     isActive ? "text-delux-accent" : "text-delux-muted"
                   }`}
                 >
