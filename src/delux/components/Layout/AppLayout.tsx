@@ -8,7 +8,6 @@ import {
   Calendar,
   BarChart3,
   Menu,
-  Settings as SettingsIcon,
   Plus,
   Flame,
   Sparkles,
@@ -236,7 +235,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         ref={mainRef}
         className="delux-content flex-1 flex flex-col min-h-0 overflow-y-auto pt-0 relative"
       >
-        <div className="flex-1 w-full max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="flex-1 w-full max-w-5xl mx-auto px-3.5 sm:px-6 lg:px-8 pb-4 sm:pb-6 md:py-8">
+          {/* Compact mobile menu access; keeps the main tab bar focused on core navigation. */}
+          <div className="md:hidden flex justify-end items-center h-11 mb-1">
+            <Button
+              variant="delux"
+              size="delux"
+              type="button"
+              onClick={() => openDrawer("settings")}
+              aria-label="Abrir menu e configurações"
+              aria-haspopup="dialog"
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-delux-secondary hover:text-delux-text hover:bg-delux-elevated/60 active:opacity-80 transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </div>
           {children}
         </div>
 
@@ -260,7 +273,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         className={`md:hidden fixed bottom-0 left-0 right-0 z-40 delux-glass delux-mobile-nav delux-scroll-bar ${mobileBarsHidden ? "translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}
         inert={mobileBarsHidden}
       >
-        <div className="grid grid-cols-6 items-center">
+        <div className="grid grid-cols-5 items-center">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -289,22 +302,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </Button>
             );
           })}
-          <Button
-            variant="delux"
-            size="delux"
-            type="button"
-            onClick={() => openDrawer("settings")}
-            aria-label="Abrir configurações"
-            aria-haspopup="dialog"
-            className="flex flex-col items-center justify-center py-1 min-h-[48px] text-center transition-all rounded-[18px]"
-          >
-            <div className="p-1 rounded-lg text-delux-muted">
-              <SettingsIcon className="w-[22px] h-[22px]" />
-            </div>
-            <span className="text-[10px] mt-0.5 font-semibold tracking-tight whitespace-nowrap text-delux-muted">
-              Config.
-            </span>
-          </Button>
         </div>
       </nav>
 
