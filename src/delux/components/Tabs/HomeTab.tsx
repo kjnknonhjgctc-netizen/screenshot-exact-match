@@ -19,7 +19,6 @@ import { formatFriendlyDate, getGreeting, getLocalDateString } from "../../utils
 export const HomeTab: React.FC = () => {
   const [showNextStepDetails, setShowNextStepDetails] = useState(false);
   const [showCompletionConfetti, setShowCompletionConfetti] = useState(false);
-  const previousProgress = useRef(0);
   const {
     goals,
     tasks,
@@ -36,6 +35,7 @@ export const HomeTab: React.FC = () => {
     setSelectedGoalId,
     openDrawer,
   } = useApp();
+  const previousProgress = useRef(overallProgress);
 
   const { greeting, subtext } = getGreeting();
   const activeGoalsCount = goals.filter((g) => g.status === "active").length;
