@@ -424,7 +424,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (shouldUnlock) {
           const unlocked = { ...ach, unlockedAt: new Date().toISOString() };
-          showToast(`Conquista desbloqueada: ${ach.title}!`, 'achievement');
+          // Only the very first completed task gets a visible achievement toast.
+          // Later milestones are still unlocked and recorded silently.
+          if (ach.id === 'first_task') {
+            showToast(`Conquista desbloqueada: ${ach.title}!`, 'achievement');
+          }
           setHistory((h) => [
             {
               id: createUniqueId(`hist_ach_${ach.id}`),
@@ -733,10 +737,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ]);
 
     if (willBeCompleted) {
+      // Keep the subtle completion sound; avoid a repetitive toast on every task.
       feedbackDelux('success', preferences.soundEnabled);
-      showToast('Etapa concluída! +1 no seu progresso.', 'success');
-    } else {
-      showToast('Etapa reaberta.', 'info');
     }
 
     const updatedGoals = goals.map((goal) => {
