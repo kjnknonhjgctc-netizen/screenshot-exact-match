@@ -33,8 +33,26 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   } = useApp();
 
   const [mobileBarsHidden, setMobileBarsHidden] = useState(false);
+  const [showCompletionConfetti, setShowCompletionConfetti] = useState(false);
   const mainRef = useRef<HTMLElement | null>(null);
   const scrollFrame = useRef<number | null>(null);
+
+  // Listen at the app-shell level so the celebration works from every tab,
+  // including when the Home tab is not mounted.
+  useEffect(() => {
+    let timeout: number | undefined;
+    const celebrate = () => {
+      setShowCompletionConfetti(true);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+      timeout = window.setTimeout(() => setShowCompletionConfetti(false), 2400);
+    };
+
+    window.addEventListener("delux:goal-completed", celebrate);
+    return () => {
+      window.removeEventListener("delux:goal-completed", celebrate);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, []);
 
   // Use the main content as the single scroll source. Accumulate movement
   // before toggling the chrome so tiny touch movements do not flicker it.
@@ -99,6 +117,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="delux-layout min-h-screen bg-delux-canvas text-delux-text flex flex-col md:flex-row font-sans selection:bg-delux-action/30">
+      {showCompletionConfetti && (
+        <div className="delux-completion-confetti" aria-hidden="true">
+          {Array.from({ length: 34 }, (_, index) => (
+            <span
+              key={index}
+              className={`delux-completion-confetti__piece ${index % 4 === 0 ? "is-dot" : ""}`}
+              style={{
+                left: `${(index * 37) % 100}%`,
+                animationDelay: `${(index % 11) * 0.045}s`,
+                ["--confetti-x" as any]: `${((index * 17) % 140) - 70}px`,
+                ["--confetti-rotation" as any]: `${(index * 53) % 360}deg`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {/* DESKTOP SIDEBAR */}
       <aside className="hidden md:flex flex-col w-64 lg:w-72 delux-glass border-r shrink-0 sticky top-0 h-screen select-none z-20">
         {/* Brand Area */}
