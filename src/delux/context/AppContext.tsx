@@ -744,7 +744,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedGoals = goals.map((goal) => {
       if (goal.id !== target.goalId || goal.status === 'paused') return goal;
       const goalTasks = updatedTasks.filter((task) => task.goalId === goal.id);
+      const previousGoalTasks = tasks.filter((task) => task.goalId === goal.id);
+      const wasComplete = previousGoalTasks.length > 0 && previousGoalTasks.every((task) => task.completed);
       const isComplete = goalTasks.length > 0 && goalTasks.every((task) => task.completed);
+
+      // Celebrate only on the transition from an unfinished goal to fully completed.
+      if (willBeCompleted && isComplete && !wasComplete && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('delux:goal-completed'));
+      }
+
       return { ...goal, status: isComplete ? 'completed' : 'active' };
     });
     if (updatedGoals.some((goal, index) => goal !== goals[index])) setGoals(updatedGoals);
