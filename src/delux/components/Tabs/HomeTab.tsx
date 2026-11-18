@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 // @ts-nocheck -- imported from the original Delux app; strict-mode cleanup pending
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -18,7 +18,6 @@ import { formatFriendlyDate, getGreeting, getLocalDateString } from "../../utils
 
 export const HomeTab: React.FC = () => {
   const [showNextStepDetails, setShowNextStepDetails] = useState(false);
-  const [showCompletionConfetti, setShowCompletionConfetti] = useState(false);
   const {
     goals,
     tasks,
@@ -35,41 +34,12 @@ export const HomeTab: React.FC = () => {
     setSelectedGoalId,
     openDrawer,
   } = useApp();
-  const previousProgress = useRef(overallProgress);
 
   const { greeting, subtext } = getGreeting();
   const activeGoalsCount = goals.filter((g) => g.status === "active").length;
 
-  useEffect(() => {
-    const reachedFullCompletion =
-      totalTasksCount > 0 && previousProgress.current < 100 && overallProgress === 100;
-    previousProgress.current = overallProgress;
-
-    if (!reachedFullCompletion) return;
-
-    setShowCompletionConfetti(true);
-    const timeout = window.setTimeout(() => setShowCompletionConfetti(false), 2300);
-    return () => window.clearTimeout(timeout);
-  }, [overallProgress, totalTasksCount]);
-
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
-      {showCompletionConfetti && (
-        <div className="delux-completion-confetti" aria-hidden="true">
-          {Array.from({ length: 26 }, (_, index) => (
-            <span
-              key={index}
-              className={`delux-completion-confetti__piece ${index % 3 === 0 ? "is-dot" : ""}`}
-              style={{
-                left: `${(index * 37) % 100}%`,
-                animationDelay: `${(index % 9) * 0.055}s`,
-                ["--confetti-x" as any]: `${((index * 17) % 120) - 60}px`,
-                ["--confetti-rotation" as any]: `${(index * 53) % 360}deg`,
-              }}
-            />
-          ))}
-        </div>
-      )}
       {/* 4.1 Cabeçalho Personalizado */}
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
