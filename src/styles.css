@@ -1118,6 +1118,3 @@
     transform: translate3d(var(--confetti-x), 105vh, 0) rotate(var(--confetti-rotation));
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .delux-completion-confetti { display: none !important; }
-}
